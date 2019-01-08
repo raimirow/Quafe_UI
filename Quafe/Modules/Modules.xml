@@ -1,0 +1,34 @@
+<Ui>
+	<Script file="Config.lua"/>
+	<Script file="AuraWatcherList.lua"/>
+	<Script file="Aura.lua"/>
+	<Script file="Castbar.lua"/>
+
+	<Script file="Blizzard.lua"/>
+	<Script file="UnitFrame.lua"/>
+	
+	<Script file="TDR.lua"/>
+
+	<Script file="CombatText.lua"/>
+	
+	<Script file="Party.lua"/>
+	<Script file="Raid.lua"/>
+	
+	<Script file="ChatFrame.lua"/>
+	<Script file="ObjectiveTracker.lua"/>
+	<Script file="BuffFrame.lua"/>
+	<Script file="InfoBar.lua"/>
+	<Script file="CommunicationMenu.lua"/>
+	<Script file="ActionBar.lua"/>
+	<Script file="NamePlate.lua"/>
+	<Script file="Notification.lua"/>
+	<Script file="MinimapIcon.lua"/>
+	
+	<Script file="SharedMedia.lua"/>
+	<Script file="VehicleSeatIndicator.lua"/>
+	<Script file="Bag.lua"/>
+	<Script file="AFK.lua"/>
+	<Script file="Addition.lua"/>
+
+	<Include file="UnitGroup.xml"/>-->
+</Ui>

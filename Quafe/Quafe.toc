@@ -1,0 +1,15 @@
+## Interface: 80100
+## Version: 8.1.0.1
+## Author: Voidiver
+## Title: Quafe
+## Notes: Quafe
+## Notes-zhCN: Quafe
+
+## SavedVariables: Quafe_DB
+## SavedVariablesPerCharacter: Quafe_DBP
+## X-oUF: oUF_Quafe
+
+## OptionalDeps: Details, Skada, MeetingStone, WIM
+
+Quafe.xml
+Quafe.lua
