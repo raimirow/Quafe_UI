@@ -153,3 +153,14 @@ L["MEKA_IR"] = 'MEKA 图标 右'
 -->Bag
 L['SELL_JUNK'] = '卖出垃圾物品'
 L['BAG'] = '背包'
+L['GROUP_REFRESH_RATE'] = '分组刷新频率'
+L['BAG_GROUP_REFRESH'] = '刷新背包分组'
+L['手动刷新'] = '手动刷新'
+L['打开时刷新'] = '打开时刷新'
+L['实时刷新'] = '实时刷新'
+L['重置金币数据'] = '重置金币数据'
+L['背包金币数据已重置'] = '背包金币数据已重置'
+
+-->Assistant
+L['ASSISTANT'] = '附件'
+L['RESURRECTION_NOTIFICATION'] = '战斗中复生通知'

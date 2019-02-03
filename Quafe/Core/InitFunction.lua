@@ -23,6 +23,7 @@ F.Debug = 0.000000001
 F.Void = function() end
 
 F.PlayerClass = select(2, UnitClass("player"))
+F.PlayerName = GetUnitName("player")
 
 ----------------------------------------------------------------
 

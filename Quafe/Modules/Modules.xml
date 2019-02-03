@@ -3,6 +3,8 @@
 	<Script file="AuraWatcherList.lua"/>
 	<Script file="Aura.lua"/>
 	<Script file="Castbar.lua"/>
+	
+	<Script file="Assistant.lua"/>
 
 	<Script file="Blizzard.lua"/>
 	<Script file="UnitFrame.lua"/>

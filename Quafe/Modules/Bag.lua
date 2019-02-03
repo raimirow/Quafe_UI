@@ -348,7 +348,7 @@ local function Init_BagGap(f, classtable, p)
 		f["BagIcon"..k] = frame
 	end
 	
-	local numfree = CreateFrame("Frame", nil, parent)
+	local numfree = CreateFrame("Button", nil, parent)
 	numfree: SetSize(config.buttonSize, config.buttonSize)
 	f["BagIconFree"] = numfree
 	
@@ -356,6 +356,27 @@ local function Init_BagGap(f, classtable, p)
 	freetext: SetTextColor(F.Color(C.Color.Y2, 1))
 	freetext: SetPoint("CENTER", numfree, "CENTER", 0,0)
 	f["BagIconFreeText"] = freetext
+
+	f["BagIconFree"]: RegisterForClicks("LeftButtonUp", "RightButtonUp")
+	f["BagIconFree"]: SetScript("OnClick", function(self, button)
+		if button == "LeftButton" then
+			GameTooltip: Hide()
+			if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Manual" or Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Opening" then
+				f:FullUpdate_BagItem()
+			end
+		end
+	end)
+	f["BagIconFree"]: SetScript("OnEnter", function(self)
+		if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Manual" or Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Opening" then
+			GameTooltip: SetOwner(self, "ANCHOR_NONE", 0,0)
+			GameTooltip: SetPoint("BOTTOMLEFT", self, "TOPRIGHT", 0,4)
+			GameTooltip: SetText(L['BAG_GROUP_REFRESH'])
+			GameTooltip: Show()
+		end
+	end)
+	f["BagIconFree"]: SetScript("OnLeave", function(self)
+		GameTooltip: Hide()
+	end)
 
 	f["BagIconSale"]: RegisterForClicks("LeftButtonUp", "RightButtonUp")
 	f["BagIconSale"]: SetScript("OnClick", function(self, button)
@@ -781,11 +802,178 @@ local function Insert_BagItem(f)
 	SlotNum.Total = SlotNum.Free + #Bag
 end
 
+local function Remove_BagItem(frame)
+	for i, v in ipairs(Bag) do
+		local texture, itemCount, locked, quality, readable, lootable, itemLink, isFiltered = GetContainerItemInfo(v.bagID, v.slotID)
+		if texture then
+			local _, itemID = strsplit(":", itemLink)
+			local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemLink)
+			if (itemType == ITEMCLASS_Weapon) or (itemType == ITEMCLASS_Armor) then
+				--local itemRealLevel = LibItemUpgradeInfo:GetUpgradedItemLevel(itemLink)
+				--local itemRealLevel = select(2, LibItemInfo:GetItemInfo(itemLink))
+				local itemRealLevel = select(2, LibItemInfo:GetContainerItemLevel(v.bagID, v.slotID))
+				itemLevel = itemRealLevel or itemLevel
+			end
+			itemType = itemType or "Other"
+			if not ITEMCLASS[itemType] then
+				itemType = "Other"
+			end
+			if quality == 0 then
+				itemType = "Sale"
+			end
+			if itemType == ITEMCLASS_Consumable then
+				if ITEMCLASS.Elixir.SubClass[itemSubType] then
+					itemType = "Elixir"
+				end
+				if ITEMCLASS.Food.SubClass[itemSubType] then
+					itemType = "Food"
+				end
+			end
+			if ITEMCLASS.Hearthstone.itemID[itemID] then
+				itemType = "Hearthstone"
+			end
+			v.itemName = itemName
+			v.itemID = itemID
+			v.itemTexture = texture
+			v.itemCount = itemCount
+			v.itemType = itemType
+			v.itemSubType = itemSubType
+			v.itemEquipLoc = itemEquipLoc
+			v.itemQuality = quality
+			v.itemLevel = itemLevel
+			v.itemLocked = locked
+		else
+			tremove(Bag, i)
+			tinsert(BagFree, {
+				bagID = v.bagID, slotID = v.slotID, 
+				itemName = nil, itemID = nil,
+				itemTexture = nil, itemCount = 0, 
+				itemType = nil, itemSubType = nil, 
+				itemQuality = nil, itemLevel = nil,
+				itemLocked = nil,
+			})
+		end
+	end
+	SlotNum.Free = #BagFree
+	for i, v in ipairs(BagFree) do
+		local texture, itemCount, locked, quality, readable, lootable, itemLink, isFiltered = GetContainerItemInfo(v.bagID, v.slotID)
+		if texture then
+			local _, itemID = strsplit(":", itemLink)
+			local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemLink)
+			if (itemType == ITEMCLASS_Weapon) or (itemType == ITEMCLASS_Armor) then
+				--local itemRealLevel = LibItemUpgradeInfo:GetUpgradedItemLevel(itemLink)
+				--local itemRealLevel = select(2, LibItemInfo:GetItemInfo(itemLink))
+				local itemRealLevel = select(2, LibItemInfo:GetContainerItemLevel(v.bagID, v.slotID))
+				itemLevel = itemRealLevel or itemLevel
+			end
+			itemType = itemType or "Other"
+			if not ITEMCLASS[itemType] then
+				itemType = "Other"
+			end
+			if quality == 0 then
+				itemType = "Sale"
+			end
+			if itemType == ITEMCLASS_Consumable then
+				if ITEMCLASS.Elixir.SubClass[itemSubType] then
+					itemType = "Elixir"
+				end
+				if ITEMCLASS.Food.SubClass[itemSubType] then
+					itemType = "Food"
+				end
+			end
+			if ITEMCLASS.Hearthstone.itemID[itemID] then
+				itemType = "Hearthstone"
+			end
+			v.itemName = itemName
+			v.itemID = itemID
+			v.itemTexture = texture
+			v.itemCount = itemCount
+			v.itemType = itemType
+			v.itemSubType = itemSubType
+			v.itemEquipLoc = itemEquipLoc
+			v.itemQuality = quality
+			v.itemLevel = itemLevel
+			v.itemLocked = locked
+			SlotNum.Free = SlotNum.Free - 1
+		else
+			v.itemName = nil
+			v.itemID = nil
+			v.itemTexture = nil
+			v.itemCount = nil
+			v.itemType = nil
+			v.itemSubType = nil
+			v.itemEquipLoc = nil
+			v.itemQuality = nil
+			v.itemLevel = nil
+			v.itemLocked = nil
+		end
+	end
+end
+
+local function Remove_BagFreeItem(frame)
+	for i, v in ipairs(BagFree) do
+		local texture, itemCount, locked, quality, readable, lootable, itemLink, isFiltered = GetContainerItemInfo(v.bagID, v.slotID)
+		if texture then
+			local _, itemID = strsplit(":", itemLink)
+			local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemLink)
+			if (itemType == ITEMCLASS_Weapon) or (itemType == ITEMCLASS_Armor) then
+				--local itemRealLevel = LibItemUpgradeInfo:GetUpgradedItemLevel(itemLink)
+				--local itemRealLevel = select(2, LibItemInfo:GetItemInfo(itemLink))
+				local itemRealLevel = select(2, LibItemInfo:GetContainerItemLevel(v.bagID, v.slotID))
+				itemLevel = itemRealLevel or itemLevel
+			end
+			itemType = itemType or "Other"
+			if not ITEMCLASS[itemType] then
+				itemType = "Other"
+			end
+			if quality == 0 then
+				itemType = "Sale"
+			end
+			if itemType == ITEMCLASS_Consumable then
+				if ITEMCLASS.Elixir.SubClass[itemSubType] then
+					itemType = "Elixir"
+				end
+				if ITEMCLASS.Food.SubClass[itemSubType] then
+					itemType = "Food"
+				end
+			end
+			if ITEMCLASS.Hearthstone.itemID[itemID] then
+				itemType = "Hearthstone"
+			end
+			v.itemName = itemName
+			v.itemID = itemID
+			v.itemTexture = texture
+			v.itemCount = itemCount
+			v.itemType = itemType
+			v.itemSubType = itemSubType
+			v.itemEquipLoc = itemEquipLoc
+			v.itemQuality = quality
+			v.itemLevel = itemLevel
+			v.itemLocked = locked
+		end
+	end
+	SlotNum.Free = #BagFree
+end
+
 local function FullUpdate_BagItem(f)
 	Insert_BagItem(f)
 	Sort_BagItem(Bag)
 	Update_BagItem(f)
 	Pos_BagItem(f, f.Bags)
+end
+
+local function LimitedUpdate_BagItem(frame)
+	Remove_BagItem(frame)
+	Sort_BagItem(Bag)
+	Update_BagItem(frame)
+	Pos_BagItem(frame, frame.Bags)
+end
+
+local function ManualUpdate_BagItem(frame)
+	Remove_BagFreeItem(frame)
+	Sort_BagItem(Bag)
+	Update_BagItem(frame)
+	Pos_BagItem(frame, frame.Bags)
 end
 
 local function Update_ItemLock(self, event, ...)
@@ -1184,6 +1372,10 @@ local function Bag_Frame(frame)
 	--BagFrame: SetPoint("TOPRIGHT", UIParent, "TOPRIGHT", -40,-240)
 	BagFrame: SetPoint("RIGHT", UIParent, "RIGHT", -80,0)
 	table.insert(UISpecialFrames, "Quafe_BagFrame");
+
+	function BagFrame: FullUpdate_BagItem()
+		FullUpdate_BagItem(self)
+	end
 	
 	BagFrame: SetClampedToScreen(true)
 	BagFrame: SetMovable(true)
@@ -1256,7 +1448,13 @@ local function Bag_Frame(frame)
 		end
 		if event == "BAG_UPDATE" then
 			if self:IsShown() then
-				FullUpdate_BagItem(self)
+				if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Manual" then
+					LimitedUpdate_BagItem(self)
+				elseif Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Opening" then
+					LimitedUpdate_BagItem(self)
+				elseif Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Always" then
+					FullUpdate_BagItem(self)
+				end
 			end
 		end
 		if event == "PLAYER_ENTERING_WORLD" or event == "PLAYER_MONEY" then
@@ -1286,8 +1484,31 @@ local function Bag_Frame(frame)
 	end)
 	
 	frame.BagFrame: SetScript("OnShow", function(self)
-		FullUpdate_BagItem(self)
-		C_Timer.After(2, function() FullUpdate_BagItem(self) end)
+		if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Manual" then
+			if self.FullUpdate then
+				LimitedUpdate_BagItem(self)
+			else
+				FullUpdate_BagItem(self)
+				C_Timer.After(2, function() FullUpdate_BagItem(self) end)
+				self.FullUpdate = true
+			end
+		elseif Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Opening" then
+			if self.FullUpdate then
+				FullUpdate_BagItem(self)
+			else
+				FullUpdate_BagItem(self)
+				C_Timer.After(2, function() FullUpdate_BagItem(self) end)
+				self.FullUpdate = true
+			end
+		elseif Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Always" then
+			if self.FullUpdate then
+				FullUpdate_BagItem(self)
+			else
+				FullUpdate_BagItem(self)
+				C_Timer.After(2, function() FullUpdate_BagItem(self) end)
+				self.FullUpdate = true
+			end
+		end
 		Quafe_UpdateAfter()
 	end)
 end
@@ -1665,7 +1886,7 @@ local function BankExtra_Frame(f)
 	
 	local ToggleButton = Button_Template(bagextra)
 	ToggleButton: SetPoint("LEFT", editbox, "RIGHT", 16, 0)
-	ToggleButton.Icon: SetTexture(F.Media.."Bag_Button1")
+	ToggleButton.Icon: SetTexture(F.Path("Bag_Button1"))
 	ToggleButton.tooltipText = REAGENT_BANK
 	ToggleButton: SetScript("OnClick", function(self)
 		--PlaySound(852)
@@ -1684,7 +1905,7 @@ local function BankExtra_Frame(f)
 	
 	local DepositButton = Button_Template(bagextra)
 	DepositButton: SetPoint("LEFT", ToggleButton, "RIGHT", 2, 0)
-	DepositButton.Icon: SetTexture(F.Media.."Bag_Button2")
+	DepositButton.Icon: SetTexture(F.Path("Bag_Button2"))
 	DepositButton.tooltipText = REAGENTBANK_DEPOSIT
 	DepositButton: SetScript("OnClick", function(self)
 		--PlaySound(852)
@@ -1967,6 +2188,7 @@ local Quafe_Container_Config = {
 		["Quafe_Container"] = {
 			Enable = true,
 			Gold = {},
+			RefreshRate = "Always", --Always, Opening, Manual
 		},
 	},
 
@@ -1993,10 +2215,52 @@ local Quafe_Container_Config = {
 		end,
 		Sub = {
 			[1] = {
-				Name = "Reset Gold Data",
+				Name = L['GROUP_REFRESH_RATE'],
+				Type = "Dropdown",
+				Click = function(self, button)
+					wipe(Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Container"].Gold)
+				end,
+				Load = function(self)
+
+				end,
+				Show = function(self)
+					if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container then
+						if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Manual" then
+							self.Button.Text:SetText(L['手动刷新'])
+						elseif Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Opening" then
+							self.Button.Text:SetText(L['打开时刷新'])
+						elseif Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Always" then
+							self.Button.Text:SetText(L['实时刷新'])
+						end
+					end
+				end,
+				DropMenu = {
+					[1] = {
+						Text = L['手动刷新'],
+						Click = function(self, button) 
+							Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate = "Manual"
+						end,
+					},
+					[2] = {
+						Text = L['打开时刷新'],
+						Click = function(self, button) 
+							Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate = "Opening"
+						end,
+					},
+					[3] = {
+						Text = L['实时刷新'],
+						Click = function(self, button) 
+							Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate = "Always"
+						end,
+					},
+				},
+			},
+			[2] = {
+				Name = L['重置金币数据'],
 				Type = "Trigger",
 				Click = function(self, button)
 					wipe(Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Container"].Gold)
+					DEFAULT_CHAT_FRAME:AddMessage("Quafe "..L['背包金币数据已重置'])
 				end,
 				Show = function(self)
 					self.Button.Text:SetText(L['CONFIRM'])
