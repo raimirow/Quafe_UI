@@ -37,6 +37,10 @@ local function CastBar_FinishSpell(frame)
 end
 
 local function CastBar_OnEvent(frame, event, ...)
+	if frame.ApplyEvent then
+		frame.ApplyEvent(frame, event, ...)
+	end
+
 	local arg1 = ...;
 	local unit = frame.Unit;
 
