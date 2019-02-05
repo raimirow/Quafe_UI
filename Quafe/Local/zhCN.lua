@@ -43,7 +43,7 @@ L['CANCEL'] = "取消"
 L['DELETE'] = '删除'
 
 --> Unit
-L['PLAYER'] = '玩家自己'
+L['PLAYER'] = '玩家'
 L['TARGET'] = '目标'
 L['PET'] = '宠物'
 L['FOCUS'] = '焦点'
@@ -164,3 +164,6 @@ L['背包金币数据已重置'] = '背包金币数据已重置'
 -->Assistant
 L['ASSISTANT'] = '附件'
 L['RESURRECTION_NOTIFICATION'] = '战斗中复生通知'
+
+-->CastingBar
+L['施法条'] = '施法条'

@@ -83,7 +83,7 @@ local function CastBar_OnEvent(frame, event, ...)
 		frame.Channeling = nil;
 		frame.FadeOut = nil;
 
-		if ( frame.ShowCastbar ) then
+		if ( frame.ShowCastbar and frame.EnableCastbar ) then
 			frame:Show();
 		end
 
@@ -161,7 +161,7 @@ local function CastBar_OnEvent(frame, event, ...)
 		frame.Casting = nil;
 		frame.Channeling = true;
 		frame.FadeOut = nil;
-		if ( frame.ShowCastbar ) then
+		if ( frame.ShowCastbar and frame.EnableCastbar ) then
 			frame:Show();
 		end
 	elseif ( event == "UNIT_SPELLCAST_CHANNEL_UPDATE" ) then

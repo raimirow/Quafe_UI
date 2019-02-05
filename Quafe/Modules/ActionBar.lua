@@ -1085,7 +1085,7 @@ local Quafe_ActionBar_Config = {
 				Type = "Dropdown",
 				Show = function(self)
 					if Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_ActionBar"].Style then
-						self.Button.Text:SetText(Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_ActionBar"].Style)
+						self.Text:SetText(Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_ActionBar"].Style)
 					end
 				end,
 				DropMenu = {

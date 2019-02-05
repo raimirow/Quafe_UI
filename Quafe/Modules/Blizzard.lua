@@ -84,9 +84,9 @@ local BlizzardFrameHide_Config = {
 				end,
 				Show = function(self, button)
 					if Quafe_DB.Profile[Quafe_DBP.Profile].Blizzard.PlayerFrame then
-						self.Button.Text:SetText(L["ON"])
+						self.Text:SetText(L["ON"])
 					else
-						self.Button.Text:SetText(L["OFF"])
+						self.Text:SetText(L["OFF"])
 					end
 				end,
 			},
@@ -106,9 +106,9 @@ local BlizzardFrameHide_Config = {
 				end,
 				Show = function(self, button)
 					if Quafe_DB.Profile[Quafe_DBP.Profile].Blizzard.TargetFrame then
-						self.Button.Text:SetText(L["ON"])
+						self.Text:SetText(L["ON"])
 					else
-						self.Button.Text:SetText(L["OFF"])
+						self.Text:SetText(L["OFF"])
 					end
 				end,
 			},
@@ -128,9 +128,9 @@ local BlizzardFrameHide_Config = {
 				end,
 				Show = function(self, button)
 					if Quafe_DB.Profile[Quafe_DBP.Profile].Blizzard.FocusFrame then
-						self.Button.Text:SetText(L["ON"])
+						self.Text:SetText(L["ON"])
 					else
-						self.Button.Text:SetText(L["OFF"])
+						self.Text:SetText(L["OFF"])
 					end
 				end,
 			},
@@ -152,9 +152,9 @@ local BlizzardFrameHide_Config = {
 				end,
 				Show = function(self, button)
 					if Quafe_DB.Profile[Quafe_DBP.Profile].Blizzard.PartyFrame then
-						self.Button.Text:SetText(L["ON"])
+						self.Text:SetText(L["ON"])
 					else
-						self.Button.Text:SetText(L["OFF"])
+						self.Text:SetText(L["OFF"])
 					end
 				end,
 			},
@@ -176,9 +176,9 @@ local BlizzardFrameHide_Config = {
 				end,
 				Show = function(self, button)
 					if Quafe_DB.Profile[Quafe_DBP.Profile].Blizzard.BossFrame then
-						self.Button.Text:SetText(L["ON"])
+						self.Text:SetText(L["ON"])
 					else
-						self.Button.Text:SetText(L["OFF"])
+						self.Text:SetText(L["OFF"])
 					end
 				end,
 			},

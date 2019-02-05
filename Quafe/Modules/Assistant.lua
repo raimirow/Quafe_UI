@@ -161,12 +161,12 @@ local Quafe_Assistant_Config = {
 				Show = function(self)
 					if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Assistant.SoulStone then
 						if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Assistant.SoulStone == "player" then
-							self.Button.Text:SetText(L['PLAYER'])
+							self.Text:SetText(L['PLAYER'])
 						elseif Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Assistant.SoulStone == "instance" then
-							self.Button.Text:SetText(INSTANCE)
+							self.Text:SetText(INSTANCE)
 						end
 					else
-						self.Button.Text:SetText(L["OFF"])
+						self.Text:SetText(L["OFF"])
 					end
 				end,
 				DropMenu = {

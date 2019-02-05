@@ -2226,11 +2226,11 @@ local Quafe_Container_Config = {
 				Show = function(self)
 					if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container then
 						if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Manual" then
-							self.Button.Text:SetText(L['手动刷新'])
+							self.Text:SetText(L['手动刷新'])
 						elseif Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Opening" then
-							self.Button.Text:SetText(L['打开时刷新'])
+							self.Text:SetText(L['打开时刷新'])
 						elseif Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Always" then
-							self.Button.Text:SetText(L['实时刷新'])
+							self.Text:SetText(L['实时刷新'])
 						end
 					end
 				end,

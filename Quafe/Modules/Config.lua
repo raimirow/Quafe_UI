@@ -634,7 +634,7 @@ local function ConfigSubBar_Refresh(frame, scroll, configframe, DB)
 		end
 		if DB[i].Show then
 			configframe: HookScript("OnShow", function(self)
-				DB[i].Show(frame.SubBar[i])
+				DB[i].Show(frame.SubBar[i].Button)
 			end)
 		end
 
