@@ -147,7 +147,7 @@ local function CastBar_OnEvent(frame, event, ...)
 			return;
 		end
 		frame.ApplyColor(frame, "Start", notInterruptible)
-		frame.Value = (GetTime() - (startTime / 1000));
+		frame.Value = (endTime / 1000) - GetTime();
 		frame.MaxValue = (endTime - startTime) / 1000;
 		frame.ApplyUpdate(frame)
 		if ( frame.Text ) then

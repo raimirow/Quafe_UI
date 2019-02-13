@@ -550,10 +550,7 @@ end)
 --- ------------------------------------------------------------
 --> Tooltip
 --- ------------------------------------------------------------
-
-
 -- DAMAGE_TEXT_FONT = FDC_FON
-
 
 if not GuildControlUIRankSettingsFrameRosterLabel then
 	GuildControlUIRankSettingsFrameRosterLabel = CreateFrame("frame")

@@ -2263,7 +2263,7 @@ local Quafe_Container_Config = {
 					DEFAULT_CHAT_FRAME:AddMessage("Quafe "..L['背包金币数据已重置'])
 				end,
 				Show = function(self)
-					self.Button.Text:SetText(L['CONFIRM'])
+					self.Text:SetText(L['CONFIRM'])
 				end,
 			},
 		},
