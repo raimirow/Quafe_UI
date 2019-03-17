@@ -1253,131 +1253,6 @@ local function WIM_Frame(f)
 end
 
 --- ------------------------------------------------------------
---> XP
---- ------------------------------------------------------------
-
-local function Exp_Artwork(frame)
-	local BarBg = frame:CreateTexture(nil, "BACKGROUND")
-	BarBg: SetTexture(F.Path("White"))
-	BarBg: SetVertexColor(F.Color(C.Color.Main1))
-	BarBg: SetAlpha(0.5)
-	BarBg: SetHeight(2)
-	BarBg: SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 0,0)
-	BarBg: SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0,0)
-
-	local BarBgL = frame:CreateTexture(nil, "BACKGROUND")
-	BarBgL: SetTexture(F.Path("White"))
-	BarBgL: SetVertexColor(F.Color(C.Color.Main1))
-	BarBgL: SetAlpha(0.5)
-	BarBgL: SetSize(2,8)
-	BarBgL: SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 0,2)
-
-	local BarBgR = frame:CreateTexture(nil, "BACKGROUND")
-	BarBgR: SetTexture(F.Path("White"))
-	BarBgR: SetVertexColor(F.Color(C.Color.Main1))
-	BarBgR: SetAlpha(0.5)
-	BarBgR: SetSize(2,8)
-	BarBgR: SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0,2)
-	
-	local Bar = CreateFrame("StatusBar", nil, frame)
-	Bar: SetStatusBarTexture(F.Path("White"))
-	Bar: SetFillStyle("STANDARD_NO_RANGE_FILL")
-	Bar: SetStatusBarColor(F.Color(C.Color.Main2))
-	Bar: SetMinMaxValues(0,1)
-	Bar: SetAlpha(0.9)
-	Bar: SetHeight(8)
-	Bar: SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 0,0)
-	Bar: SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0,0)
-
-	local Level = F.create_Font(frame, C.Font.NumSmall, 18, nil, 0.4)
-	Level: SetTextColor(F.Color(C.Color.Main1))
-	Level: SetAlpha(0.9)
-	Level: SetPoint("LEFT", frame, "TOPLEFT", 2,-10)
-	Level: SetText("30")
-
-	local Value = F.create_Font(frame, C.Font.NumSmall, 14, nil, 0.4)
-	Value: SetTextColor(F.Color(C.Color.Main1))
-	Value: SetAlpha(0.6)
-	Value: SetPoint("RIGHT", frame, "TOPRIGHT", -2,-10)
-	Value: SetText("1000/10000")
-	
-	frame.Bar = Bar
-	frame.Level = Level
-	frame.Value = Value
-end
---[[
-local function SmoothBar(statusBar,value)
-	local limit = 30/GetFramerate()
-	local old = statusBar:GetValue()
-	local new = old + math.min((value-old)/6, math.max(value-old, limit))
-	if new ~= new then
-		new = value
-	end
-	if old == value or abs(new - value) < 0 then
-		statusBar:SetValue(value)
-	else
-		statusBar:SetValue(new)
-	end
-end
---]]
-local function Exp_RePos(self, event, ...)
-	if event == "PLAYER_ENTERING_WORLD" or event == "GROUP_ROSTER_UPDATE" then
-		if UnitInParty("player") then
-			self: SetPoint("TOPLEFT", UIParent, "TOPLEFT", 60, -120)
-		else
-			self: SetPoint("TOPLEFT", UIParent, "TOPLEFT", 60, -40)
-		end
-	end
-end
-
-local function Exp_Frame(frame)
-	local ExpBar =  CreateFrame("Frame", nil, frame)
-	ExpBar: SetSize(440,40)
-	ExpBar: SetPoint("TOPLEFT", UIParent, "TOPLEFT", 100, -60)
-	ExpBar.Info = {}
-	ExpBar.Info.MaxXP = 1
-	ExpBar.Info.XP = 0
-
-	Exp_Artwork(ExpBar)
-
-	ExpBar: RegisterEvent("PLAYER_ENTERING_WORLD")
-	ExpBar: RegisterEvent("PLAYER_XP_UPDATE")
-	ExpBar: RegisterEvent("PLAYER_LEVEL_UP")
-	ExpBar: RegisterEvent("GROUP_ROSTER_UPDATE")
-	ExpBar: SetScript("OnEvent", function(self, event, ...)
-		local newLevel = UnitLevel("player")
-		local ShowExp = (newLevel < MAX_PLAYER_LEVEL) and (not IsXPUserDisabled());
-		if ShowExp then
-			Exp_RePos(self, event, ...)
-			local minXP = UnitXP("player")
-			local maxXP = UnitXPMax("player")
-			if self.Info.MaxXP ~= maxXP then
-				self.Bar: SetMinMaxValues(0,maxXP)
-				self.Info.MaxXP = maxXP
-				--self.Info.XP = 0
-			end
-			self.Level: SetText(newLevel)
-			self: SetScript("OnUpdate", function(bar, elapsed)
-				local limit = 30/GetFramerate()
-				self.Info.XP = self.Info.XP + math.min((minXP-self.Info.XP)/6, math.max(minXP-self.Info.XP, limit))
-				if abs(self.Info.XP - minXP) <= 1 then
-					self.Info.XP = minXP
-					self.Bar: SetValue(self.Info.XP)
-					self.Value: SetText(format("%d/%d", self.Info.XP,maxXP))
-					self: SetScript("OnUpdate", nil)
-				else
-					self.Bar: SetValue(self.Info.XP)
-					self.Value: SetText(format("%d/%d", self.Info.XP,maxXP))
-				end
-			end)
-			self: Show()
-		else
-			self: Hide()
-		end
-	end)
-end
-
---- ------------------------------------------------------------
 --> InfoBar
 --- ------------------------------------------------------------
 
@@ -1393,7 +1268,6 @@ local function Load()
 	Guild_Frame(InfoBar)
 	MeetingStone_Frame(InfoBar)
 	WIM_Frame(InfoBar)
-	Exp_Frame(InfoBar)
 end
 local function Options(option, ...)
 	if option == "ON" then
@@ -1407,3 +1281,262 @@ end
 InfoBar.Load = Load
 insert(P.Module, InfoBar)
 
+
+--- ------------------------------------------------------------
+--> Exp Bar
+--- ------------------------------------------------------------
+
+local function ExpBar_Artwork(frame)
+	local BarBg = frame:CreateTexture(nil, "BORDER")
+	BarBg: SetTexture(F.Path("White"))
+	BarBg: SetVertexColor(F.Color(C.Color.Main1))
+	BarBg: SetAlpha(0.5)
+	BarBg: SetHeight(2)
+	BarBg: SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 0,0)
+	BarBg: SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0,0)
+
+	local BarBack = frame:CreateTexture(nil, "BACKGROUND")
+	BarBack: SetTexture(F.Path("White"))
+	BarBack: SetVertexColor(F.Color(C.Color.Main0))
+	BarBack: SetAlpha(0.25)
+	BarBack: SetHeight(8)
+	BarBack: SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 0,0)
+	BarBack: SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0,0)
+
+	local BarBgL = frame:CreateTexture(nil, "BORDER")
+	BarBgL: SetTexture(F.Path("White"))
+	BarBgL: SetVertexColor(F.Color(C.Color.Main1))
+	BarBgL: SetAlpha(0.5)
+	BarBgL: SetSize(2,10)
+	BarBgL: SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 0,2)
+
+	local BarBgR = frame:CreateTexture(nil, "BORDER")
+	BarBgR: SetTexture(F.Path("White"))
+	BarBgR: SetVertexColor(F.Color(C.Color.Main1))
+	BarBgR: SetAlpha(0.5)
+	BarBgR: SetSize(2,10)
+	BarBgR: SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0,2)
+	
+	local Bar = CreateFrame("StatusBar", nil, frame)
+	Bar: SetStatusBarTexture(F.Path("White"))
+	Bar: SetFillStyle("STANDARD_NO_RANGE_FILL")
+	Bar: SetStatusBarColor(F.Color(C.Color.Main2))
+	Bar: SetMinMaxValues(0,1)
+	Bar: SetAlpha(0.9)
+	Bar: SetHeight(8)
+	Bar: SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 0,0)
+	Bar: SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0,0)
+
+	local Vernier = Bar: CreateTexture(nil, "OVERLAY")
+	Vernier: SetTexture(F.Path("White"))
+	Vernier: SetVertexColor(F.Color(C.Color.Main1))
+	Vernier: SetAlpha(0.75)
+	Vernier: SetSize(2,12)
+	Vernier: SetPoint("BOTTOM", Bar:GetStatusBarTexture(), "BOTTOMRIGHT", 0,0)
+
+	local Level = F.create_Font(frame, C.Font.NumSmall, 18, nil, 0.75)
+	Level: SetTextColor(F.Color(C.Color.Main1))
+	Level: SetAlpha(0.9)
+	Level: SetPoint("LEFT", frame, "TOPLEFT", 2,-10)
+	Level: SetText("30")
+
+	local Value = F.create_Font(frame, C.Font.NumSmall, 14, nil, 0.75)
+	Value: SetTextColor(F.Color(C.Color.Main1))
+	Value: SetAlpha(0.6)
+	Value: SetPoint("RIGHT", frame, "TOPRIGHT", -2,-10)
+	Value: SetText("1000/10000")
+	
+	frame.Bar = Bar
+	frame.Level = Level
+	frame.Value = Value
+end
+
+local function ExpBar_RePos(self, event, ...)
+	if event == "ALL" or event == "PLAYER_ENTERING_WORLD" or event == "GROUP_ROSTER_UPDATE" then
+		if UnitInParty("player") then
+			self: SetPoint("TOPLEFT", UIParent, "TOPLEFT", 60, -120)
+		else
+			self: SetPoint("TOPLEFT", UIParent, "TOPLEFT", 60, -40)
+		end
+	end
+end
+
+local function ExpBar_Update(frame)
+	frame: SetScript("OnUpdate", function(bar, elapsed)
+		local limit = 30/GetFramerate()
+		frame.Info.XP = frame.Info.XP + math.min((frame.Info.CurXP-frame.Info.XP)/6, math.max(frame.Info.CurXP-frame.Info.XP, limit))
+		if abs(frame.Info.XP - frame.Info.CurXP) <= 1 then
+			frame.Info.XP = frame.Info.CurXP
+			frame.Bar: SetValue(frame.Info.XP)
+			frame.Value: SetText(format("%d/%d", frame.Info.XP, frame.Info.MaxXP))
+			frame: SetScript("OnUpdate", nil)
+		else
+			frame.Bar: SetValue(frame.Info.XP)
+			frame.Value: SetText(format("%d/%d", frame.Info.XP, frame.Info.MaxXP))
+		end
+	end)
+end
+
+local function ExpBar_Event(frame, event, ...)
+	local newLevel = UnitLevel("player")
+	local ShowExp = (newLevel < MAX_PLAYER_LEVEL) and (not IsXPUserDisabled());
+	local AzeriteItemLocation = C_AzeriteItem.FindActiveAzeriteItem();
+	local DATA = Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_ExpBar"]
+	if (ShowExp and DATA.Enable) then
+		local minXP = UnitXP("player") or 0
+		local maxXP = UnitXPMax("player")
+		if frame.Info.MaxXP ~= maxXP then
+			frame.Bar: SetMinMaxValues(0,maxXP)
+			frame.Info.MaxXP = maxXP
+			frame.Info.CurXP = minXP
+			ExpBar_Update(frame)
+		end
+		if frame.Info.CurXP ~= minXP then
+			frame.Info.CurXP = minXP
+			ExpBar_Update(frame)
+		end
+		if frame.Info.Level ~= newLevel then
+			frame.Info.Level = newLevel
+			frame.Level: SetText(frame.Info.Level)
+		end
+		frame: Show()
+	elseif (AzeriteItemLocation and DATA.Enable and DATA.Azerite) then
+		local minXP,maxXP = C_AzeriteItem.GetAzeriteItemXPInfo(AzeriteItemLocation)
+		local azeriteLevel = C_AzeriteItem.GetPowerLevel(AzeriteItemLocation)
+		if frame.Info.MaxXP ~= maxXP then
+			frame.Bar: SetMinMaxValues(0,maxXP)
+			frame.Info.MaxXP = maxXP
+			frame.Info.CurXP = minXP
+			ExpBar_Update(frame)
+		end
+		if frame.Info.CurXP ~= minXP then
+			frame.Info.CurXP = minXP
+			ExpBar_Update(frame)
+		end
+		if frame.Info.Level ~= azeriteLevel then
+			frame.Info.Level = azeriteLevel
+			frame.Level: SetText(frame.Info.Level)
+		end
+		frame: Show()
+	else
+		frame: Hide()
+	end
+end
+
+local function ExpBar_OnEvent(frame)
+	frame: RegisterEvent("PLAYER_ENTERING_WORLD")
+	frame: RegisterEvent("PLAYER_XP_UPDATE")
+	frame: RegisterEvent("PLAYER_LEVEL_UP")
+	frame: RegisterEvent("GROUP_ROSTER_UPDATE")
+	frame: SetScript("OnEvent", function(self, event, ...)
+		ExpBar_RePos(frame, event, ...)
+		ExpBar_Event(frame, event, ...)
+	end)
+end
+
+local function ExpBar_Refresh(frame)
+	frame: RegisterEvent("PLAYER_ENTERING_WORLD")
+	frame: RegisterEvent("PLAYER_XP_UPDATE")
+	frame: RegisterEvent("PLAYER_LEVEL_UP")
+	frame: RegisterEvent("GROUP_ROSTER_UPDATE")
+	if Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_ExpBar"].Azerite then
+		frame: RegisterEvent("AZERITE_ITEM_EXPERIENCE_CHANGED")
+		frame: RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
+	end
+	ExpBar_RePos(frame, "ALL")
+	ExpBar_Event(frame, "ALL")
+end
+
+local Quafe_ExpBar = CreateFrame("Frame", "Quafe_ExpBar", P)
+Quafe_ExpBar: SetSize(440,40)
+Quafe_ExpBar: SetPoint("TOPLEFT", UIParent, "TOPLEFT", 100, -60)
+Quafe_ExpBar.Init = false
+Quafe_ExpBar.Info = {}
+Quafe_ExpBar.Info.CurXP = 0
+Quafe_ExpBar.Info.MaxXP = 1
+Quafe_ExpBar.Info.Level = 0
+Quafe_ExpBar.Info.XP = 0
+
+local function Quafe_ExpBar_Load()
+	if Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_ExpBar"].Enable then
+		ExpBar_Artwork(Quafe_ExpBar)
+		ExpBar_OnEvent(Quafe_ExpBar)
+		Quafe_ExpBar.Init = true
+	end
+end
+
+local function Quafe_ExpBar_Toggle(arg)
+	if arg == "ON" then
+		if not Quafe_ExpBar.Init == true then
+			Quafe_ExpBar_Load()
+		end
+	elseif arg == "OFF" then
+		Quafe_ExpBar: UnregisterAllEvents()
+	elseif arg == "A_ON" then
+
+	elseif arg == "A_OFF" then
+		Quafe_ExpBar: UnregisterEvent("AZERITE_ITEM_EXPERIENCE_CHANGED")
+		Quafe_ExpBar: UnregisterEvent("PLAYER_EQUIPMENT_CHANGED")
+	end
+	ExpBar_Refresh(Quafe_ExpBar)
+end
+
+local Quafe_ExpBar_Config = {
+	Database = {
+		["Quafe_ExpBar"] = {
+			Enable = true,
+			Azerite = true,
+		},
+	},
+
+	Config = {
+		Name = "Quafe "..L['经验条'],
+		Type = "Switch",
+		Click = function(self, button)
+			if Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_ExpBar"].Enable then
+				Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_ExpBar"].Enable = false
+				self.Text:SetText(L["OFF"])
+				Quafe_ExpBar_Toggle("OFF")
+			else
+				Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_ExpBar"].Enable = true
+				self.Text:SetText(L["ON"])
+				Quafe_ExpBar_Toggle("ON")
+			end
+		end,
+		Show = function(self)
+			if Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_ExpBar"].Enable then
+				self.Text:SetText(L["ON"])
+			else
+				self.Text:SetText(L["OFF"])
+			end
+		end,
+		Sub = {
+			[1] = {
+				Name = L['艾泽里特'],
+				Type = "Switch",
+				Click = function(self, button)
+					if Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_ExpBar"].Azerite then
+						Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_ExpBar"].Azerite = false
+						self.Text:SetText(L["OFF"])
+						Quafe_ExpBar_Toggle("A_OFF")
+					else
+						Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_ExpBar"].Azerite = true
+						self.Text:SetText(L["ON"])
+						Quafe_ExpBar_Toggle("A_ON")
+					end
+				end,
+				Show = function(self)
+					if Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_ExpBar"].Azerite then
+						self.Text:SetText(L["ON"])
+					else
+						self.Text:SetText(L["OFF"])
+					end
+				end,
+			},
+		},
+	},
+}
+
+Quafe_ExpBar.Load = Quafe_ExpBar_Load
+Quafe_ExpBar.Config = Quafe_ExpBar_Config
+tinsert(P.Module, Quafe_ExpBar)

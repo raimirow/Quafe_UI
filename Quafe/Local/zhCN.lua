@@ -167,3 +167,7 @@ L['RESURRECTION_NOTIFICATION'] = '战斗中复生通知'
 
 -->CastingBar
 L['施法条'] = '施法条'
+
+-->InfoBar
+L['经验条'] = '经验条'
+L['艾泽里特'] = '艾泽里特'

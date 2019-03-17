@@ -433,7 +433,8 @@ local function Create_BagItemButton(f, bagID, slotID)
 		template = "ContainerFrameItemButtonTemplate"
 	end
 	
-	local button = CreateFrame("CheckButton", "Quafe_Bag"..bagID.."Slot"..slotID, f, template)
+	--local button = CreateFrame("CheckButton", "Quafe_Bag"..bagID.."Slot"..slotID, f, template)
+	local button = CreateFrame("ItemButton", "Quafe_Bag"..bagID.."Slot"..slotID, f, template)
 	button: SetSize(config.buttonSize, config.buttonSize)
 	button: SetID(slotID)
 	button.bagID = bagID
@@ -639,6 +640,7 @@ end
 
 local function Update_SlotItem(slot, v)
 	SetItemButtonTexture(slot, v.itemTexture or F.Media.."Bag_Slot") --Interface\Paperdoll\UI-PaperDoll-Slot-Bag
+	--SetItemButtonQuality(itemButton, quality, itemID)
 	SetItemButtonCount(slot,  v.itemCount)
 	SetItemButtonDesaturated(slot, v.itemLocked, 0.5,0.5,0.5)
 	if v.itemQuality == 0 then
@@ -1214,7 +1216,13 @@ local function BagExtra_Frame(f)
 	
 	local lastbutton
 	for bagID = 0, NUM_BAG_SLOTS do
-		local button = CreateFrame("CheckButton", "Quafe_BagButton"..bagID, bagextra, "ItemButtonTemplate")
+		local button
+		if bagID == 0 then
+			button = CreateFrame("ItemButton", "Quafe_BagBackpack", bagextra, "Quafe_BackpackButtonTemplate")
+		else
+			--local button = CreateFrame("CheckButton", "Quafe_BagButton"..bagID, bagextra, "ItemButtonTemplate")
+			button = CreateFrame("ItemButton", "Quafe_BagBag"..(bagID-1).."Slot", bagextra, "Quafe_BagSlotButtonTemplate")
+		end
 		button: SetSize(24,24)
 		local invID
 		if bagID == 0 then
@@ -1239,10 +1247,16 @@ local function BagExtra_Frame(f)
 		Create_ButtonBg(button.Border, 1, 0)
 		button.Border: SetBackdropColor(F.Color(C.Color.W1, 0))
 		button.Border: SetBackdropBorderColor(F.Color(C.Color.W4, 0.9))
+
+		if button.IconBorder then
+			--button.IconBorder: SetTexture("")
+			--button.IconBorder: Hide()
+			button.IconBorder: SetAlpha(0)
+		end
 		
-		button: RegisterForDrag("LeftButton", "RightButton")
-		button: RegisterForClicks("anyUp")
-		
+		--button: RegisterForDrag("LeftButton", "RightButton")
+		--button: RegisterForClicks("anyUp")
+		--[[
 		button: SetScript("OnClick", function(self, btn)
 			if(PutItemInBag(self.invID)) then return end
 			if not IsShiftKeyDown() then
@@ -1270,7 +1284,7 @@ local function BagExtra_Frame(f)
 		button: SetScript("OnLeave", function(self)
 			GameTooltip: Hide()
 		end)
-		
+		--]]
 		lastbutton = button
 		f.Extra["Bag"..bagID] = button
 	end
@@ -1990,8 +2004,9 @@ local function BankExtra_Frame(f)
 	
 	--> Bank Slot
 	local lastbutton
-	for bagID = NUM_BAG_SLOTS+1, NUM_BAG_SLOTS+NUM_BANKBAGSLOTS do
-		local button = CreateFrame("CheckButton", "Quafe_BankButton"..bagID, bagextra, "ItemButtonTemplate")
+	for bagID = NUM_BAG_SLOTS+1, NUM_BAG_SLOTS + NUM_BANKBAGSLOTS do
+		--local button = CreateFrame("CheckButton", "Quafe_BankButton"..bagID, bagextra, "ItemButtonTemplate")
+		local button = CreateFrame("ItemButton", "Quafe_BankButton"..bagID, bagextra, "BankItemButtonBagTemplate")
 		button: SetSize(24,24)
 		if bagID == NUM_BAG_SLOTS+1 then
 			button: SetPoint("RIGHT", bagextra, "RIGHT", -33-30*6,0)
@@ -2218,7 +2233,7 @@ local Quafe_Container_Config = {
 				Name = L['GROUP_REFRESH_RATE'],
 				Type = "Dropdown",
 				Click = function(self, button)
-					wipe(Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Container"].Gold)
+					
 				end,
 				Load = function(self)
 

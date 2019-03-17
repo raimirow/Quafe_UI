@@ -42,10 +42,12 @@ P.Value = {
 		Health = {Min = 0, Max = 0, Per = 0, Cur = 0},
 		Power = {Min = 0, Max = 0, Per = 0, Cur = 0},
 		Mana = {Min = 0, Max = 0, Per = 0, Cur = 0},
+		Absorb = {Min = 0, Max = 0, Per = 0, Cur = 0},
 	},
 	["target"] = {
 		Health = {Min = 0, Max = 0, Per = 0, Cur = 0},
 		Power = {Min = 0, Max = 0, Per = 0, Cur = 0},
+		Absorb = {Min = 0, Max = 0, Per = 0, Cur = 0},
 	},
 	["focus"] = {
 		Health = {Min = 0, Max = 0, Per = 0, Cur = 0},

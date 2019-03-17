@@ -41,6 +41,7 @@ local function BGU_Player_Event(frame, event, ...)
 
 		F.Smooth_Health("player")
 		F.Smooth_Power("player")
+		F.Smooth_Absorb("player")
 		if frame.ShowMana then
 			F.Smooth_Mana("player")
 		end
@@ -54,6 +55,9 @@ local function BGU_Player_Event(frame, event, ...)
 			F.Smooth_Mana("player")
 		end
 	end
+	if event == "UNIT_ABSORB_AMOUNT_CHANGED" or event == "UNIT_MAXHEALTH" then
+		F.Smooth_Absorb("player")
+	end
 end
 
 local function BGU_Player_RegEvent(frame)
@@ -62,6 +66,7 @@ local function BGU_Player_RegEvent(frame)
 	frame: RegisterUnitEvent("UNIT_MAXHEALTH", "player", "vehicle")
 	frame: RegisterUnitEvent("UNIT_POWER_FREQUENT", "player", "vehicle")
 	frame: RegisterUnitEvent("UNIT_MAXPOWER", "player", "vehicle")
+	frame: RegisterUnitEvent("UNIT_ABSORB_AMOUNT_CHANGED", "player", "vehicle")
 	--frame: RegisterUnitEvent("UNIT_PET", "player")
 	--frame: RegisterEvent("PET_UI_UPDATE")
 	frame: RegisterUnitEvent("UNIT_EXITED_VEHICLE", "player")
@@ -122,6 +127,7 @@ local function BGU_OnUpdate(frame)
 	frame: SetScript("OnUpdate", function(self, elpased)
 		F.Smooth_Update(P.Value["player"].Health)
 		F.Smooth_Update(P.Value["player"].Power)
+		F.Smooth_Update(P.Value["player"].Absorb)
 		if frame.BGUPlayer.ShowMana then
 			F.Smooth_Update(P.Value["player"].Mana)
 		end

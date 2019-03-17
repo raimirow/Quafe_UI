@@ -177,5 +177,76 @@
 		<PushedTexture file="Interface\Buttons\UI-Quickslot-Depress"/>
 		<HighlightTexture file="Interface\Buttons\ButtonHilight-Square" alphaMode="ADD"/>		
 	</Button>
-	
+
+	<!--Bag and Bank-->
+	<ItemButton name="Quafe_BackpackButtonTemplate" mixin="BagSlotMixin" inherits="ItemAnimTemplate" virtual="true">
+		<Layers>
+			<Layer level="OVERLAY">
+				<Texture parentKey="SlotHighlightTexture" alphaMode="ADD" file="Interface\Buttons\CheckButtonHilight" setAllPoints="true" hidden="true"/>
+			</Layer>
+		</Layers>
+		<Scripts>
+			<OnClick>
+				PutItemInBackpack()
+			</OnClick>
+			<OnReceiveDrag>
+				PutItemInBackpack()
+			</OnReceiveDrag>
+			<OnEnter>
+				GameTooltip:SetOwner(self, "ANCHOR_LEFT");
+				GameTooltip:SetText(BACKPACK_TOOLTIP, 1.0, 1.0, 1.0);
+				local keyBinding = GetBindingKey("TOGGLEBACKPACK");
+				if ( keyBinding ) then
+					GameTooltip:AppendText(" "..NORMAL_FONT_COLOR_CODE.."("..keyBinding..")"..FONT_COLOR_CODE_CLOSE);
+				end
+				GameTooltip:Show();
+			</OnEnter>
+			<OnLeave function="GameTooltip_Hide"/>
+			<OnEvent>
+				ItemAnim_OnEvent(self, event, ...)
+			</OnEvent>
+		</Scripts>
+	</ItemButton>
+	<ItemButton name="Quafe_BagSlotButtonTemplate" inherits="BagSlotButtonTemplate" virtual="true">
+		<Scripts>
+			<OnClick>
+				if ( IsModifiedClick() ) then
+					BagSlotButton_OnModifiedClick(self, button);
+				else
+					local id = self:GetID();
+					local translatedID = self:GetBagID();
+					local hadItem = PutItemInBag(id);
+					if button == "LeftButton" then
+						PutItemInBag(id)
+					else
+						if ( not hadItem ) then
+							ToggleBag(translatedID);
+						end
+					end
+				end
+			</OnClick>
+			<OnDragStart>
+				BagSlotButton_OnDrag(self, button);
+			</OnDragStart>
+			<OnReceiveDrag>
+				local id = self:GetID();
+				local translatedID = self:GetBagID();
+				local hadItem = PutItemInBag(id);
+				if button == "LeftButton" then
+					PutItemInBag(id)
+				else
+					if ( not hadItem ) then
+						ToggleBag(translatedID);
+					end
+				end
+			</OnReceiveDrag>
+			<OnEnter>
+				BagSlotButton_OnEnter(self, motion);
+			</OnEnter>
+			<OnLeave>
+				GameTooltip:Hide();
+				ResetCursor();
+			</OnLeave>
+		</Scripts>
+	</ItemButton>
 </Ui>

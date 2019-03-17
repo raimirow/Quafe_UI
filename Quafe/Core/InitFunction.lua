@@ -28,9 +28,9 @@ F.PlayerName = GetUnitName("player")
 ----------------------------------------------------------------
 
 F.rEvent = function(f, event)
-	for i = 1,#event do
-		f:RegisterEvent(event[i])
-	end
+    for i = 1,#event do
+        f:RegisterEvent(event[i])
+    end
 end
 
 F.CheckEvent = function(f,event,unit1,unit2)
@@ -152,7 +152,8 @@ end
 ----------------------------------------------------------------
 
 --> 同步闪烁
-F.Alpha = 0
+F.Alpha2 = 0
+F.Alpha4 = 0
 F.Last1 = 0
 F.Last2 = 0
 F.Last5 = 0
@@ -160,24 +161,44 @@ F.Last10 = 0
 F.Last10H = 0.05
 F.Last25 = 0
 F.Last25H = 0.02
-local Transfer = 0
+local Transfer2 = 0
+local Transfer4 = 0
 local flash = CreateFrame("Frame", nil, UIParent)
 flash:SetScript("OnUpdate",function(self, elapsed)
-	local step = floor((1.5/GetFramerate())*1e3)/1e3
-	if Transfer == 0 then
-		F.Alpha = F.Alpha + step
-	elseif Transfer == 1 then
-		F.Alpha = F.Alpha - step
+	--> Flash2
+	local step2 = floor((2/GetFramerate())*1e3)/1e3
+	if Transfer2 == 0 then
+		F.Alpha2 = F.Alpha2 + step2
+	elseif Transfer2 == 1 then
+		F.Alpha2 = F.Alpha2 - step2
 	else
-		F.Alpha = 0
-		Transfer = 0
+		F.Alpha2 = 0
+		Transfer2 = 0
 	end
-	if F.Alpha <= 0 then
-		F.Alpha = 0
-		Transfer = 0
-	elseif F.Alpha >= 1 then
-		F.Alpha = 1
-		Transfer = 1
+	if F.Alpha2 <= 0 then
+		F.Alpha2 = 0
+		Transfer2 = 0
+	elseif F.Alpha2 >= 1 then
+		F.Alpha2 = 1
+		Transfer2 = 1
+	end
+	
+	--> Flash4
+	local step4 = floor((4/GetFramerate())*1e3)/1e3
+	if Transfer4 == 0 then
+		F.Alpha4 = F.Alpha4 + step4
+	elseif Transfer4 == 1 then
+		F.Alpha4 = F.Alpha4 - step4
+	else
+		F.Alpha4 = 0
+		Transfer4 = 0
+	end
+	if F.Alpha4 <= 0 then
+		F.Alpha4 = 0
+		Transfer4 = 0
+	elseif F.Alpha4 >= 1 then
+		F.Alpha4 = 1
+		Transfer4 = 1
 	end
 	
 	if F.Last1 >= 1 then
@@ -292,7 +313,16 @@ function F.Smooth_Absorb(unit)
 		u = unit
 	end
 	local TotalAbsorb = UnitGetTotalAbsorbs(u)
+
+	local h = 0
+	if P.Value[unit].Health.Max == 0 then
+		h = 0
+	else
+		h = floor(TotalAbsorb/P.Value[unit].Health.Max*1e4)/1e4
+	end
+
 	P.Value[unit].Absorb.Min = TotalAbsorb
+	P.Value[unit].Absorb.Per = h
 end
 
 F.Smooth_Power = function(unit)
@@ -385,7 +415,6 @@ F.Smooth_Update = function(f)
 	f.Cur = cur
 end
 
-
 function F.create_Backdrop(f, d1, d2, d3, color1,alpha1, color2,alpha2)
 	local bg = CreateFrame("Frame", nil, f)
 	bg: SetFrameLevel(f:GetFrameLevel()-1)
@@ -410,8 +439,8 @@ function F.create_Font(f, name, size, outline, alpha, horizon, vertical)
 	local fs = f:CreateFontString(nil, "OVERLAY")
 	fs:SetFont(name, size, outline)
 	if not alpha then alpha = 1 end
-	fs:SetShadowColor(0,0,0,alpha)
-	fs:SetShadowOffset(1.5,-1)
+	fs:SetShadowColor(0.09,0.09,0.09,alpha)
+	fs:SetShadowOffset(2,-2)
 	if horizon then
 		fs:SetJustifyH(horizon)
 	end

@@ -164,11 +164,12 @@ end
 
 local function Hook_PaperDollSlotButton(self, unit)
 	local slotID = self:GetID()
-	local itemLvel, itemLink, itemQuality
+	local itemLvel, itemLink, itemQuality, bug
 	--local itemLink = GetInventoryItemLink("player", slotID)
 	--local itemLevel = LibItemUpgradeInfo:GetUpgradedItemLevel(itemLink)
 	--local itemLevel = select(2, LibItemInfo:GetItemInfo(itemLink))
-	if unit and self.hasItem then
+	local textureName = GetInventoryItemTexture(unit, self:GetID())
+	if unit and textureName then
 		itemLevel, _, itemLink, quality = select(2, LibItemInfo:GetUnitItemInfo(unit, slotID))
 		if (slotID == 16) or (slotID == 17) then
 			local _, mlevel, _, _, mquality = LibItemInfo:GetUnitItemInfo(unit, 16)
@@ -181,6 +182,7 @@ local function Hook_PaperDollSlotButton(self, unit)
 		itemLevel = 0
 	end
 	local curDura, maxDura = GetInventoryItemDurability(slotID)
+	
 	if not self.ItemFrame then
 		local ItemFrame = CreateFrame("Frame", nil, self)
 		ItemFrame: SetFrameLevel(self:GetFrameLevel()+1)
@@ -550,9 +552,26 @@ end)
 --- ------------------------------------------------------------
 --> Tooltip
 --- ------------------------------------------------------------
--- DAMAGE_TEXT_FONT = FDC_FON
 
+--[[
 if not GuildControlUIRankSettingsFrameRosterLabel then
 	GuildControlUIRankSettingsFrameRosterLabel = CreateFrame("frame")
 	GuildControlUIRankSettingsFrameRosterLabel:Hide()
 end
+--]]
+--- ------------------------------------------------------------
+--> New
+--- ------------------------------------------------------------
+
+local Wormhole_List = {
+	18986, --安全传送器：加基森
+	18984, --空间撕裂器：永望镇
+	30542, --空间撕裂器：52区
+	48933, --虫洞发生器：诺森德
+	87215, --虫洞发生器：帕达利亚
+	112059, --虫洞离心机（德拉诺）
+	151652, --虫洞发生器：阿古斯
+}
+
+-- "COMBAT_LOG_EVENT_UNFILTERED"
+-- CombatLogGetCurrentEventInfo()

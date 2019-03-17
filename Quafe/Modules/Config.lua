@@ -1702,12 +1702,24 @@ local function Aurawatch_AddNew_OnClick(self, button, frame, NUM)
 				end
 				frame.Aura.ID = AuraTable
 			end
+			AuraString = gsub(AuraString, "，", ",")
+			if strfind(AuraString, ",") then
+				AuraString = AuraString..","
+				local AuraTable = {}
+				for t in gmatch(AuraString, "(.-),") do
+					t = StringFix(t)
+					tinsert(AuraTable, t)
+				end
+				frame.Aura.ID = AuraTable[1]
+				frame.Aura.ID2 = AuraTable[2]
+			end
 		end
 		if not Quafe_DB.Global.AuraWatch[classFileName][specID][NUM] then
 			Quafe_DB.Global.AuraWatch[classFileName][specID][NUM] = {}
 			Quafe_DB.Global.AuraWatch[classFileName][specID][NUM].Show = true
 		end
 		Quafe_DB.Global.AuraWatch[classFileName][specID][NUM].Aura = frame.Aura.ID
+		Quafe_DB.Global.AuraWatch[classFileName][specID][NUM].Aura2 = frame.Aura.ID2
 		Quafe_DB.Global.AuraWatch[classFileName][specID][NUM].AuraColor = frame.AuraColor.ID
 		Quafe_DB.Global.AuraWatch[classFileName][specID][NUM].Unit = frame.AuraUnit.ID
 		Quafe_DB.Global.AuraWatch[classFileName][specID][NUM].Caster = frame.AuraCaster.ID
@@ -1715,6 +1727,7 @@ local function Aurawatch_AddNew_OnClick(self, button, frame, NUM)
 	else
 		if Quafe_DB.Global.AuraWatch[classFileName][specID][NUM] then
 			Quafe_DB.Global.AuraWatch[classFileName][specID][NUM].Aura = nil
+			Quafe_DB.Global.AuraWatch[classFileName][specID][NUM].Aura2 = nil
 			Quafe_DB.Global.AuraWatch[classFileName][specID][NUM].AuraColor = nil
 		end
 	end
@@ -1819,6 +1832,7 @@ local function Aurawatch_AddNew_OnShow(frame)
 		local Info = Quafe_DB.Global.AuraWatch[classFileName][specID][frame.ID]
 		frame.Style.ID = Info.Style
 		frame.Aura.ID = Info.Aura
+		frame.Aura.ID2 = Info.Aura2
 		frame.AuraColor.ID = Info.AuraColor
 		frame.AuraUnit.ID = Info.Unit
 		frame.AuraCaster.ID = Info.Caster
@@ -1829,6 +1843,7 @@ local function Aurawatch_AddNew_OnShow(frame)
 	else
 		frame.Style.ID = nil
 		frame.Aura.ID = nil
+		frame.Aura.ID2 = nil
 		frame.AuraColor.ID = nil
 		frame.AuraUnit.ID = nil
 		frame.AuraCaster.ID = nil
@@ -1847,6 +1862,8 @@ local function Aurawatch_AddNew_OnShow(frame)
 			local LIST = {}
 			table.foreach(frame.Aura.ID, function(k,v) tinsert(LIST, v..";") end)
 			frame.Aura: SetText(table.concat(LIST))
+		elseif frame.Aura.ID2 then
+			frame.Aura: SetText(frame.Aura.ID..","..frame.Aura.ID2)
 		else
 			frame.Aura: SetText(frame.Aura.ID)
 		end
