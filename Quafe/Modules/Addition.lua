@@ -1,4 +1,4 @@
-local P, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
+local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
 
 ----------------------------------------------------------------
 --> API Localization
@@ -31,7 +31,7 @@ local function QuickDeleteGood_Load()
 end
 local QuickDeleteGood = {}
 QuickDeleteGood.Load = QuickDeleteGood_Load()
-insert(P.Module, QuickDeleteGood)
+insert(E.Module, QuickDeleteGood)
 
 ----------------------------------------------------------------
 --> 职业大厅信息栏
@@ -47,7 +47,7 @@ local function SkinOrderHall_Load()
 end
 local SkinOrderHall = {}
 SkinOrderHall.Load = SkinOrderHall_Load()
-insert(P.Module, SkinOrderHall)
+insert(E.Module, SkinOrderHall)
 
 ----------------------------------------------------------------
 --> Character Frame
@@ -280,7 +280,7 @@ local function CharacterFramePlus_Load()
 end
 local CharacterFramePlus = {}
 CharacterFramePlus.Load = CharacterFramePlus_Load()
-insert(P.Module, CharacterFramePlus)
+insert(E.Module, CharacterFramePlus)
 
 --- ------------------------------------------------------------
 --> TradeSkill Frame
@@ -492,7 +492,7 @@ end
 
 local GuildLevelFix = {}
 GuildLevelFix.Load = GuildRoster()
-insert(P.Module, GuildLevelFix)
+insert(E.Module, GuildLevelFix)
 --]]
 --- ------------------------------------------------------------
 --> NamePlate
@@ -505,13 +505,13 @@ insert(P.Module, GuildLevelFix)
 local function Hook_DefaultCompactNamePlateFrameSetup(self, options)
 	if not self:IsForbidden() then
 		if self.healthBar then
-			self.healthBar: SetStatusBarTexture(F.Media.."StatusBar\\Raid")
+			self.healthBar: SetStatusBarTexture(F.Path("StatusBar\\Raid"))
 		end
 		if self.powerBar then
-			self.powerBar: SetStatusBarTexture(F.Media.."StatusBar\\Raid")
+			self.powerBar: SetStatusBarTexture(F.Path("StatusBar\\Raid"))
 		end
 		if self.castBar then
-			self.castBar: SetStatusBarTexture(F.Media.."StatusBar\\Raid")
+			self.castBar: SetStatusBarTexture(F.Path("StatusBar\\Raid"))
 		end
 	end
 end
@@ -533,13 +533,13 @@ local function Hook_DefaultCompactUnitFrameSetup(self)
 		local name = self:GetName()
 		if name then
 			if _G[name.."HealthBar"] then
-				_G[name.."HealthBar"]: SetStatusBarTexture(F.Media.."StatusBar\\Raid")
+				_G[name.."HealthBar"]: SetStatusBarTexture(F.Path("StatusBar\\Raid"))
 			end
 			if _G[name.."PowerBar"] then
-				_G[name.."PowerBar"]: SetStatusBarTexture(F.Media.."StatusBar\\Raid")
+				_G[name.."PowerBar"]: SetStatusBarTexture(F.Path("StatusBar\\Raid"))
 			end
 			if _G[name.."Background"] then
-				_G[name.."Background"]: SetTexture(F.Media.."StatusBar\\Raid")
+				_G[name.."Background"]: SetTexture(F.Path("StatusBar\\Raid"))
 				_G[name.."Background"]: SetVertexColor(F.Color(C.Color.W1))
 			end
 		end

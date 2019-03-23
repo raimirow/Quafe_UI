@@ -1,4 +1,4 @@
-local P, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Local
+local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Local
 
 --- ------------------------------------------------------------
 --> API Localization
@@ -145,11 +145,11 @@ C.Color.Rune = {
 
 C.Font = {}
 
-C.Font["Txt"] = F.Media.."Fonts\\Txt.ttf"
-C.Font["Num"] = F.Media.."Fonts\\Num.ttf"
-C.Font["NumSmall"] = F.Media.."Fonts\\Futura.ttf"
-C.Font["NumOW"] = F.Media.."Fonts\\BigNoodleToo.ttf"
-C.Font["TxtTTT"] = F.Media.."Fonts\\TTTGB-Medium.ttf"
+C.Font["Txt"] = F.Path("Fonts\\Txt.ttf")
+C.Font["Num"] = F.Path("Fonts\\Num.ttf")
+C.Font["NumSmall"] = F.Path("Fonts\\Futura.ttf")
+C.Font["NumOW"] = F.Path("Fonts\\BigNoodleToo.ttf")
+C.Font["TxtTTT"] = F.Path("Fonts\\TTTGB-Medium.ttf")
 
 -- STANDARD_TEXT_FONT
 -- UNIT_NAME_FONT
@@ -166,7 +166,62 @@ C.Tex.Horde = "Interface\\Timer\\Horde-Logo"
 
 ----------------------------------------------------------------
 
+--- ------------------------------------------------------------
+--> Watcher Icons
+--- ------------------------------------------------------------
 
+C.WatcherIcon = {
+	"Default",
+
+	--> Quafe
+	--XXX
+
+	--> OverWatch
+	"AdaptiveShield",
+	"AmpItUp",
+	"AmplificationMatrix",
+	"AngelicDescent",
+	"ArmorPack",
+	"Barrage",
+	"BarrierShield",
+	"BioticField",
+	"BioticGrenade",
+	"BioticOrb",
+	"Blink",
+	"Blizzard",
+	"Bob",
+	"Boosters",
+	"BuildTurret",
+	"CallMech",
+	"ChainHook",
+	"Charge",
+	"CoachGun",
+	"Coalescence",
+	"CombatRoll",
+	"ConcussionMine",
+	"ConcussiveBlast",
+	"Crossfade",
+	"CryoFreeze",
+	"Deadeye",
+	"DeathBlossom",
+	"DefenseMatrix",
+	"Deflect",
+	"DeployTurret",
+	"Dragonblade",
+	"Dragonstrike",
+	"Dynamite",
+	"EarthShatter",
+	"Emp",
+	"ExoBoots",
+	"Fade",
+	"FireStrike",
+	"Flashbang",
+	"Fortify",
+	"GrapplingClaw",
+	"GrapplingHook",
+	"GravitonSurge",
+	"GuardianAngel",
+}
 
 --[[
 local frame = CreateFrame("Frame", nil, UIParent)

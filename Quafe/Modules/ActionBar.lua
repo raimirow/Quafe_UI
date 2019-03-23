@@ -1,4 +1,4 @@
-local P, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
+local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
 
 ----------------------------------------------------------------
 --> API and Variable
@@ -100,8 +100,8 @@ end
 ----------------------------------------------------------------
 --> 
 local backdrop = {
-	bgFile = F.Media.."White",
-	edgeFile = F.Media.."glowTex",
+	bgFile = F.Path("White"),
+	edgeFile = F.Path("glowTex"),
 	tile = true,
 	tileSize = 0,
 	edgeSize = 1,
@@ -137,10 +137,10 @@ local ResetNormalTexture = function(f, file)
 end
 
 local function ButtonTemplate(f, font_size)
-	f: SetNormalTexture(F.Media.."Button\\normal")
-	f: SetPushedTexture(F.Media.."Button\\pushed")
-	f: SetCheckedTexture(F.Media.."Button\\checked")
-	f: SetHighlightTexture(F.Media.."Button\\highlight")
+	f: SetNormalTexture(F.Path("Button\\normal"))
+	f: SetPushedTexture(F.Path("Button\\pushed"))
+	f: SetCheckedTexture(F.Path("Button\\checked"))
+	f: SetHighlightTexture(F.Path("Button\\highlight"))
 
 	local name = f:GetName()
 	font_size = font_size or 12
@@ -232,10 +232,10 @@ end
 ----------------------------------------------------------------
 
 local function Button_Refresh_Squar(frame, style)
-	frame: SetNormalTexture(F.Media.."Button\\normal")
-	frame: SetPushedTexture(F.Media.."Button\\pushed")
-	frame: SetCheckedTexture(F.Media.."Button\\checked")
-	frame: SetHighlightTexture(F.Media.."Button\\highlight")
+	frame: SetNormalTexture(F.Path("Button\\normal"))
+	frame: SetPushedTexture(F.Path("Button\\pushed"))
+	frame: SetCheckedTexture(F.Path("Button\\checked"))
+	frame: SetHighlightTexture(F.Path("Button\\highlight"))
 
 	local name = frame:GetName()
 	local font_size = 12
@@ -1036,7 +1036,7 @@ end
 --> 
 --- ------------------------------------------------------------
 
-local Quafe_ActionBar = CreateFrame("Frame", nil, P)
+local Quafe_ActionBar = CreateFrame("Frame", nil, E)
 
 local function ActionBar_Load()
 
@@ -1109,6 +1109,6 @@ local Quafe_ActionBar_Config = {
 
 Quafe_ActionBar.Load = ActionBar_Load
 Quafe_ActionBar.Config = Quafe_ActionBar_Config
-tinsert(P.Module, Quafe_ActionBar)
+tinsert(E.Module, Quafe_ActionBar)
 
 

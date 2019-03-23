@@ -1,4 +1,4 @@
-local P, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Local
+local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Local
 
 --- ------------------------------------------------------------
 --> API and Variable
@@ -52,7 +52,7 @@ local function create_Border(f)
 	f.Beyond: SetPoint("BOTTOMRIGHT", d1, -d1)
 	--f.Beyond = border
 	f.Beyond: SetBackdrop({
-		edgeFile = F.Media.."White", 
+		edgeFile = F.Path("White"),
 		edgeSize = d2,
 		insets = { left = 0, right = 0, top = 0, bottom = 0 }
 	})
@@ -381,13 +381,13 @@ local function AL_List_Refresh(auralist)
 end
 
 local function AL_AuraUpdate(auralist, unit, name, icon, count, duration, expires, caster, spellID)
-	for k, v in pairs(P.AuraUpdate.AuraList) do
+	for k, v in pairs(E.AuraUpdate.AuraList) do
 		if v.Aura and v.Unit == unit and (v.Aura == tostring(spellID) or v.Aura == name) then
 			if (v.Caster and v.Caster == caster) or (not v.Caster) then
 				v.Exist = true
 				v.Icon = icon
 				v.Count = count
-				P.AuraUpdate.AuraList[k].Count = count
+				E.AuraUpdate.AuraList[k].Count = count
 				v.Duration = duration
 				v.Remain = max(expires - GetTime(), 0)
 				v.Total = (v.Total or 0) + 1
@@ -397,14 +397,14 @@ local function AL_AuraUpdate(auralist, unit, name, icon, count, duration, expire
 end
 
 local function AL_Event(frame, event)
-	AL_List_Refresh(P.AuraUpdate.AuraList)
+	AL_List_Refresh(E.AuraUpdate.AuraList)
 	local name, icon, count, dispelType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellID
-	for k, unit in ipairs(P.AuraUpdate.UnitList) do
+	for k, unit in ipairs(E.AuraUpdate.UnitList) do
 		local NumBuff,NumDebuff = 1, 1
 		while NumBuff do
 			name, icon, count, dispelType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellID = UnitBuff(unit, NumBuff)
 			if name then
-				AL_AuraUpdate(P.AuraUpdate.AuraList, unit, name, icon, count, duration, expirationTime, unitCaster, spellID)
+				AL_AuraUpdate(E.AuraUpdate.AuraList, unit, name, icon, count, duration, expirationTime, unitCaster, spellID)
 				NumBuff = NumBuff + 1
 			else
 				NumBuff = nil
@@ -413,7 +413,7 @@ local function AL_Event(frame, event)
 		while NumDebuff do
 			name, icon, count, dispelType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellID = UnitDebuff(unit, NumDebuff)
 			if name then
-				AL_AuraUpdate(P.AuraUpdate.AuraList, unit, name, icon, count, duration, expirationTime, unitCaster, spellID)
+				AL_AuraUpdate(E.AuraUpdate.AuraList, unit, name, icon, count, duration, expirationTime, unitCaster, spellID)
 				NumDebuff = NumDebuff + 1
 			else
 				NumDebuff = nil
@@ -429,7 +429,7 @@ local function AL_OnEvent(frame)
 	frame: RegisterUnitEvent("UNIT_PET", "player")
 	frame: RegisterEvent("UNIT_AURA")
 	frame: SetScript("OnEvent", function(self,event)
-		AL_Event(self, event, P.AuraUpdate.UnitList)
+		AL_Event(self, event, E.AuraUpdate.UnitList)
 	end)
 end
 
@@ -437,9 +437,9 @@ end
 --> AuraListUpdate Load
 ----------------------------------------------------------------
 
-local AuraListUpdate = CreateFrame("Frame", nil, P)
+local AuraListUpdate = CreateFrame("Frame", nil, E)
 local function AuraListUpdate_Load()
 	AL_OnEvent(AuraListUpdate)
 end
 AuraListUpdate.Load = AuraListUpdate_Load()
-tinsert(P.Module, AuraListUpdate)
+tinsert(E.Module, AuraListUpdate)

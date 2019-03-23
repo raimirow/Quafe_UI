@@ -1,4 +1,4 @@
-local P, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
+local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
 
 --- ------------------------------------------------------------
 --> API and Variable
@@ -335,13 +335,13 @@ local function Init_BagGap(f, classtable, p)
 		local icon = frame:CreateTexture(nil, "ARTWORK")
 		icon: SetSize(config.iconSize, config.iconSize)
 		icon: SetPoint("CENTER", frame, "CENTER", 0,0)
-		icon: SetTexture(F.Media..v.T)
+		icon: SetTexture(F.Path(v.T))
 		icon: SetVertexColor(F.Color(v.C))
 		
 		--local shadow = frame:CreateTexture(nil, "BORDER")
 		--shadow: SetSize(config.iconSize, config.iconSize)
 		--shadow: SetPoint("CENTER", frame, "CENTER", 1,1)
-		--shadow: SetTexture(F.Media..v.T)
+		--shadow: SetTexture(F.Path(v.T))
 		--shadow: SetVertexColor(F.Color(C.Color.W3))
 		--shadow: SetAlpha(0.3)
 
@@ -407,8 +407,8 @@ end
 
 local function Create_ButtonBg(f, e, d)
 	local backdrop = {
-		bgFile = F.Media.."White", 
-		edgeFile = F.Media.."White", 
+		bgFile = F.Path("White"),
+		edgeFile = F.Path("White"),
 		tile = false, tileSize = 0, edgeSize = e, 
 		insets = { left = d, right = d, top = d, bottom = d }
 	}
@@ -473,7 +473,7 @@ local function Create_BagItemButton(f, bagID, slotID)
 	if(not button.NewItemTexture) then
 		button.NewItemTexture = button:CreateTexture(nil, "OVERLAY", 1);
 	end
-	button.NewItemTexture: SetTexture(F.Media.."Bag_Icon_Quality")
+	button.NewItemTexture: SetTexture(F.Path("Bag_Icon_Quality"))
 	button.NewItemTexture: SetVertexColor(0/255, 200/255, 248/255)
 	button.NewItemTexture: SetBlendMode("BLEND")
 	button.NewItemTexture: SetAlpha(1)
@@ -499,7 +499,7 @@ local function Create_BagItemButton(f, bagID, slotID)
 	--button.UpgradeIcon: SetSize(16,16)
 
 	button.QuestIcon = _G[slotName.."IconQuestTexture"] or button: CreateTexture(nil, "OVERLAY", 2)
-	button.QuestIcon: SetTexture(F.Media.."Bag_Icon_Quest")
+	button.QuestIcon: SetTexture(F.Path("Bag_Icon_Quest"))
 	button.QuestIcon: SetVertexColor(F.Color(C.Color.W3))
 	button.QuestIcon: SetBlendMode("BLEND")
 	button.QuestIcon: SetAlpha(1)
@@ -508,10 +508,10 @@ local function Create_BagItemButton(f, bagID, slotID)
 	button.QuestIcon: SetPoint("BOTTOMLEFT", button, "BOTTOMLEFT", 2,2)
 
 	button.QualityIcon = button: CreateTexture(nil, "OVERLAY", 2)
-	--button.QualityIcon: SetTexture(F.Media.."Bag_Icon_Quality")
+	--button.QualityIcon: SetTexture(F.Path("Bag_Icon_Quality"))
 	--button.QualityIcon: SetSize(12,12)
 	--button.QualityIcon: SetPoint("BOTTOMLEFT", button, "BOTTOMLEFT", 2,2)
-	button.QualityIcon: SetTexture(F.Media.."Bag_Icon_Glow")
+	button.QualityIcon: SetTexture(F.Path("Bag_Icon_Glow"))
 	button.QualityIcon: SetSize(config.buttonSize, config.buttonSize)
 	button.QualityIcon: SetPoint("CENTER", button, "CENTER", 0,0)
 	button.QualityIcon: SetVertexColor(F.Color(C.Color.W3))
@@ -519,8 +519,8 @@ local function Create_BagItemButton(f, bagID, slotID)
 	button: SetNormalTexture("")
 	_G[slotName.."NormalTexture"]:ClearAllPoints()
 	_G[slotName.."NormalTexture"]:SetAllPoints(button)
-	button: SetPushedTexture(F.Media.."Button\\Bag_Pushed")
-	button: SetHighlightTexture(F.Media.."Button\\Bag_Hightlight")
+	button: SetPushedTexture(F.Path("Button\\Bag_Pushed"))
+	button: SetHighlightTexture(F.Path("Button\\Bag_Hightlight"))
 	
 	button.cooldown = _G[format("%sCooldown", slotName)]
 	button.cooldown: ClearAllPoints()
@@ -638,8 +638,15 @@ local function Sort_BagItem(ItemTable)
 	table.sort(ItemTable, SortFunc)
 end
 
+local function Update_CIMI(button)
+	--CIMI_AddToFrame(button, ContainerFrameItemButton_CIMIUpdateIcon)
+    --ContainerFrameItemButton_CIMIUpdateIcon(button.CanIMogItOverlay)
+end
+
+
+
 local function Update_SlotItem(slot, v)
-	SetItemButtonTexture(slot, v.itemTexture or F.Media.."Bag_Slot") --Interface\Paperdoll\UI-PaperDoll-Slot-Bag
+	SetItemButtonTexture(slot, v.itemTexture or F.Path("Bag_Slot")) --Interface\Paperdoll\UI-PaperDoll-Slot-Bag
 	--SetItemButtonQuality(itemButton, quality, itemID)
 	SetItemButtonCount(slot,  v.itemCount)
 	SetItemButtonDesaturated(slot, v.itemLocked, 0.5,0.5,0.5)
@@ -687,6 +694,7 @@ local function Update_SlotItem(slot, v)
 	end
 
 	local isBattlePayItem = IsBattlePayItem(v.bagID, v.slotID)
+	Update_CIMI(slot)
 end
 
 local function Update_BagItem(f)
@@ -1327,25 +1335,24 @@ local function CanIMogIt_Load()
 		
 		--> Begin adding to frames
 		function CIMI_QuafeAddFrame(event, addonName)
-			if event == "PLAYER_LOGIN" or event == "BANKFRAME_OPENED" or event == "GUILDBANKFRAME_OPENED" then
-				-- Add to frames
-				-- Bags
-				for bagID = BANK_CONTAINER, NUM_BAG_SLOTS + NUM_BANKBAGSLOTS do
-					for slotID = 1, MAX_CONTAINER_ITEMS do
-						local frame = _G["Quafe_Bag"..bagID.."Slot"..slotID]
-						if frame then
-							CIMI_AddToFrame(frame, QuafeItemButton_CIMIUpdateIcon)
-						end
+			if event ~= "PLAYER_LOGIN" and event ~= "BANKFRAME_OPENED" and not CIMIEvents[event] then return end
+			-- Add to frames
+			-- Bags
+			for bagID = BANK_CONTAINER, NUM_BAG_SLOTS + NUM_BANKBAGSLOTS do
+				for slotID = 1, MAX_CONTAINER_ITEMS do
+					local frame = _G["Quafe_Bag"..bagID.."Slot"..slotID]
+					if frame then
+						CIMI_AddToFrame(frame, QuafeItemButton_CIMIUpdateIcon)
 					end
 				end
 			end
+			--C_Timer.After(.5, function() CIMI_QuafeAddFrame() end)
 		end
-		--hooksecurefunc(CanIMogIt.frame, "HookItemOverlay", CIMI_QuafeAddFrame)
 		CanIMogIt.frame:AddEventFunction(CIMI_QuafeAddFrame)
 		
 		--> Event functions
-		function CIMI_QuafeUpdate()
-			CIMI_QuafeAddFrame(nil, "BANKFRAME_OPENED")
+		function CIMI_QuafeUpdate(self, event, ...)
+			--CIMI_QuafeAddFrame(nil, "BANKFRAME_OPENED")
 			for bagID = BANK_CONTAINER, NUM_BAG_SLOTS + NUM_BANKBAGSLOTS do
 				for slotID = 1, MAX_CONTAINER_ITEMS do
 					local frame = _G["Quafe_Bag"..bagID.."Slot"..slotID]
@@ -1355,25 +1362,37 @@ local function CanIMogIt_Load()
 				end
 			end
 		end
-		CanIMogIt: RegisterMessage("ResetCache", CIMI_QuafeUpdate)
+		--CanIMogIt: RegisterMessage("ResetCache", CIMI_QuafeUpdate)
 		
-		function CIMI_QuafeEvents(self, event, ...)
+		--function CIMI_QuafeEvents(self, event, ...)
+		function CIMI_QuafeEvents(event)
 			-- Update based on wow events
 			if not CIMIEvents[event] then return end
-				CIMI_QuafeUpdate()
-			end
-		hooksecurefunc(CanIMogIt.frame, "ItemOverlayEvents", CIMI_QuafeEvents)
+			CIMI_QuafeUpdate()
+		end
+		--hooksecurefunc(CanIMogIt.frame, "ItemOverlayEvents", CIMI_QuafeEvents)
+		CanIMogIt.frame:AddOverlayEventFunction(CIMI_QuafeEvents)
+
+		--C_Timer.After(15, function() CanIMogIt:ResetCache() end)
+		CIMI_Load = true
 	end
-	
+	--[[
 	function Quafe_UpdateAfter()
         C_Timer.After(.5, function() CIMI_QuafeAddFrame(nil, "PLAYER_LOGIN") end)
         C_Timer.After(.5, function() CanIMogIt.frame:ItemOverlayEvents("BAG_UPDATE") end)
     end
-	
-	--C_Timer.After(15, function() CanIMogIt:ResetCache() end)
-	CIMI_Load = true
+	--]]
 end
-
+--[[
+local function CIMI_LoadCheck()
+	if IsAddOnLoaded("CanIMogIt") then
+		Update_CIMI = function(button)
+			CIMI_AddToFrame(button, ContainerFrameItemButton_CIMIUpdateIcon)
+			ContainerFrameItemButton_CIMIUpdateIcon(button.CanIMogItOverlay)
+		end
+	end
+end
+--]]
 --- ------------------------------------------------------------
 --> Bag Frame
 --- ------------------------------------------------------------
@@ -1523,7 +1542,7 @@ local function Bag_Frame(frame)
 				self.FullUpdate = true
 			end
 		end
-		Quafe_UpdateAfter()
+		--Quafe_UpdateAfter()
 	end)
 end
 
@@ -2145,6 +2164,7 @@ local function Bank_Frame(f)
 			self.Reagent:Hide()
 			BankFrame:UnregisterAllEvents()
 			table.insert(UISpecialFrames, "BankFrame");
+			--Quafe_UpdateAfter()
 		end
 		if event == "BANKFRAME_OPENED" then
 			self: Show()
@@ -2152,7 +2172,7 @@ local function Bank_Frame(f)
 			self.Reagent:Hide()
 			FullUpdate_BankItem(self)
 			C_Timer.After(2, function() FullUpdate_BankItem(self) end)
-			Quafe_UpdateAfter()
+			--Quafe_UpdateAfter()
 		elseif event == "BANKFRAME_CLOSED" then
 			self: Hide()
 		end
@@ -2178,7 +2198,7 @@ end
 --> Container Frame
 --- ------------------------------------------------------------
 
-local Quafe_Container = CreateFrame("Frame", nil, P)
+local Quafe_Container = CreateFrame("Frame", nil, E)
 Quafe_Container.Init = false
 
 local function Quafe_Container_Load()
@@ -2186,6 +2206,7 @@ local function Quafe_Container_Load()
 		Bag_Frame(Quafe_Container)
 		Bank_Frame(Quafe_Container)
 		CanIMogIt_Load()
+		--CIMI_LoadCheck()
 		Quafe_Container.Init = true
 	end
 end
@@ -2287,4 +2308,4 @@ local Quafe_Container_Config = {
 
 Quafe_Container.Load = Quafe_Container_Load
 Quafe_Container.Config = Quafe_Container_Config
-tinsert(P.Module, Quafe_Container)
+tinsert(E.Module, Quafe_Container)

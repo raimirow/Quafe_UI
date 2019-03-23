@@ -1,4 +1,4 @@
-local P, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Local
+local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Local
 --local ChatModule = Quafe:NewModule("Chat", "AceHook-3.0")
 
 --- ------------------------------------------------------------
@@ -50,7 +50,7 @@ end
 ----------------------------------------------------------------
 
 local backdrop = {
-	bgFile = F.Media.."White",
+	bgFile = F.Path("White"),
 	edgeFile = "",
 	tile = true, tileSize = 16, edgeSize = 0,
 	insets = {left = 0, right = 0, top = 0, bottom = 0}
@@ -269,7 +269,7 @@ local function Quafe_ChatFrame_Skin_Event(f, event)
 			end)
 			
 			local EditBox_LanguageBorder = EditBox_Language: CreateTexture(nil, "ARTWORK")
-			EditBox_LanguageBorder: SetTexture(F.Media.."White")
+			EditBox_LanguageBorder: SetTexture(F.Path("White"))
 			EditBox_LanguageBorder: SetVertexColor(F.Color(C.Color.White))
 			EditBox_LanguageBorder: SetAlpha(0.9)
 			EditBox_LanguageBorder: SetPoint("TOPLEFT", EditBox_Language, "TOPLEFT", 0,-4)
@@ -488,7 +488,7 @@ end
 --> Load
 ----------------------------------------------------------------
 
-local Quafe_ChatFrame = CreateFrame("Frame", "Quafe_ChatFrame", P)
+local Quafe_ChatFrame = CreateFrame("Frame", "Quafe_ChatFrame", E)
 Quafe_ChatFrame.Init = false
 
 local function Quafe_ChatFrame_Load()
@@ -542,7 +542,7 @@ local Quafe_ChatFrame_Config = {
 
 Quafe_ChatFrame.Load = Quafe_ChatFrame_Load
 Quafe_ChatFrame.Config = Quafe_ChatFrame_Config
-insert(P.Module, Quafe_ChatFrame)
+insert(E.Module, Quafe_ChatFrame)
 
 ----------------------------------------------------------------
 

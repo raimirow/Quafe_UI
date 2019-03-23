@@ -12,32 +12,35 @@ Engine[2] = {}	-->C, Config and Constant
 Engine[3] = {}	-->F, Function and Lib
 Engine[4] = {}	-->L, Locale
 
-local P, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
---This should be at the top of every file inside of the Qot AddOn:	
---local P, C, F, L = unpack(select(2, ...))
+local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
+--This should be at the top of every file inside of the Quafe AddOn:	
+--local E, C, F, L = unpack(select(2, ...))
 
 _G[AddonName] = Engine	-->Allow other addons to use Engine
 --This is how another addon imports the Quafe engine:	
---local P, C, F, L = unpack(Quafe)
+--local E, C, F, L = unpack(Quafe)
+--(learned from Tukui)
 
-P.Name = AddonName
-P.Module = {}
-P.Config = {}
-P.AuraUpdate = {
+E.Name = AddonName
+E.Version = tonumber(GetAddOnMetadata(E.Name, "Version"))
+
+E.Module = {}
+E.Config = {}
+E.AuraUpdate = {
 	AuraList = {},
 	UnitList = {"player", "target"},
 }
-P.Aurawatch = {}
-P.AurawatchStyle = {}
-P.FCS_Refresh = {}
-P.Database = {
+E.Aurawatch = {}
+E.AurawatchStyle = {}
+E.FCS_Refresh = {}
+E.Database = {
 	Reset = false,
 	Global = {},
 	Profile = {
 		Default = {},
 	},
 }
-P.Value = {
+E.Value = {
 	["player"] = {
 		Health = {Min = 0, Max = 0, Per = 0, Cur = 0},
 		Power = {Min = 0, Max = 0, Per = 0, Cur = 0},
@@ -47,6 +50,7 @@ P.Value = {
 	["target"] = {
 		Health = {Min = 0, Max = 0, Per = 0, Cur = 0},
 		Power = {Min = 0, Max = 0, Per = 0, Cur = 0},
+		Mana = {Min = 0, Max = 0, Per = 0, Cur = 0},
 		Absorb = {Min = 0, Max = 0, Per = 0, Cur = 0},
 	},
 	["focus"] = {
@@ -58,11 +62,12 @@ P.Value = {
 		Power = {Min = 0, Max = 0, Per = 0, Cur = 0},
 	},
 }
-P.Aura = {}
+E.Aura = {}
 
-F.Media = "Interface\\AddOns\\"..AddonName.."\\Media\\"
+--F.Media = "Interface\\AddOns\\"..AddonName.."\\Media\\"
 F.Path = function(tex)
-	return format("%s%s%s%s", "Interface\\AddOns\\", AddonName, "\\Media\\", tex)
+	--return format("%s%s%s%s", "Interface\\AddOns\\", AddonName, "\\Media\\", tex)
+	return "Interface\\AddOns\\"..AddonName.."\\Media\\"..tex
 end
 
 ----------------------------------------------------------------
@@ -91,9 +96,9 @@ SlashCmdList["QUAFE"] = function(msg)
 		DEFAULT_CHAT_FRAME:AddMessage("Quafe UI has be reset")
 	elseif msg == "aurawatch reset" then
 		wipe(Quafe_DB.Global.AuraWatch)
-		Quafe_DB.Global.AuraWatch = P.Aurawatch
+		Quafe_DB.Global.AuraWatch = E.Aurawatch
 	else
-		if P.Config then P.Config: Show() end
+		if E.Config then E.Config: Show() end
 	end
 end
 SLASH_QUAFE1 = "/quafe"

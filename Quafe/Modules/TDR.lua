@@ -1,4 +1,4 @@
-local P, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
+local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
 
 ----------------------------------------------------------------
 --> API Localization
@@ -428,7 +428,7 @@ local function Num_Artwork(f, color)
 	f.Num = {}
 	for i = 1, 12 do
 		f.Num[i] = f:CreateTexture(nil, "ARTWORK")
-		f.Num[i]: SetTexture(F.Media.."Num_Right14")
+		f.Num[i]: SetTexture(F.Path("Num_Right14"))
 		f.Num[i]: SetVertexColor(F.Color(color))
 		f.Num[i]: SetAlpha(1)
 		f.Num[i]: SetSize(Num_14[0][1], Num_14[0][2])
@@ -483,7 +483,7 @@ local function TDR_OnEvent(frame)
 	end)
 end
 
-local TacticsDataRecord = CreateFrame("Frame", "Quafe_TacticsDataRecord", P)
+local TacticsDataRecord = CreateFrame("Frame", "Quafe_TacticsDataRecord", E)
 TacticsDataRecord: SetSize(160,20)
 TacticsDataRecord: SetPoint("CENTER", UIParent, "BOTTOMRIGHT", -400, 160)
 local function TDR_Load()
@@ -493,7 +493,7 @@ local function TDR_Load()
 	TDR_OnEvent(TacticsDataRecord)
 end
 TacticsDataRecord.Load = TDR_Load
-tinsert(P.Module, TacticsDataRecord)
+tinsert(E.Module, TacticsDataRecord)
 
 
 

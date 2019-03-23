@@ -1,4 +1,4 @@
-local P, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
+local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
 
 --- ------------------------------------------------------------
 --> API Localization
@@ -173,7 +173,7 @@ local function Totem_Create(frame)
 		TotemButton_Sign(Button)
 		Button.Info = {}
 		Button.Info.Angle = 170-6*i
-		TotemButton_Rotate(Button, P)
+		TotemButton_Rotate(Button, E)
 		Button:Hide()
 
 		frame.Totem[i] = Button
@@ -289,7 +289,7 @@ end
 --> Load
 --- ------------------------------------------------------------
 
-local Totems = CreateFrame("Frame", "Quafe_TIE_Totem", P)
+local Totems = CreateFrame("Frame", "Quafe_TIE_Totem", E)
 local function Load()
 	Totems.Totem = {}
 	Totems.Info = {}
@@ -297,4 +297,4 @@ local function Load()
 	Totem_OnEvent(Totems)
 end
 Totems.Load = Load
-insert(P.Module, Totems)
+insert(E.Module, Totems)

@@ -1,4 +1,4 @@
-local P, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
+local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
 
 --- ------------------------------------------------------------
 --> API Localization
@@ -70,11 +70,11 @@ end
 --> Load
 --- ------------------------------------------------------------
 
-local AwayMode = CreateFrame("Frame", nil, P)
+local AwayMode = CreateFrame("Frame", nil, E)
 local function Load()
 	AwayMode_OnEvent(AwayMode)
 end
 AwayMode.Load = Load
-insert(P.Module, AwayMode)
+insert(E.Module, AwayMode)
 
 

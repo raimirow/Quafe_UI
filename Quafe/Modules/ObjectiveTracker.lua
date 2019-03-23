@@ -1,4 +1,4 @@
-local P, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Local
+local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Local
 
 --- ------------------------------------------------------------
 --> API and Variable
@@ -77,7 +77,7 @@ end
 --> Load
 ----------------------------------------------------------------
 
-local Quafe_ObjectiveTracker = CreateFrame("Frame", "Quafe_ObjectiveTracker", P)
+local Quafe_ObjectiveTracker = CreateFrame("Frame", "Quafe_ObjectiveTracker", E)
 Quafe_ObjectiveTracker: SetSize(222, 540)
 Quafe_ObjectiveTracker.Init = false
 Quafe_ObjectiveTracker: Hide()
@@ -160,4 +160,4 @@ local Quafe_ObjectiveTracker_Config = {
 
 Quafe_ObjectiveTracker.Load = ObjectiveTracker_Load
 Quafe_ObjectiveTracker.Config = Quafe_ObjectiveTracker_Config
-insert(P.Module, Quafe_ObjectiveTracker)
+insert(E.Module, Quafe_ObjectiveTracker)

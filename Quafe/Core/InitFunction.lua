@@ -1,4 +1,4 @@
-local P, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Local
+local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Local
 
 --- ------------------------------------------------------------
 --> API and Variable
@@ -295,12 +295,12 @@ F.Smooth_Health = function(unit)
 	else
 		h = floor(minHealth/maxHealth*1e4)/1e4
 	end
-	if not P.Value[unit].Health then
-		P.Value[unit].Health = {}
+	if not E.Value[unit].Health then
+		E.Value[unit].Health = {}
 	end
-	P.Value[unit].Health.Per = h
-	P.Value[unit].Health.Min = minHealth
-	P.Value[unit].Health.Max = maxHealth
+	E.Value[unit].Health.Per = h
+	E.Value[unit].Health.Min = minHealth
+	E.Value[unit].Health.Max = maxHealth
 end
 
 function F.Smooth_Absorb(unit)
@@ -315,14 +315,14 @@ function F.Smooth_Absorb(unit)
 	local TotalAbsorb = UnitGetTotalAbsorbs(u)
 
 	local h = 0
-	if P.Value[unit].Health.Max == 0 then
+	if E.Value[unit].Health.Max == 0 then
 		h = 0
 	else
-		h = floor(TotalAbsorb/P.Value[unit].Health.Max*1e4)/1e4
+		h = floor(TotalAbsorb/E.Value[unit].Health.Max*1e4)/1e4
 	end
 
-	P.Value[unit].Absorb.Min = TotalAbsorb
-	P.Value[unit].Absorb.Per = h
+	E.Value[unit].Absorb.Min = TotalAbsorb
+	E.Value[unit].Absorb.Per = h
 end
 
 F.Smooth_Power = function(unit)
@@ -342,13 +342,13 @@ F.Smooth_Power = function(unit)
 	else
 		p = floor(minPower/maxPower*1e4)/1e4
 	end
-	if not P.Value[unit].Power then
-		P.Value[unit].Power = {}
+	if not E.Value[unit].Power then
+		E.Value[unit].Power = {}
 	end
-	P.Value[unit].Power.Per = p
-	P.Value[unit].Power.Min = minPower
-	P.Value[unit].Power.Max = maxPower
-	P.Value[unit].Power.Type = powerType
+	E.Value[unit].Power.Per = p
+	E.Value[unit].Power.Min = minPower
+	E.Value[unit].Power.Max = maxPower
+	E.Value[unit].Power.Type = powerType
 end
 
 function F.Smooth_Mana(unit)
@@ -360,12 +360,12 @@ function F.Smooth_Mana(unit)
 	else
 		per = floor(minMana/maxMana*1e4)/1e4
 	end
-	if not P.Value[unit].Mana then
-		P.Value[unit].Mana = {}
+	if not E.Value[unit].Mana then
+		E.Value[unit].Mana = {}
 	end
-	P.Value[unit].Mana.Per = per
-	P.Value[unit].Mana.Min = minMana
-	P.Value[unit].Mana.Max = maxMana
+	E.Value[unit].Mana.Per = per
+	E.Value[unit].Mana.Min = minMana
+	E.Value[unit].Mana.Max = maxMana
 end
 
 F.update_Health = function(self, unit)
@@ -453,7 +453,7 @@ end
 function F.create_Texture(f, layer, texture, color, alpha)
 	local tt = f:CreateTexture(nil, layer)
 	if texture then
-		tt:SetTexture(F.Media..texture)
+		tt:SetTexture(F.Path(texture))
 	end
 	if color then
 		tt:SetVertexColor(F.Color(color))
@@ -467,7 +467,7 @@ end
 function F.create_StatusBar(f, texture, orientation, rotate)
 	local sb = CreateFrame("StatusBar", nil, f)
 	if texture then
-		sb: SetStatusBarTexture(F.Media..texture) 
+		sb: SetStatusBarTexture(F.Path(texture))
 	end
 	if orientation then
 		sb: SetOrientation(orientation)
@@ -629,7 +629,7 @@ function F.AutoScale()
 		SetCVar("uiScale", newScale)
 		DEFAULT_CHAT_FRAME:AddMessage("Scale:"..newScale)
 	end
-	DEFAULT_CHAT_FRAME:AddMessage("1080 P")
+	DEFAULT_CHAT_FRAME:AddMessage("1080 E")
 end
 
 ----------------------------------------------------------------

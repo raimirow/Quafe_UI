@@ -1,4 +1,4 @@
-local P, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
+local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
 
 ----------------------------------------------------------------
 --> API Localization
@@ -125,20 +125,20 @@ end
 
 local function BGU_OnUpdate(frame)
 	frame: SetScript("OnUpdate", function(self, elpased)
-		F.Smooth_Update(P.Value["player"].Health)
-		F.Smooth_Update(P.Value["player"].Power)
-		F.Smooth_Update(P.Value["player"].Absorb)
+		F.Smooth_Update(E.Value["player"].Health)
+		F.Smooth_Update(E.Value["player"].Power)
+		F.Smooth_Update(E.Value["player"].Absorb)
 		if frame.BGUPlayer.ShowMana then
-			F.Smooth_Update(P.Value["player"].Mana)
+			F.Smooth_Update(E.Value["player"].Mana)
 		end
 		if frame.BGUPet.ShowPet then
-			F.Smooth_Update(P.Value["pet"].Health)
-			F.Smooth_Update(P.Value["pet"].Power)
+			F.Smooth_Update(E.Value["pet"].Health)
+			F.Smooth_Update(E.Value["pet"].Power)
 		end
 	end)
 end
 
-local BackgroundUpdate = CreateFrame("Frame", nil, P)
+local BackgroundUpdate = CreateFrame("Frame", nil, E)
 local function BGU_Load()
 	Create_OnEvent(BackgroundUpdate)
 	BGU_Player_RegEvent(BackgroundUpdate.BGUPlayer)
@@ -146,4 +146,4 @@ local function BGU_Load()
 	BGU_OnUpdate(BackgroundUpdate)
 end
 BackgroundUpdate.Load = BGU_Load()
-tinsert(P.Module, BackgroundUpdate)
+tinsert(E.Module, BackgroundUpdate)

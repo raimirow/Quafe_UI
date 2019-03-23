@@ -1,4 +1,4 @@
-local P, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
+local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
 
 --- ------------------------------------------------------------
 --> API Localization
@@ -30,7 +30,7 @@ local GetTime = GetTime
 --> Assistants Init
 --- ------------------------------------------------------------
 
-local Quafe_Assistant = CreateFrame("Frame", "Quafe_Assistant", P)
+local Quafe_Assistant = CreateFrame("Frame", "Quafe_Assistant", E)
 
 --- ------------------------------------------------------------
 --> SoulStone
@@ -199,4 +199,4 @@ local Quafe_Assistant_Config = {
 
 Quafe_Assistant.Load = Quafe_Assistant_Load
 Quafe_Assistant.Config = Quafe_Assistant_Config
-tinsert(P.Module, Quafe_Assistant)
+tinsert(E.Module, Quafe_Assistant)

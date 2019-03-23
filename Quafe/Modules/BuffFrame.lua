@@ -1,4 +1,4 @@
-﻿local P, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Local
+﻿local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Local
 
 --- ------------------------------------------------------------
 --> API Localization
@@ -256,7 +256,7 @@ end
 --> Load
 ----------------------------------------------------------------
 
-local Quafe_BuffFrame = CreateFrame("Frame", "Quafe_Default_BuffFrame", P)
+local Quafe_BuffFrame = CreateFrame("Frame", "Quafe_Default_BuffFrame", E)
 Quafe_BuffFrame: SetSize(300,100)
 --Quafe_BuffFrame: SetPoint("TOPRIGHT", UIParent, "TOPRIGHT", -30, -30)
 Quafe_BuffFrame.Init = false
@@ -350,7 +350,7 @@ local Quafe_BuffFrame_Config = {
 
 Quafe_BuffFrame.Load = Quafe_BuffFrame_Load
 Quafe_BuffFrame.Config = Quafe_BuffFrame_Config
-tinsert(P.Module, Quafe_BuffFrame)
+tinsert(E.Module, Quafe_BuffFrame)
 
 ----------------------------------------------------------------
 --[[

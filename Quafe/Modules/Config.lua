@@ -1,4 +1,4 @@
-local P, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
+local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
 
 --- ------------------------------------------------------------
 --> API Localization
@@ -18,6 +18,7 @@ local rad = math.rad
 local acos = math.acos
 local atan = math.atan
 local rad = math.rad
+local mod = mod
 local modf = math.modf
 
 local insert = table.insert
@@ -65,7 +66,7 @@ end
 --> Config Mover
 ----------------------------------------------------------------
 
-local Quafe_ConfigMover = CreateFrame("Button", "Quafe_ConfigMover", P)
+local Quafe_ConfigMover = CreateFrame("Button", "Quafe_ConfigMover", E)
 Quafe_ConfigMover: SetFrameStrata("HIGH")
 Quafe_ConfigMover: Hide()
 tinsert(UISpecialFrames, "Quafe_ConfigMover")
@@ -147,7 +148,7 @@ local function ConfigMover_Load()
 	Mover_Artwork(Quafe_ConfigMover)
 end
 Quafe_ConfigMover.Load = ConfigMover_Load()
-tinsert(P.Module, Quafe_ConfigMover)
+tinsert(E.Module, Quafe_ConfigMover)
 
 function F.CreateJoystick(frame, sizeX,sizeY, framename)
 	local Mover = CreateFrame("Frame", nil, Quafe_ConfigMover)
@@ -240,14 +241,14 @@ local function Create_Arrow(f, style)
 	if style == "Switch" then
 		--> Left
 		f.ArrowL = f:CreateTexture(nil, "ARTWORK", 1)
-		f.ArrowL: SetTexture(F.Media.."Config_Arrow")
+		f.ArrowL: SetTexture(F.Path("Config_Arrow"))
 		f.ArrowL: SetVertexColor(F.Color(C.Color.W3))
 		f.ArrowL: SetSize(32, 32)
 		f.ArrowL: SetPoint("LEFT", f, "LEFT", 0,0)
 		f.ArrowL: SetAlpha(1)
 		--> Right
 		f.ArrowR = f:CreateTexture(nil, "ARTWORK", 1)
-		f.ArrowR: SetTexture(F.Media.."Config_Arrow")
+		f.ArrowR: SetTexture(F.Path("Config_Arrow"))
 		f.ArrowR: SetVertexColor(F.Color(C.Color.W3))
 		f.ArrowR: SetSize(32, 32)
 		f.ArrowR: SetTexCoord(1,0, 0,1)
@@ -256,7 +257,7 @@ local function Create_Arrow(f, style)
 	elseif style == "Dropdown" then
 		--> Down
 		f.ArrowD = f:CreateTexture(nil, "ARTWORK", 1)
-		f.ArrowD: SetTexture(F.Media.."Config_ArrowDown")
+		f.ArrowD: SetTexture(F.Path("Config_ArrowDown"))
 		f.ArrowD: SetVertexColor(F.Color(C.Color.W3))
 		f.ArrowD: SetSize(32, 32)
 		f.ArrowD: SetTexCoord(0,1, 0,1)
@@ -728,7 +729,7 @@ local function ConfigBar_Create(frame, scroll, configframe)
 end
 
 local function ConfigScrollBar_Load(frame, configframe)
-	for k, v in ipairs(P.Module) do
+	for k, v in ipairs(E.Module) do
 		if v.Config and v.Config.Config then
 			frame.Num = frame.Num + 1
 			frame.Bar[frame.Num] = Bar1_Template(frame)
@@ -960,7 +961,7 @@ local function Aurawatch_Bar_Artwork(frame, scroll)
 	end)
 
 	local ArrowU = SnUp:CreateTexture(nil, "ARTWORK", 1)
-	ArrowU: SetTexture(F.Media.."Config_ArrowDown")
+	ArrowU: SetTexture(F.Path("Config_ArrowDown"))
 	ArrowU: SetVertexColor(F.Color(C.Color.W3))
 	ArrowU: SetSize(24, 24)
 	ArrowU: SetTexCoord(0,1, 1,0)
@@ -979,7 +980,7 @@ local function Aurawatch_Bar_Artwork(frame, scroll)
 	end)
 
 	local ArrowD = SnDown:CreateTexture(nil, "ARTWORK", 1)
-	ArrowD: SetTexture(F.Media.."Config_ArrowDown")
+	ArrowD: SetTexture(F.Path("Config_ArrowDown"))
 	ArrowD: SetVertexColor(F.Color(C.Color.W3))
 	ArrowD: SetSize(24, 24)
 	ArrowD: SetTexCoord(0,1, 0,1)
@@ -1234,8 +1235,8 @@ local function AurawatchScrollBar_Load(frame)
 		end
 	end
 	HoldHeight_Update(frame)
-	if #P.FCS_Refresh > 0 then
-		for k, v in ipairs(P.FCS_Refresh) do
+	if #E.FCS_Refresh > 0 then
+		for k, v in ipairs(E.FCS_Refresh) do
 			v()
 		end
 	end
@@ -1299,7 +1300,7 @@ end
 
 local function Aurawatch_AddNew_Dropdown_Create(frame)
 	local ArrowD = frame:CreateTexture(nil, "ARTWORK", 1)
-	ArrowD: SetTexture(F.Media.."Config_ArrowDown")
+	ArrowD: SetTexture(F.Path("Config_ArrowDown"))
 	ArrowD: SetVertexColor(F.Color(C.Color.W3))
 	ArrowD: SetSize(28, 28)
 	ArrowD: SetTexCoord(0,1, 0,1)
@@ -1429,9 +1430,92 @@ local function AddNew_Dropdown_Color_Create(frame, button, DB)
 	frame: SetHeight((button_size-6)*MenuNum+6)
 end
 
+local function IconButton_Frame(frame, pos)
+	local TextIcon = frame: CreateTexture()
+	TextIcon: SetSize(button_size,button_size)
+	TextIcon: SetPoint("LEFT", frame, "LEFT", 4,0)
+
+	local Text = frame: CreateFontString(nil, "ARTWORK")
+	Text: SetFont(C.Font.NumSmall, 14, nil)
+	Text: SetShadowColor(0,0,0,0)
+	Text: SetShadowOffset(1,-1)
+	Text: SetTextColor(F.Color(C.Color.W3))
+	Text: SetJustifyH("CENTER")
+	Text: SetJustifyV("CENTER")
+	Text: SetPoint("TOPLEFT", frame, "TOPLEFT", button_size+4, -1)
+	Text: SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -4, 0)
+
+	local IconSelect = CreateFrame("Frame", nil, frame)
+	IconSelect: SetFrameLevel(frame:GetFrameLevel())
+	IconSelect: SetHeight(ceil(#C.WatcherIcon/20)*32+8)
+	IconSelect: SetPoint("TOPLEFT", pos, "BOTTOMLEFT", -1, -button_gap*4)
+	IconSelect: SetPoint("TOPRIGHT", pos, "BOTTOMRIGHT", 1, -button_gap*4)
+	IconSelect: SetBackdrop({
+		bgFile = F.Path("White"),
+		edgeFile = F.Path("White"),
+		tile = true, tileSize = 16, edgeSize = 2,
+		insets = {left = -1, right = -1, top = -1, bottom = -1}
+	})
+	IconSelect: SetBackdropColor(F.Color(C.Color.W1, 0.95))
+	IconSelect: SetBackdropBorderColor(F.Color(C.Color.B1, 0.75))
+
+	local ICON_NUM = #C.WatcherIcon
+	local IconHold = CreateFrame("Frame", nil, IconSelect)
+	IconHold: SetFrameLevel(IconSelect:GetFrameLevel())
+	IconHold: SetSize(640, ceil(ICON_NUM/20)*32)
+	IconHold: SetPoint("TOP", IconSelect, "TOP", 0,-4)
+	local IconMatrix = {}
+	for k, v in ipairs(C.WatcherIcon) do
+		IconMatrix[k] = CreateFrame("Button", nil, IconHold)
+		IconMatrix[k]: SetFrameLevel(IconHold:GetFrameLevel())
+		IconMatrix[k]: SetSize(28,28)
+		IconMatrix[k]: SetBackdrop(backdrop)
+		IconMatrix[k]: SetBackdropColor(F.Color(C.Color.B1, 0))
+		IconMatrix[k]: SetBackdropBorderColor(F.Color(C.Color.W2, 0.75))
+		ButtonHighLight_Create(IconMatrix[k], C.Color.B1)
+
+		if k == 1 then
+			IconMatrix[k]: SetPoint("TOPLEFT", IconHold, "TOPLEFT", 2,-2)
+		elseif mod(k,20) == 1 then
+			IconMatrix[k]: SetPoint("CENTER", IconMatrix[k-20], "CENTER", 0,-32)
+		else
+			IconMatrix[k]: SetPoint("CENTER", IconMatrix[k-1], "CENTER", 32,0)
+		end
+
+		IconMatrix[k].Tex = IconMatrix[k]: CreateTexture(nil, "ARTWORK")
+		IconMatrix[k].Tex: SetSize(32,32)
+		IconMatrix[k].Tex: SetPoint("CENTER", IconMatrix[k], "CENTER", 0,0)
+		IconMatrix[k].Tex: SetTexture(F.Path("Watcher\\"..v))
+		IconMatrix[k].ID = v
+
+		IconMatrix[k]: SetScript("OnClick", function(self, button)
+			frame.ID = self.ID
+			TextIcon: SetTexture(F.Path("Watcher\\"..frame.ID))
+			Text: SetText(frame.ID)
+			IconSelect: Hide()
+		end)
+	end
+
+	frame: SetScript("OnClick", function(self, button)
+		if IconSelect:IsShown() then
+			IconSelect: Hide()
+		else
+			IconSelect: Show()
+		end
+	end)
+	frame: HookScript("OnHide", function(self)
+		IconSelect: Hide()
+	end)
+
+	frame.IconSelect = IconSelect
+	frame.TextIcon = TextIcon
+	frame.Text = Text
+	IconSelect: Hide()
+end
+
 local function Style_Dropdown_Menu_Create(frame)
 	local DB = {}
-	for k,v in ipairs(P.AurawatchStyle) do
+	for k,v in ipairs(E.AurawatchStyle) do
 		DB[k] = {
 			Text = L[v],
 			Click = function(self, button)
@@ -1578,6 +1662,16 @@ local function Aurawatch_AddNew_Buttons(frame)
 	Aurawatch_AddNew_Dropdown_Create(TypeButton)
 	Style_Dropdown_Menu_Create(TypeButton)
 
+	local IconButton = CreateFrame("Button", nil, frame)
+	IconButton: SetSize(BUTTON_WIDTH+40, button_size-4)
+	IconButton: SetPoint("CENTER", TypeButton, "CENTER", 0,-60)
+	IconButton: SetBackdrop(backdrop)
+	IconButton: SetBackdropColor(F.Color(C.Color.B1, 0.7))
+	IconButton: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
+	IconButton.ID = nil
+	ButtonHighLight_Create(IconButton, C.Color.B1)
+	IconButton_Frame(IconButton, ButtonHold)
+
 	local AuraButton = Aurawatch_AddNew_EidtBox_Template(frame)
 	AuraButton: SetSize(BUTTON_WIDTH, button_size-4)
 	AuraButton: SetPoint("LEFT", ButtonHold, "LEFT", (BUTTON_WIDTH+20)+10+40,10)
@@ -1636,6 +1730,8 @@ local function Aurawatch_AddNew_Buttons(frame)
 	
 	local TypeLabel = Aurawatch_AddNew_Label_Template(TypeButton)
 	TypeLabel: SetText(L["STYLE"])
+	local IconLabel = Aurawatch_AddNew_Label_Template(IconButton)
+	IconLabel: SetText(L['ICON'])
 
 	local AuraLabel = Aurawatch_AddNew_Label_Template(AuraButton)
 	AuraLabel: SetText(L["AURA"])
@@ -1653,6 +1749,7 @@ local function Aurawatch_AddNew_Buttons(frame)
 
 	frame.ButtonHold = ButtonHold
 	frame.Style = TypeButton
+	frame.Icon = IconButton
 	frame.Aura = AuraButton
 	frame.AuraColor = AuraColor
 	frame.AuraUnit = AuraUnit
@@ -1723,12 +1820,13 @@ local function Aurawatch_AddNew_OnClick(self, button, frame, NUM)
 		Quafe_DB.Global.AuraWatch[classFileName][specID][NUM].AuraColor = frame.AuraColor.ID
 		Quafe_DB.Global.AuraWatch[classFileName][specID][NUM].Unit = frame.AuraUnit.ID
 		Quafe_DB.Global.AuraWatch[classFileName][specID][NUM].Caster = frame.AuraCaster.ID
-		Quafe_DB.Global.AuraWatch[classFileName][specID][NUM].Style = frame.Style.ID
 	else
 		if Quafe_DB.Global.AuraWatch[classFileName][specID][NUM] then
 			Quafe_DB.Global.AuraWatch[classFileName][specID][NUM].Aura = nil
 			Quafe_DB.Global.AuraWatch[classFileName][specID][NUM].Aura2 = nil
 			Quafe_DB.Global.AuraWatch[classFileName][specID][NUM].AuraColor = nil
+			Quafe_DB.Global.AuraWatch[classFileName][specID][NUM].Unit = nil
+			Quafe_DB.Global.AuraWatch[classFileName][specID][NUM].Caster = nil
 		end
 	end
 	if frame.Spell.ID then
@@ -1738,11 +1836,19 @@ local function Aurawatch_AddNew_OnClick(self, button, frame, NUM)
 		end
 		Quafe_DB.Global.AuraWatch[classFileName][specID][NUM].Spell = frame.Spell.ID
 		Quafe_DB.Global.AuraWatch[classFileName][specID][NUM].SpellColor = frame.SpellColor.ID
-		Quafe_DB.Global.AuraWatch[classFileName][specID][NUM].Style = frame.Style.ID
 	else
 		if Quafe_DB.Global.AuraWatch[classFileName][specID][NUM] then
 			Quafe_DB.Global.AuraWatch[classFileName][specID][NUM].Spell = nil
 			Quafe_DB.Global.AuraWatch[classFileName][specID][NUM].SpellColor = nil
+		end
+	end
+	if frame.Aura.ID or frame.Spell.ID then
+		Quafe_DB.Global.AuraWatch[classFileName][specID][NUM].Style = frame.Style.ID
+		Quafe_DB.Global.AuraWatch[classFileName][specID][NUM].Icon = frame.Icon.ID
+	else
+		if Quafe_DB.Global.AuraWatch[classFileName][specID][NUM] then
+			Quafe_DB.Global.AuraWatch[classFileName][specID][NUM].Style = nil
+			Quafe_DB.Global.AuraWatch[classFileName][specID][NUM].Icon = nil
 		end
 	end
 end
@@ -1757,7 +1863,7 @@ local function Aurawatch_AddNew_Artwork(frame, scroll, configframe)
 	local TopBorder = frame: CreateTexture(nil, "BORDER")
 	TopBorder: SetTexture(F.Path("White"))
 	TopBorder: SetVertexColor(F.Color(C.Color.B1))
-	TopBorder: SetAlpha(0.7)
+	TopBorder: SetAlpha(0.75)
 	TopBorder: SetHeight(2)
 	TopBorder: SetPoint("TOPLEFT", frame, "TOPLEFT", 0,-1)
 	TopBorder: SetPoint("TOPRIGHT", frame, "TOPRIGHT", 0,-1)
@@ -1765,7 +1871,7 @@ local function Aurawatch_AddNew_Artwork(frame, scroll, configframe)
 	local BottomBorder = frame: CreateTexture(nil, "BORDER")
 	BottomBorder: SetTexture(F.Path("White"))
 	BottomBorder: SetVertexColor(F.Color(C.Color.B1))
-	BottomBorder: SetAlpha(0.7)
+	BottomBorder: SetAlpha(0.75)
 	BottomBorder: SetHeight(2)
 	BottomBorder: SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 0,1)
 	BottomBorder: SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0,1)
@@ -1821,8 +1927,8 @@ local function Aurawatch_AddNew_Artwork(frame, scroll, configframe)
 		frame: Hide()
 	end)
 
-	frame.Title1 = Title1
-	frame.Title2 = Title2
+	--frame.Title1 = Title1
+	--frame.Title2 = Title2
 end
 
 local function Aurawatch_AddNew_OnShow(frame)
@@ -1831,6 +1937,7 @@ local function Aurawatch_AddNew_OnShow(frame)
 	if frame.ID then
 		local Info = Quafe_DB.Global.AuraWatch[classFileName][specID][frame.ID]
 		frame.Style.ID = Info.Style
+		frame.Icon.ID = Info.Icon
 		frame.Aura.ID = Info.Aura
 		frame.Aura.ID2 = Info.Aura2
 		frame.AuraColor.ID = Info.AuraColor
@@ -1842,6 +1949,7 @@ local function Aurawatch_AddNew_OnShow(frame)
 		frame.Button3:Show()
 	else
 		frame.Style.ID = nil
+		frame.Icon.ID = nil
 		frame.Aura.ID = nil
 		frame.Aura.ID2 = nil
 		frame.AuraColor.ID = nil
@@ -1856,6 +1964,13 @@ local function Aurawatch_AddNew_OnShow(frame)
 		frame.Style.Text: SetText(L[frame.Style.ID])
 	else
 		frame.Style.Text: SetText("")
+	end
+	if frame.Icon.ID then
+		frame.Icon.Text: SetText(frame.Icon.ID)
+		frame.Icon.TextIcon: SetTexture(F.Path("Watcher\\"..frame.Icon.ID))
+	else
+		frame.Icon.Text: SetText("")
+		frame.Icon.TextIcon: SetTexture("")
 	end
 	if frame.Aura.ID then
 		if type(frame.Aura.ID) == "table" then
@@ -2473,7 +2588,7 @@ local wReload_Arts = function(frame)
 end
 
 local function Warning_Reload(frame)
-	local wReload = CreateFrame("Frame", nil, P)
+	local wReload = CreateFrame("Frame", nil, E)
 	wReload: SetFrameStrata("FULLSCREEN" )
 	wReload: SetHeight(200)
 	wReload: SetPoint("LEFT", UIParent, "LEFT", 0,0)
@@ -2494,7 +2609,7 @@ local function Warning_Reload(frame)
 end
 
 local function Warning_Reset(frame)
-	local wReset = CreateFrame("Frame", nil, P)
+	local wReset = CreateFrame("Frame", nil, E)
 	wReset: SetFrameStrata("FULLSCREEN" )
 	wReset: SetHeight(200)
 	wReset: SetPoint("LEFT", UIParent, "LEFT", 0,0)
@@ -2526,7 +2641,7 @@ end
 
 local function nReload_Artwork(frame)
 	local Bg = frame:CreateTexture(nil, "BORDER")
-	Bg: SetTexture(F.Media.."White")
+	Bg: SetTexture(F.Path("White"))
 	Bg: SetVertexColor(F.Color(C.Color.Y1))
 	Bg: SetPoint("TOPLEFT", frame, "TOPLEFT", 2,-2)
 	Bg: SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -2,2)
@@ -2565,7 +2680,7 @@ end
 --> Load
 --- ------------------------------------------------------------
 
-local Quafe_Config = CreateFrame("Frame", "Quafe_Config", P)
+local Quafe_Config = CreateFrame("Frame", "Quafe_Config", E)
 local function Quafe_Config_Load()
 	Quafe_Config: SetFrameStrata("HIGH")
 	Quafe_Config: SetSize(800, 560)
@@ -2635,7 +2750,7 @@ local function Quafe_Config_Load()
 	end
 end
 Quafe_Config.Load = Quafe_Config_Load
-tinsert(P.Module, Quafe_Config)
+tinsert(E.Module, Quafe_Config)
 
 
 
@@ -2703,7 +2818,7 @@ local function SecBar_Refresh(f, p, DB)
 				end
 			end)
 		else
-			f.Plus.Tex: SetTexture(F.Media.."Config_Plus0")
+			f.Plus.Tex: SetTexture(F.Path("Config_Plus0"))
 			f.Plus: SetScript("OnClick", nil)
 		end
 		

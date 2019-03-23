@@ -1,4 +1,4 @@
-local P, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Local
+local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Local
 
 --- ------------------------------------------------------------
 --> API Localization
@@ -29,7 +29,7 @@ local wipe = table.wipe
 --- ------------------------------------------------------------
 
 local backdrop = {
-	bgFile = F.Media.."White",
+	bgFile = F.Path("White"),
 	edgeFile = "",
 	tile = true, tileSize = 0, edgeSize = 0,
 	insets = {left = 1, right = 1, top = 1, bottom = 1}
@@ -83,7 +83,7 @@ local function MicroMenu_Frame(f)
 	MicroMenu: SetBackdropColor(F.Color(C.Color.Main0, 0.6))
 	
 	local Icon = MicroMenu:CreateTexture("Quafe.InfoBar.MicroMenuButtonIcon", "ARTWORK")
-	Icon: SetTexture(F.Media.."Icons\\Menu16")
+	Icon: SetTexture(F.Path("Icons\\Menu16"))
 	Icon: SetVertexColor(F.Color(C.Color.Main1))
 	Icon: SetAlpha(0.8)
 	Icon: SetSize(16,16)
@@ -370,11 +370,11 @@ local function Network_Update(f)
 	local framerate = GetFramerate();
 	local latency = latencyHome > latencyWorld and latencyHome or latencyWorld;
 	if (latency > 400) then
-		f.Icon: SetTexture(F.Media.."Icons\\Network16_1")
+		f.Icon: SetTexture(F.Path("Icons\\Network16_1"))
 	elseif (latency > 200) then
-		f.Icon: SetTexture(F.Media.."Icons\\Network16_2")
+		f.Icon: SetTexture(F.Path("Icons\\Network16_2"))
 	else
-		f.Icon: SetTexture(F.Media.."Icons\\Network16_3")
+		f.Icon: SetTexture(F.Path("Icons\\Network16_3"))
 	end
 end
 
@@ -641,7 +641,7 @@ local function MBC_Frame(f)
 	MBCFrame: SetBackdropColor(F.Color(C.Color.Main0, 0.6))
 	
 	local Icon = MBCFrame:CreateTexture(nil, "ARTWORK")
-	Icon: SetTexture(F.Media.."Icons\\Box16")
+	Icon: SetTexture(F.Path("Icons\\Box16"))
 	Icon: SetVertexColor(F.Color(C.Color.Main1))
 	Icon: SetAlpha(0.8)
 	Icon: SetSize(16,16)
@@ -736,6 +736,7 @@ local ClientIcon = {
 }
 ]]--
 local ClientIcon = {
+	--[[
 	["BSAp"] = {"Battle.Net", "Interface\\FriendsFrame\\Battlenet-Battleneticon"},
 	[BNET_CLIENT_APP] = {"Battle.Net", "Interface\\FriendsFrame\\Battlenet-Battleneticon"},
 	[BNET_CLIENT_CLNT] = {"CLNT", "Interface\\FriendsFrame\\Battlenet-Battleneticon"},
@@ -747,6 +748,19 @@ local ClientIcon = {
 	[BNET_CLIENT_WTCG] = {"Hearthstone", "Interface\\FriendsFrame\\Battlenet-WTCGicon"},
 	[BNET_CLIENT_OVERWATCH] = {"Overwatch", "Interface\\FriendsFrame\\Battlenet-Overwatchicon"},
 	[BNET_CLIENT_DESTINY2] = {"Destiny 2", "Interface\\FriendsFrame\\Battlenet-Destiny2icon"},
+	--]]
+	["BSAp"] = {"Battle.Net", "Interface\\CHATFRAME\\UI-ChatIcon-Battlenet"}, --Battle.Net Mobile App
+	[BNET_CLIENT_APP] = {"Battle.Net", "Interface\\CHATFRAME\\UI-ChatIcon-Battlenet"}, --Battle.Net-Client (App)
+	[BNET_CLIENT_CLNT] = {"CLNT", "Interface\\CHATFRAME\\UI-ChatIcon-Battlenet"}, --(CLNT)
+	[BNET_CLIENT_D3] = {"Diablo 3", "Interface\\CHATFRAME\\UI-ChatIcon-D3"}, --(D3)
+	[BNET_CLIENT_HEROES] = {"Heroes of the Storm", "Interface\\CHATFRAME\\UI-ChatIcon-HotS"}, --(Hero)
+	[BNET_CLIENT_SC] = {"Starcarft", "Interface\\CHATFRAME\\UI-ChatIcon-SC"}, --(S1)
+	[BNET_CLIENT_SC2] = {"Starcarft 2", "Interface\\CHATFRAME\\UI-ChatIcon-SC2"}, --(S2)
+	[BNET_CLIENT_WOW] = {"World of Warcraft", "Interface\\CHATFRAME\\UI-ChatIcon-WoW"}, --(WoW)
+	[BNET_CLIENT_WTCG] = {"Hearthstone", "Interface\\CHATFRAME\\UI-ChatIcon-WTCG"}, --(WTCG)
+	[BNET_CLIENT_OVERWATCH] = {"Overwatch", "Interface\\CHATFRAME\\UI-ChatIcon-Overwatch"}, --(Pro)
+	[BNET_CLIENT_DESTINY2] = {"Destiny 2", "Interface\\CHATFRAME\\UI-ChatIcon-Destiny2"}, --(DST2)
+	[BNET_CLIENT_COD] = {"Call of Duty: Black Ops 4", "Interface\\CHATFRAME\\UI-ChatIcon-CallOfDutyBlackOps4"}, --VIPR
 }
 
 local function Friend_ListTemplate(f)
@@ -897,7 +911,7 @@ local function Friend_Frame(f)
 	Friend: SetBackdropColor(F.Color(C.Color.Main0, 0.6))
 	
 	local Icon = Friend:CreateTexture(nil, "ARTWORK")
-	Icon: SetTexture(F.Media.."Icons\\Friend16")
+	Icon: SetTexture(F.Path("Icons\\Friend16"))
 	Icon: SetVertexColor(F.Color(C.Color.Main1))
 	Icon: SetAlpha(0.8)
 	Icon: SetSize(16,16)
@@ -1256,7 +1270,7 @@ end
 --> InfoBar
 --- ------------------------------------------------------------
 
-local InfoBar = CreateFrame("Frame", "Quafe_InfoBar", P)
+local InfoBar = CreateFrame("Frame", "Quafe_InfoBar", E)
 InfoBar: SetSize(26,26)
 InfoBar: SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", 2,2)
 local function Load()
@@ -1279,7 +1293,7 @@ local function Options(option, ...)
 	end
 end
 InfoBar.Load = Load
-insert(P.Module, InfoBar)
+insert(E.Module, InfoBar)
 
 
 --- ------------------------------------------------------------
@@ -1287,6 +1301,14 @@ insert(P.Module, InfoBar)
 --- ------------------------------------------------------------
 
 local function ExpBar_Artwork(frame)
+	local BarBack = frame:CreateTexture(nil, "BACKGROUND")
+	BarBack: SetTexture(F.Path("White"))
+	BarBack: SetVertexColor(F.Color(C.Color.Main0))
+	BarBack: SetAlpha(0.25)
+	BarBack: SetHeight(8)
+	BarBack: SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 2,2)
+	BarBack: SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -2,2)
+
 	local BarBg = frame:CreateTexture(nil, "BORDER")
 	BarBg: SetTexture(F.Path("White"))
 	BarBg: SetVertexColor(F.Color(C.Color.Main1))
@@ -1295,26 +1317,18 @@ local function ExpBar_Artwork(frame)
 	BarBg: SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 0,0)
 	BarBg: SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0,0)
 
-	local BarBack = frame:CreateTexture(nil, "BACKGROUND")
-	BarBack: SetTexture(F.Path("White"))
-	BarBack: SetVertexColor(F.Color(C.Color.Main0))
-	BarBack: SetAlpha(0.25)
-	BarBack: SetHeight(8)
-	BarBack: SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 0,0)
-	BarBack: SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0,0)
-
 	local BarBgL = frame:CreateTexture(nil, "BORDER")
 	BarBgL: SetTexture(F.Path("White"))
 	BarBgL: SetVertexColor(F.Color(C.Color.Main1))
 	BarBgL: SetAlpha(0.5)
-	BarBgL: SetSize(2,10)
+	BarBgL: SetSize(2,12)
 	BarBgL: SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 0,2)
 
 	local BarBgR = frame:CreateTexture(nil, "BORDER")
 	BarBgR: SetTexture(F.Path("White"))
 	BarBgR: SetVertexColor(F.Color(C.Color.Main1))
 	BarBgR: SetAlpha(0.5)
-	BarBgR: SetSize(2,10)
+	BarBgR: SetSize(2,12)
 	BarBgR: SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0,2)
 	
 	local Bar = CreateFrame("StatusBar", nil, frame)
@@ -1324,8 +1338,8 @@ local function ExpBar_Artwork(frame)
 	Bar: SetMinMaxValues(0,1)
 	Bar: SetAlpha(0.9)
 	Bar: SetHeight(8)
-	Bar: SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 0,0)
-	Bar: SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0,0)
+	Bar: SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 2,2)
+	Bar: SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -2,2)
 
 	local Vernier = Bar: CreateTexture(nil, "OVERLAY")
 	Vernier: SetTexture(F.Path("White"))
@@ -1333,6 +1347,13 @@ local function ExpBar_Artwork(frame)
 	Vernier: SetAlpha(0.75)
 	Vernier: SetSize(2,12)
 	Vernier: SetPoint("BOTTOM", Bar:GetStatusBarTexture(), "BOTTOMRIGHT", 0,0)
+
+	local ExVernier = Bar: CreateTexture(nil, "OVERLAY")
+	ExVernier: SetTexture(F.Path("White"))
+	ExVernier: SetVertexColor(F.Color(C.Color.Main1))
+	ExVernier: SetAlpha(0.75)
+	ExVernier: SetSize(2,3)
+	ExVernier: SetPoint("TOP", Bar:GetStatusBarTexture(), "BOTTOMRIGHT", 0,-4)
 
 	local Level = F.create_Font(frame, C.Font.NumSmall, 18, nil, 0.75)
 	Level: SetTextColor(F.Color(C.Color.Main1))
@@ -1447,7 +1468,7 @@ local function ExpBar_Refresh(frame)
 	ExpBar_Event(frame, "ALL")
 end
 
-local Quafe_ExpBar = CreateFrame("Frame", "Quafe_ExpBar", P)
+local Quafe_ExpBar = CreateFrame("Frame", "Quafe_ExpBar", E)
 Quafe_ExpBar: SetSize(440,40)
 Quafe_ExpBar: SetPoint("TOPLEFT", UIParent, "TOPLEFT", 100, -60)
 Quafe_ExpBar.Init = false
@@ -1539,4 +1560,4 @@ local Quafe_ExpBar_Config = {
 
 Quafe_ExpBar.Load = Quafe_ExpBar_Load
 Quafe_ExpBar.Config = Quafe_ExpBar_Config
-tinsert(P.Module, Quafe_ExpBar)
+tinsert(E.Module, Quafe_ExpBar)

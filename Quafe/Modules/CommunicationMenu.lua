@@ -1,4 +1,4 @@
-local P, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
+local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
 
 --- ------------------------------------------------------------
 --> API Localization
@@ -32,8 +32,8 @@ local GetTime = GetTime
 
 local function Create_Backdrop(f, e, d, c1,a1, c2,a2)
 	local backdrop = {
-		bgFile = F.Media.."StatusBar\\Flat", 
-		edgeFile = F.Media.."White", 
+		bgFile = F.Path("StatusBar\\Flat"), 
+		edgeFile = F.Path("White"), 
 		tile = false, tileSize = 1, edgeSize = e, 
 		insets = { left = d, right = d, top = d, bottom = d }
 	}
@@ -524,7 +524,7 @@ end
 -- name, isHeader, isExpanded, isUnused, isWatched, count, icon, maximum, hasWeeklyLimit, currentWeeklyAmount, unknown = GetCurrencyListInfo(index)
 
 local backdrop = {
-	bgFile = F.Media.."White",
+	bgFile = F.Path("White"),
 	edgeFile = "",
 	tile = true, tileSize = 16, edgeSize = 0,
 	insets = {left = 20, right = 0, top = 0, bottom = 0}
@@ -843,13 +843,13 @@ local function Spec_ButtonTemplate(f, p)
 	f.Icon: SetPoint("CENTER", f, "CENTER", 0,0)
 	
 	f.Border = f:CreateTexture(nil, "ARTWORK")
-	f.Border: SetTexture(F.Media.."CommunicationMenu_Equip_Hex1")
+	f.Border: SetTexture(F.Path("CommunicationMenu_Equip_Hex1"))
 	f.Border: SetVertexColor(F.Color(C.Color.B1))
 	f.Border: SetSize(64,64)
 	f.Border: SetPoint("CENTER", f, "CENTER", 0,0)
 	
 	f.Glow = f:CreateTexture(nil, "BORDER")
-	f.Glow: SetTexture(F.Media.."CommunicationMenu_Equip_Hex2")
+	f.Glow: SetTexture(F.Path("CommunicationMenu_Equip_Hex2"))
 	f.Glow: SetVertexColor(0,0,0)
 	f.Glow: SetAlpha(0.75)
 	f.Glow: SetSize(64,64)
@@ -1092,7 +1092,7 @@ local function Emote_Templet(f, p, angle, color, texture, text, alpha)
 	f.Txt: SetPoint("CENTER", p, "CENTER", 260*cos(rad(angle)), 260*sin(rad(angle)))
 	
 	f.Icon = f:CreateTexture(nil, "ARTWORK")
-	f.Icon: SetTexture(F.Media..texture)
+	f.Icon: SetTexture(F.Path(texture))
 	f.Icon: SetAlpha(alpha)
 	f.Icon: SetVertexColor(F.Color(color))
 	f.Icon: SetSize(52,52)
@@ -1239,7 +1239,7 @@ local function CommunicationMenu_Artwork(frame)
 	BottomBg: SetAlpha(0.8)
 	
 	local Bd1 = frame:CreateTexture(nil, "BORDER")
-	Bd1: SetTexture(F.Media.."CommunicationMenu\\Bd1")
+	Bd1: SetTexture(F.Path("CommunicationMenu\\Bd1"))
 	Bd1: SetVertexColor(F.Color(C.Color.W3))
 	Bd1: SetAlpha(0.4)
 	--f.Bd1: SetSize(384,384)
@@ -1247,7 +1247,7 @@ local function CommunicationMenu_Artwork(frame)
 	Bd1: SetPoint("CENTER", frame, "CENTER", 0,0)
 	
 	local Bd2 = frame:CreateTexture(nil, "ARTWORK")
-	Bd2: SetTexture(F.Media.."CommunicationMenu\\Bd2")
+	Bd2: SetTexture(F.Path("CommunicationMenu\\Bd2"))
 	Bd2: SetVertexColor(F.Color(C.Color.W3))
 	Bd2: SetAlpha(0.8)
 	--Bd2: SetSize(384,384)
@@ -1255,7 +1255,7 @@ local function CommunicationMenu_Artwork(frame)
 	Bd2: SetPoint("CENTER", frame, "CENTER", 0,0)
 	
 	local DVa = frame:CreateTexture(nil, "ARTWORK")
-	DVa: SetTexture(F.Media.."CommunicationMenu\\DVa")
+	DVa: SetTexture(F.Path("CommunicationMenu\\DVa"))
 	DVa: SetVertexColor(F.Color(C.Color.W4))
 	DVa: SetAlpha(0.4)
 	DVa: SetSize(64,64)
@@ -1270,7 +1270,7 @@ local function Line_Update(f, angle)
 	for i = 1,n2 do
 		if not f[i] then
 			f[i] = f:CreateTexture(nil, "BORDER")
-			f[i]: SetTexture(F.Media.."CommunicationMenu\\Bd3")
+			f[i]: SetTexture(F.Path("CommunicationMenu\\Bd3"))
 			f[i]: SetSize(512,512)
 			f[i]: SetVertexColor(F.Color(C.Color.W3))
 			f[i]: SetAlpha(0.4)
@@ -1296,7 +1296,7 @@ local function Line_Create(f)
 	Line_Update(f.Line, {22.5, 67.5, 112.5, 157.5, 202.5, 247.5, 292.5, 337.5})
 end
 
-local CommunicationMenu = CreateFrame("Button", "Quafe_CommunicationMenu", P)
+local CommunicationMenu = CreateFrame("Button", "Quafe_CommunicationMenu", E)
 local function Load()
 	CommunicationMenu: SetFrameStrata("FULLSCREEN_DIALOG")
 	CommunicationMenu: SetFrameLevel(10)
@@ -1390,7 +1390,7 @@ local function Load()
 	end)
 end
 CommunicationMenu.Load = Load
-insert(P.Module, CommunicationMenu)
+insert(E.Module, CommunicationMenu)
 
 --- ------------------------------------------------------------
 --> Hotkey
@@ -1400,11 +1400,11 @@ insert(P.Module, CommunicationMenu)
 
 function Quafe_Binding_CommunicationMenu(keystate)
 	if keystate == "down" then
-		if P and CommunicationMenu then
+		if E and CommunicationMenu then
 			CommunicationMenu: Show()
 		end
 	else
-		if P and CommunicationMenu then
+		if E and CommunicationMenu then
 			CommunicationMenu: Hide()
 		end
 	end

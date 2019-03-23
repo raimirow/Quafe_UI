@@ -1,4 +1,4 @@
-local P, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
+local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
 
 --- ------------------------------------------------------------
 --> API Localization
@@ -137,7 +137,7 @@ local function RaidHeader_Frame(f)
 	end
 end
 
-local Quafe_Raid = CreateFrame("Frame", "Quafe_Raid", P)
+local Quafe_Raid = CreateFrame("Frame", "Quafe_Raid", E)
 
 
 --[[

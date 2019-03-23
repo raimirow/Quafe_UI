@@ -1,4 +1,4 @@
-local P, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
+local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
 local WatcherList = {}
 
 --- ------------------------------------------------------------
@@ -809,4 +809,4 @@ WatcherList.WARLOCK = {
 --> Load
 ----------------------------------------------------------------
 
-P.Aurawatch = WatcherList
+E.Aurawatch = WatcherList

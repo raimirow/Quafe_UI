@@ -1,4 +1,4 @@
-local P, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Local
+local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Local
 
 --- ------------------------------------------------------------
 --> API Localization
@@ -188,7 +188,7 @@ local function PartyHeader_Frame(f)
 	end
 end
 
-local Quafe_Party = CreateFrame("Frame", "Quafe_Party", P)
+local Quafe_Party = CreateFrame("Frame", "Quafe_Party", E)
 Quafe_Party: SetPoint("TOPLEFT", UIParent, "TOPLEFT", 60,-32)
 
 function Quafe_Party.Load()
@@ -198,4 +198,4 @@ function Quafe_Party.Load()
 
 	Quafe_Party.Header: Show()
 end
-insert(P.Module, Quafe_Party)
+insert(E.Module, Quafe_Party)

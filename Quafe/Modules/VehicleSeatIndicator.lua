@@ -1,4 +1,4 @@
-local P, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Local
+local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Local
 
 --- ------------------------------------------------------------
 --> API Localization
@@ -39,7 +39,7 @@ local function RemoveAnchor(f)
 	end
 end
 
-local Quafe_VehicleSeat = CreateFrame("Frame", "Quafe_VehicleSeatIndicator", P)
+local Quafe_VehicleSeat = CreateFrame("Frame", "Quafe_VehicleSeatIndicator", E)
 Quafe_VehicleSeat:SetSize(128,128)
 
 local function Joystick_Update(self, elapsed)
@@ -85,4 +85,4 @@ Quafe_VehicleSeat_Config = {
 
 Quafe_VehicleSeat.Load = Quafe_VehicleSeat_Load
 Quafe_VehicleSeat.Config = Quafe_VehicleSeat_Config
-tinsert(P.Module, Quafe_VehicleSeat)
+tinsert(E.Module, Quafe_VehicleSeat)

@@ -1,4 +1,4 @@
-local P, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Local
+local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Local
 
 --- ------------------------------------------------------------
 --> API Localization
@@ -162,7 +162,7 @@ local function Create_MinimapButton(button)
 end
 
 local function OnTooltipShow(tooltip)
-    tooltip: SetText(P.Name)
+    tooltip: SetText(E.Name)
 end
 
 local Quafe_MinimapIcon = CreateFrame("Button", "Quafe_MinimapIcon", Minimap)
@@ -174,4 +174,4 @@ local function Load()
     Create_MinimapButton(Quafe_MinimapIcon)
 end
 Quafe_MinimapIcon.Load = Load
-insert(P.Module, Quafe_MinimapIcon)
+insert(E.Module, Quafe_MinimapIcon)

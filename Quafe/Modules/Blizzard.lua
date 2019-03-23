@@ -1,4 +1,4 @@
-local P, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
+local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
 
 ----------------------------------------------------------------
 --> API Localization
@@ -31,7 +31,7 @@ local MAX_BOSS_FRAMES = MAX_BOSS_FRAMES or 5
 --> sourced from FrameXML/PartyMemberFrame.lua
 local MAX_PARTY_MEMBERS = MAX_PARTY_MEMBERS or 4
 
-local BlizzardFrameHide = CreateFrame("Frame", nil, P)
+local BlizzardFrameHide = CreateFrame("Frame", nil, E)
 local function Load()
 	if Quafe_DB.Profile[Quafe_DBP.Profile].Blizzard.PlayerFrame == false then
 		F.HideUnitFrame("PlayerFrame")
@@ -187,6 +187,6 @@ local BlizzardFrameHide_Config = {
 }
 BlizzardFrameHide.Load = Load
 BlizzardFrameHide.Config = BlizzardFrameHide_Config
-tinsert(P.Module, BlizzardFrameHide)
+tinsert(E.Module, BlizzardFrameHide)
 
 

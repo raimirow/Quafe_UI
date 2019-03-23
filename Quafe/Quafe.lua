@@ -1,4 +1,4 @@
-local P, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
+local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
 
 ----------------------------------------------------------------
 --> API Localization
@@ -29,10 +29,10 @@ local wipe = table.wipe
 ----------------------------------------------------------------
 
 local function Database_Load()
-	for k, v in ipairs(P.Module) do
+	for k, v in ipairs(E.Module) do
 		if v.Config and v.Config.Database then
 			for d, dv in pairs(v.Config.Database) do
-				P.Database.Profile.Default[d] = dv
+				E.Database.Profile.Default[d] = dv
 			end
 		end
 	end
@@ -59,7 +59,7 @@ local function Profile_Check()
 			if Quafe_DB.Profile["Default"] then
 				return 1
 			else
-				Quafe_DB.Profile["Default"] = P.Database.Profile.Default
+				Quafe_DB.Profile["Default"] = E.Database.Profile.Default
 				return 2
 			end
 		end
@@ -78,14 +78,14 @@ local function Profile_Load()
 		Quafe_DBP = {}
 		Quafe_DBP.Profile = "Default"
 	end
-	Quafe_CheckTable(Quafe_DB, P.Database)
-	Quafe_CheckTable(Quafe_DB.Profile[Quafe_DBP.Profile], P.Database.Profile.Default)
+	Quafe_CheckTable(Quafe_DB, E.Database)
+	Quafe_CheckTable(Quafe_DB.Profile[Quafe_DBP.Profile], E.Database.Profile.Default)
 	Profile_Check()
 end
 
 local function Aura_Load()
 	if not Quafe_DB.Global.AuraWatch then
-		Quafe_DB.Global.AuraWatch = P.Aurawatch
+		Quafe_DB.Global.AuraWatch = EAurawatch
 	end
 	--[[
 	local class = select(2, UnitClass("player"))
@@ -94,13 +94,13 @@ local function Aura_Load()
 			if v1 then
 				for k2, v2 in ipairs(v1) do
 					if v2.Aura then
-						P.AuraUpdate.AuraList[v2.Aura] = {
+						EAuraUpdate.AuraList[v2.Aura] = {
 							Aura = v2.Aura,
 							Unit = v2.Unit,
 							Caster = v2.Caster,
 						}
-						if not tContains(P.AuraUpdate.UnitList, v2.Unit) then
-							tinsert(P.AuraUpdate.UnitList, v2.Unit)
+						if not tContains(EAuraUpdate.UnitList, v2.Unit) then
+							tinsert(EAuraUpdate.UnitList, v2.Unit)
 						end
 					end
 				end
@@ -111,7 +111,7 @@ local function Aura_Load()
 end
 
 local function Module_Load()
-	for k, v in ipairs(P.Module) do
+	for k, v in ipairs(E.Module) do
 		if v.Load then
 			v.Load()
 		end
@@ -123,11 +123,11 @@ end
 --- ------------------------------------------------------------
 
 local function Quafe_Init()
-	BINDING_HEADER_QUAFE = GetAddOnMetadata(P.Name, "Title")
+	BINDING_HEADER_QUAFE = GetAddOnMetadata(E.Name, "Title")
 	BINDING_NAME_QUAFE_COMMUNICATIONMENU = L['BINDING_COMMUNICATIONMENU']
 
 	--> 战斗字体
-	DAMAGE_TEXT_FONT = F.Media.."Fonts\\TTTGB-Medium.ttf"
+	DAMAGE_TEXT_FONT = F.Path("Fonts\\TTTGB-Medium.ttf")
 	--> 最大装备方案数量
 	MAX_EQUIPMENT_SETS_PER_PLAYER = 20
 end
@@ -151,12 +151,12 @@ local function Quafe_Login()
 	SetCVar("overrideArchive", 0) --反和谐(1)[0,1]
 end
 
-local Init_Help = CreateFrame("Frame", nil, P)
+local Init_Help = CreateFrame("Frame", nil, E)
 Init_Help: RegisterEvent("ADDON_LOADED")
 Init_Help: RegisterEvent("PLAYER_LOGIN")
 Init_Help: SetScript("OnEvent", function(self, event, addon)
 	if event == "ADDON_LOADED" then
-		if addon == P.Name then
+		if addon == E.Name then
 			Quafe_Init()
 			local OW_Load,OW_Reason = LoadAddOn("Quafe_Overwatch")
 			local TI_Load,TI_Reason = LoadAddOn("Quafe_TIE")

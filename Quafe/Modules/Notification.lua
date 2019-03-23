@@ -1,4 +1,4 @@
-local P, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
+local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
 
 --- ------------------------------------------------------------
 --> API Localization
@@ -80,7 +80,7 @@ local function TalkingHead_RePos(f)
 		end
 		
 		TalkingHeadFrame.PortraitFrame: SetAllPoints(f)
-		TalkingHeadFrame.PortraitFrame.Portrait: SetTexture(F.Media.."TalkingHead_Border")
+		TalkingHeadFrame.PortraitFrame.Portrait: SetTexture(F.Path("TalkingHead_Border"))
 		TalkingHeadFrame.PortraitFrame.Portrait: ClearAllPoints()
 		TalkingHeadFrame.PortraitFrame.Portrait: SetPoint("BOTTOMLEFT", f, "BOTTOMLEFT", 6,6)
 		TalkingHeadFrame.PortraitFrame.Portrait: SetPoint("TOPRIGHT", f, "TOPLEFT", 104-20,-6)
@@ -178,10 +178,10 @@ end
 --- ------------------------------------------------------------
 
 
-local Notification = CreateFrame("Frame", "Quafe_Notification", P)
+local Notification = CreateFrame("Frame", "Quafe_Notification", E)
 Notification: SetSize(640,80)
 Notification: SetPoint("TOP", UIParent, "TOP", 0,-4)
 function Notification.Load()
 	TalkingHead_Frame(Notification)
 end
-insert(P.Module, Notification)
+insert(E.Module, Notification)
