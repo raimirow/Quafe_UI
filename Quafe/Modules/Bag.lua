@@ -24,7 +24,8 @@ local LibItemInfo = LibStub:GetLibrary("LibItemInfo.7000")
 --- ------------------------------------------------------------
 
 -- texture, itemCount, locked, quality, readable, lootable, itemLink, isFiltered = GetContainerItemInfo(bag, slot);
--- itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemID or "itemString" or "itemName" or "itemLink") 
+-- itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemID or "itemString" or "itemName" or "itemLink")
+-- itemID, itemType, itemSubType, itemEquipLoc, itemTexture, itemClassID, itemSubClassID = GetItemInfoInstant(itemLink) 
 -- GetItemClassInfo(classIndex)
 -- GetItemSubClassInfo(classIndex, subClassIndex)
 -- ITEM_QUALITY_COLORS
@@ -160,6 +161,7 @@ local sortingCache = {
 
 local Bag = {}
 local BagFree = {}
+local BagNew = {}
 local Bank = {}
 local BankFree = {}
 local Reagent = {}
@@ -195,6 +197,7 @@ local ITEMCLASS_Miscellaneous = GetItemClassInfo(15)
 local function Init_ItemClass()
 	wipe(ITEMCLASS)
 	ITEMCLASS = {
+		--["New"] = 					{L = 1,  C = C.Color.B1, T = "Bag_New"},         --新物品
 		["Elixir"] =				{L = 1,  C = C.Color.Y1, T = "Bag_Elixir"},         --药剂
 		["Food"] =					{L = 2,  C = C.Color.Y1, T = "Bag_Food"},			--食物
 		[ITEMCLASS_Consumable] =	{L = 3,  C = C.Color.Y1, T = "Bag_Consumable"},	    --消耗品
@@ -347,6 +350,17 @@ local function Init_BagGap(f, classtable, p)
 
 		f["BagIcon"..k] = frame
 	end
+
+	local NewItem = CreateFrame("Button", nil, parent)
+	NewItem: SetSize(config.buttonSize, config.buttonSize)
+
+	local NewItemIcon = NewItem:CreateTexture(nil, "ARTWORK")
+	NewItemIcon: SetSize(config.iconSize, config.iconSize)
+	NewItemIcon: SetPoint("CENTER", NewItem, "CENTER", 0,0)
+	NewItemIcon: SetTexture(F.Path("Bag_New"))
+	NewItemIcon: SetVertexColor(F.Color(C.Color.Y1))
+
+	f["BagIconNew"] = NewItem
 	
 	local numfree = CreateFrame("Button", nil, parent)
 	numfree: SetSize(config.buttonSize, config.buttonSize)
@@ -357,24 +371,24 @@ local function Init_BagGap(f, classtable, p)
 	freetext: SetPoint("CENTER", numfree, "CENTER", 0,0)
 	f["BagIconFreeText"] = freetext
 
-	f["BagIconFree"]: RegisterForClicks("LeftButtonUp", "RightButtonUp")
-	f["BagIconFree"]: SetScript("OnClick", function(self, button)
+	f["BagIconNew"]: RegisterForClicks("LeftButtonUp", "RightButtonUp")
+	f["BagIconNew"]: SetScript("OnClick", function(self, button)
 		if button == "LeftButton" then
 			GameTooltip: Hide()
-			if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Manual" or Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Opening" then
+			if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Manual" or Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Closing" then
 				f:FullUpdate_BagItem()
 			end
 		end
 	end)
-	f["BagIconFree"]: SetScript("OnEnter", function(self)
-		if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Manual" or Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Opening" then
+	f["BagIconNew"]: SetScript("OnEnter", function(self)
+		if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Manual" or Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Closing" then
 			GameTooltip: SetOwner(self, "ANCHOR_NONE", 0,0)
 			GameTooltip: SetPoint("BOTTOMLEFT", self, "TOPRIGHT", 0,4)
 			GameTooltip: SetText(L['BAG_GROUP_REFRESH'])
 			GameTooltip: Show()
 		end
 	end)
-	f["BagIconFree"]: SetScript("OnLeave", function(self)
+	f["BagIconNew"]: SetScript("OnLeave", function(self)
 		GameTooltip: Hide()
 	end)
 
@@ -401,6 +415,8 @@ local function BagGap_Reset(f, classtable)
 		f["BagIcon"..k]: ClearAllPoints()
 		f["BagIcon"..k]: Hide()
 	end
+	f["BagIconNew"]: ClearAllPoints()
+	f["BagIconNew"]: Hide()
 	f["BagIconFree"]: ClearAllPoints()
 	f["BagIconFree"]: Hide()
 end
@@ -531,7 +547,17 @@ end
 
 local function Sort_BagItem(ItemTable)
 	local function SortFunc(v1, v2)
-		if ITEMCLASS[v1.itemType].L ~= ITEMCLASS[v2.itemType].L then
+		if (not v1.itemType) and (not v2.itemType) then
+			if v1.bagID ~= v2.bagID then
+				return v1.bagID < v2.bagID
+			else
+				return v1.slotID < v2.slotID
+			end
+		elseif not v1.itemType then
+			return false
+		elseif not v2.itemType then
+			return true
+		elseif ITEMCLASS[v1.itemType].L ~= ITEMCLASS[v2.itemType].L then
 			return ITEMCLASS[v1.itemType].L < ITEMCLASS[v2.itemType].L
 		elseif v1.itemType == "Hearthstone" then
 			if v1.itemID ~= v2.itemID then
@@ -638,12 +664,12 @@ local function Sort_BagItem(ItemTable)
 	table.sort(ItemTable, SortFunc)
 end
 
+--[[
 local function Update_CIMI(button)
 	--CIMI_AddToFrame(button, ContainerFrameItemButton_CIMIUpdateIcon)
     --ContainerFrameItemButton_CIMIUpdateIcon(button.CanIMogItOverlay)
 end
-
-
+--]]
 
 local function Update_SlotItem(slot, v)
 	SetItemButtonTexture(slot, v.itemTexture or F.Path("Bag_Slot")) --Interface\Paperdoll\UI-PaperDoll-Slot-Bag
@@ -694,7 +720,7 @@ local function Update_SlotItem(slot, v)
 	end
 
 	local isBattlePayItem = IsBattlePayItem(v.bagID, v.slotID)
-	Update_CIMI(slot)
+	--Update_CIMI(slot)
 end
 
 local function Update_BagItem(f)
@@ -728,15 +754,26 @@ local function Pos_BagItem(f, pos)
 		f["Bag"..v.bagID]["Slot"..v.slotID]: SetAlpha(1)
 	end
 	
+	local newgap = false
+	local freegap = false
 	for k,v in ipairs(BagFree) do
 		z = z + 1
-		if k == 1 then
+		if (not newgap) and v.itemType then
+			y = floor((z+config.perLine-1)/config.perLine) - 1
+			x = z- y * config.perLine - 1
+			f["BagIconNew"]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
+			f["BagIconNew"]: Show()
+			z = z + 1
+			newgap = true
+		end
+		if (not freegap) and (not v.itemType) then
 			y = floor((z+config.perLine-1)/config.perLine) - 1
 			x = z- y * config.perLine - 1
 			f["BagIconFree"]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
 			f["BagIconFreeText"]: SetText(SlotNum.Free)
 			f["BagIconFree"]: Show()
 			z = z + 1
+			freegap = true
 		end
 		y = floor((z+config.perLine-1)/config.perLine) - 1
 		x = z- y * config.perLine - 1
@@ -764,6 +801,7 @@ local function Insert_BagItem(f)
 			if texture then
 				local _, itemID = strsplit(":", itemLink)
 				local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemLink)
+				--local itemID, itemType, itemSubType, itemEquipLoc, itemTexture, itemClassID, itemSubClassID = GetItemInfoInstant(itemLink) 
 				if (itemType == ITEMCLASS_Weapon) or (itemType == ITEMCLASS_Armor) then
 					--local itemRealLevel = LibItemUpgradeInfo:GetUpgradedItemLevel(itemLink)
 					--local itemRealLevel = select(2, LibItemInfo:GetItemInfo(itemLink))
@@ -965,16 +1003,17 @@ local function Remove_BagFreeItem(frame)
 	SlotNum.Free = #BagFree
 end
 
-local function FullUpdate_BagItem(f)
-	Insert_BagItem(f)
+local function FullUpdate_BagItem(frame)
+	Insert_BagItem(frame)
 	Sort_BagItem(Bag)
-	Update_BagItem(f)
-	Pos_BagItem(f, f.Bags)
+	Update_BagItem(frame)
+	Pos_BagItem(frame, frame.Bags)
 end
 
 local function LimitedUpdate_BagItem(frame)
 	Remove_BagItem(frame)
 	Sort_BagItem(Bag)
+	Sort_BagItem(BagFree)
 	Update_BagItem(frame)
 	Pos_BagItem(frame, frame.Bags)
 end
@@ -1456,6 +1495,10 @@ local function Bag_Frame(frame)
 
 	frame.BagFrame: RegisterEvent("PLAYER_LOGIN")
 	frame.BagFrame: RegisterEvent("PLAYER_ENTERING_WORLD")
+	--frame.BagFrame: RegisterEvent("BAG_OPEN");
+	--frame.BagFrame: RegisterEvent("BAG_CLOSED");
+	--frame.BagFrame: RegisterEvent("QUEST_ACCEPTED");
+	--frame.BagFrame: RegisterEvent("UNIT_QUEST_LOG_CHANGED");
 	frame.BagFrame: RegisterEvent("BAG_UPDATE")
 	--frame.BagFrame: RegisterEvent("BAG_UPDATE_DELAYED")
 	frame.BagFrame: RegisterEvent("BAG_NEW_ITEMS_UPDATED")
@@ -1479,11 +1522,14 @@ local function Bag_Frame(frame)
 		if event == "PLAYER_ENTERING_WORLD" then
 			FullUpdate_BagItem(self)
 		end
+		if event == "BAG_CLOSED" then
+
+		end
 		if event == "BAG_UPDATE" then
 			if self:IsShown() then
 				if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Manual" then
 					LimitedUpdate_BagItem(self)
-				elseif Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Opening" then
+				elseif Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Closing" then
 					LimitedUpdate_BagItem(self)
 				elseif Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Always" then
 					FullUpdate_BagItem(self)
@@ -1525,9 +1571,9 @@ local function Bag_Frame(frame)
 				C_Timer.After(2, function() FullUpdate_BagItem(self) end)
 				self.FullUpdate = true
 			end
-		elseif Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Opening" then
+		elseif Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Closing" then
 			if self.FullUpdate then
-				FullUpdate_BagItem(self)
+				LimitedUpdate_BagItem(self)
 			else
 				FullUpdate_BagItem(self)
 				C_Timer.After(2, function() FullUpdate_BagItem(self) end)
@@ -1543,6 +1589,15 @@ local function Bag_Frame(frame)
 			end
 		end
 		--Quafe_UpdateAfter()
+	end)
+	frame.BagFrame: SetScript("OnHide", function(self)
+		if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Manual" then
+			LimitedUpdate_BagItem(self)
+		elseif Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Closing" then
+			FullUpdate_BagItem(self)
+		elseif Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Always" then
+			FullUpdate_BagItem(self)
+		end
 	end)
 end
 
@@ -2224,7 +2279,7 @@ local Quafe_Container_Config = {
 		["Quafe_Container"] = {
 			Enable = true,
 			Gold = {},
-			RefreshRate = "Always", --Always, Opening, Manual
+			RefreshRate = "Always", --Always, Closing, Manual
 		},
 	},
 
@@ -2263,8 +2318,8 @@ local Quafe_Container_Config = {
 					if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container then
 						if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Manual" then
 							self.Text:SetText(L['手动刷新'])
-						elseif Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Opening" then
-							self.Text:SetText(L['打开时刷新'])
+						elseif Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Closing" then
+							self.Text:SetText(L['关闭时刷新'])
 						elseif Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Always" then
 							self.Text:SetText(L['实时刷新'])
 						end
@@ -2278,9 +2333,9 @@ local Quafe_Container_Config = {
 						end,
 					},
 					[2] = {
-						Text = L['打开时刷新'],
+						Text = L['关闭时刷新'],
 						Click = function(self, button) 
-							Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate = "Opening"
+							Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate = "Closing"
 						end,
 					},
 					[3] = {

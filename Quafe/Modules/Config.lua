@@ -2685,7 +2685,6 @@ local function Quafe_Config_Load()
 	Quafe_Config: SetFrameStrata("HIGH")
 	Quafe_Config: SetSize(800, 560)
 	Quafe_Config: SetPoint("CENTER", UIParent, "CENTER", 0,0)
-	Quafe_Config: Hide()
 	tinsert(UISpecialFrames, "Quafe_Config")
 
 	Quafe_Config.Info = {}
@@ -2748,6 +2747,11 @@ local function Quafe_Config_Load()
 			Quafe_Config.nReload: Show()
 		end
 	end
+
+	Quafe_Config: RegisterEvent("PLAYER_LOGIN")
+	Quafe_Config: SetScript("OnEvent", function(self, event)
+		self: Hide()
+	end)
 end
 Quafe_Config.Load = Quafe_Config_Load
 tinsert(E.Module, Quafe_Config)
