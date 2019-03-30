@@ -63,6 +63,8 @@ E.Value = {
 	},
 }
 E.Aura = {}
+E.CombatLogList = {}
+
 
 --F.Media = "Interface\\AddOns\\"..AddonName.."\\Media\\"
 F.Path = function(tex)

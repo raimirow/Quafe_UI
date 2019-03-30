@@ -85,10 +85,10 @@ local function BGU_Pet_Event(frame, event, ...)
 		F.Smooth_Health("pet")
 		F.Smooth_Power("pet")
 	end
-	if event == "UNIT_HEALTH" or event == "UNIT_MAXHEALTH" then
+	if event == "UNIT_HEALTH" or event == "UNIT_HEALTH_FREQUENT" or event == "UNIT_MAXHEALTH" then
 		F.Smooth_Health("pet")
 	end
-	if event == "UNIT_POWER_UPDATE" or event == "UNIT_MAXPOWER" then
+	if event == "UNIT_POWER_UPDATE" or event == "UNIT_POWER_FREQUENT" or event == "UNIT_MAXPOWER" then
 		F.Smooth_Power("pet")
 	end
 end

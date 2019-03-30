@@ -274,6 +274,28 @@ local function Init_BankItemClass()
 	}
 end
 
+local function ButtonHighLight_Create(frame, color)
+	frame: SetBackdrop({
+		bgFile = F.Path("StatusBar\\Raid"),
+		edgeFile = F.Path("White"), 
+		edgeSize = 2,
+		insets = { left = 0, right = 0, top = 0, bottom = 0 }
+	})
+	frame: SetBackdropColor(F.Color(color, 0))
+	frame: SetBackdropBorderColor(F.Color(color, 0))
+	
+	frame: HookScript("OnEnter", function(self)
+		self: SetBackdropColor(F.Color(color,1))
+		self: SetBackdropBorderColor(F.Color(color,1))
+		self.Tex: SetVertexColor(F.Color(C.Color.Config.Back))
+	end)
+	frame: HookScript("OnLeave", function(self)
+		self: SetBackdropColor(F.Color(color,0))
+		self: SetBackdropBorderColor(F.Color(color,0))
+		self.Tex: SetVertexColor(F.Color(color))
+	end)
+end
+
 local function Button_Template(f)
 	local button = CreateFrame("Button", nil, f)
 	button: SetSize(24,24)
@@ -349,8 +371,10 @@ local function Init_BagGap(f, classtable, p)
 		--shadow: SetAlpha(0.3)
 
 		f["BagIcon"..k] = frame
+		f["BagIcon"..k].Tex = icon
 	end
 
+	--> NewItem
 	local NewItem = CreateFrame("Button", nil, parent)
 	NewItem: SetSize(config.buttonSize, config.buttonSize)
 
@@ -361,6 +385,7 @@ local function Init_BagGap(f, classtable, p)
 	NewItemIcon: SetVertexColor(F.Color(C.Color.Y1))
 
 	f["BagIconNew"] = NewItem
+	f["BagIconNew"].Tex = NewItemIcon
 	
 	local numfree = CreateFrame("Button", nil, parent)
 	numfree: SetSize(config.buttonSize, config.buttonSize)
@@ -391,6 +416,7 @@ local function Init_BagGap(f, classtable, p)
 	f["BagIconNew"]: SetScript("OnLeave", function(self)
 		GameTooltip: Hide()
 	end)
+	ButtonHighLight_Create(f["BagIconNew"], C.Color.Y1)
 
 	f["BagIconSale"]: RegisterForClicks("LeftButtonUp", "RightButtonUp")
 	f["BagIconSale"]: SetScript("OnClick", function(self, button)
@@ -408,6 +434,7 @@ local function Init_BagGap(f, classtable, p)
 	f["BagIconSale"]: SetScript("OnLeave", function(self)
 		GameTooltip: Hide()
 	end)
+	ButtonHighLight_Create(f["BagIconSale"], C.Color.Y1)
 end
 
 local function BagGap_Reset(f, classtable)
@@ -2279,7 +2306,7 @@ local Quafe_Container_Config = {
 		["Quafe_Container"] = {
 			Enable = true,
 			Gold = {},
-			RefreshRate = "Always", --Always, Closing, Manual
+			RefreshRate = "Closing", --Always, Closing, Manual
 		},
 	},
 

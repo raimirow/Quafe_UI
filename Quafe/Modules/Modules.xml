@@ -8,6 +8,7 @@
 
 	<Script file="Blizzard.lua"/>
 	<Script file="UnitFrame.lua"/>
+	<Script file="CombatLog.lua"/>
 	
 	<Script file="TDR.lua"/>
 
@@ -32,5 +33,5 @@
 	<Script file="AFK.lua"/>
 	<Script file="Addition.lua"/>
 
-	<Include file="UnitGroup.xml"/>-->
+	<Include file="UnitGroup.xml"/>
 </Ui>
