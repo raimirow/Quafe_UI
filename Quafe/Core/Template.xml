@@ -216,10 +216,10 @@
 					local id = self:GetID();
 					local translatedID = self:GetBagID();
 					local hadItem = PutItemInBag(id);
-					if button == "LeftButton" then
-						PutItemInBag(id)
-					else
-						if ( not hadItem ) then
+					if ( not hadItem ) then
+						if button == "LeftButton" then
+							BagSlotButton_OnDrag(self, button)
+						else
 							ToggleBag(translatedID);
 						end
 					end
@@ -232,10 +232,10 @@
 				local id = self:GetID();
 				local translatedID = self:GetBagID();
 				local hadItem = PutItemInBag(id);
-				if button == "LeftButton" then
-					PutItemInBag(id)
-				else
-					if ( not hadItem ) then
+				if ( not hadItem ) then
+					if button == "LeftButton" then
+						BagSlotButton_OnDrag(self, button)
+					else
 						ToggleBag(translatedID);
 					end
 				end
@@ -247,6 +247,38 @@
 				GameTooltip:Hide();
 				ResetCursor();
 			</OnLeave>
+		</Scripts>
+	</ItemButton>
+	<ItemButton name="Quafe_BankSlotButtonTemplate" inherits="BankItemButtonBagTemplate" virtual="true">
+		<Scripts>
+			<OnClick>
+				if ( IsModifiedClick() ) then
+					BankFrameItemButtonBag_Pickup(self);
+				else
+					local inventoryID = self:GetInventorySlot();
+					local hadItem = PutItemInBag(inventoryID);
+					local id = self:GetID();
+					if ( not hadItem ) then
+						if button == "LeftButton" then
+							BankFrameItemButtonBag_Pickup(self, button)
+						else
+							ToggleBag(id+NUM_BAG_SLOTS)
+						end
+					end
+				end
+			</OnClick>
+			<OnReceiveDrag>
+				local inventoryID = self:GetInventorySlot();
+				local hadItem = PutItemInBag(inventoryID);
+				local id = self:GetID();
+				if ( not hadItem ) then
+					if button == "LeftButton" then
+						BankFrameItemButtonBag_Pickup(self, button)
+					else
+						ToggleBag(id+NUM_BAG_SLOTS)
+					end
+				end
+			</OnReceiveDrag>
 		</Scripts>
 	</ItemButton>
 </Ui>

@@ -1445,10 +1445,6 @@ local function ExpBar_Event(frame, event, ...)
 end
 
 local function ExpBar_OnEvent(frame)
-	frame: RegisterEvent("PLAYER_ENTERING_WORLD")
-	frame: RegisterEvent("PLAYER_XP_UPDATE")
-	frame: RegisterEvent("PLAYER_LEVEL_UP")
-	frame: RegisterEvent("GROUP_ROSTER_UPDATE")
 	frame: SetScript("OnEvent", function(self, event, ...)
 		ExpBar_RePos(frame, event, ...)
 		ExpBar_Event(frame, event, ...)
@@ -1482,6 +1478,7 @@ local function Quafe_ExpBar_Load()
 	if Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_ExpBar"].Enable then
 		ExpBar_Artwork(Quafe_ExpBar)
 		ExpBar_OnEvent(Quafe_ExpBar)
+		ExpBar_Refresh(Quafe_ExpBar)
 		Quafe_ExpBar.Init = true
 	end
 end

@@ -2106,8 +2106,7 @@ local function BankExtra_Frame(f)
 	--> Bank Slot
 	local lastbutton
 	for bagID = NUM_BAG_SLOTS+1, NUM_BAG_SLOTS + NUM_BANKBAGSLOTS do
-		--local button = CreateFrame("CheckButton", "Quafe_BankButton"..bagID, bagextra, "ItemButtonTemplate")
-		local button = CreateFrame("ItemButton", "Quafe_BankButton"..bagID, bagextra, "BankItemButtonBagTemplate")
+		local button = CreateFrame("ItemButton", "Quafe_BankButton"..bagID, bagextra, "Quafe_BankSlotButtonTemplate")
 		button: SetSize(24,24)
 		if bagID == NUM_BAG_SLOTS+1 then
 			button: SetPoint("RIGHT", bagextra, "RIGHT", -33-30*6,0)
@@ -2115,11 +2114,10 @@ local function BankExtra_Frame(f)
 			button: SetPoint("LEFT", lastbutton, "RIGHT", 6,0)
 		end
 		
-		local invID
-		invID = ContainerIDToInventoryID(bagID)
+		local invID = BankButtonIDToInvSlotID(bagID-4, 1)
 		button.invID = invID
 		button.bagID = bagID
-		button: SetID(invID)
+		button: SetID(bagID - 4)
 		
 		button: SetNormalTexture("")
 		button.icon: SetAllPoints(button)
@@ -2132,7 +2130,14 @@ local function BankExtra_Frame(f)
 		Create_ButtonBg(button.Border, 1, 0)
 		button.Border: SetBackdropColor(F.Color(C.Color.W1, 0))
 		button.Border: SetBackdropBorderColor(F.Color(C.Color.W4, 0.9))
-		
+
+		if button.IconBorder then
+			--button.IconBorder: SetTexture("")
+			--button.IconBorder: Hide()
+			button.IconBorder: SetAlpha(0)
+		end
+
+		--[[
 		button: RegisterForDrag("LeftButton", "RightButton")
 		button: RegisterForClicks("anyUp")
 		
@@ -2166,7 +2171,7 @@ local function BankExtra_Frame(f)
 		button: SetScript("OnLeave", function(self)
 			GameTooltip: Hide()
 		end)
-		
+		--]]
 		lastbutton = button
 		f.Extra["Bag"..bagID] = button
 	end
