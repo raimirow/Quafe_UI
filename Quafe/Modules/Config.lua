@@ -446,6 +446,27 @@ local function Slider_Create(frame)
 		end
 	end)
 
+	SliderHold: SetScript("OnShow", function(self)
+		if not self.Init then
+			local min, max = Slider:GetMinMaxValues()
+			local value = Slider:GetValue()
+			local step = (value-min)/5
+			local cur = min
+			Slider: SetValue(cur)
+			self: SetScript("OnUpdate", function(self, elapsed)
+				self.Init = true
+				if cur < value then
+					cur = cur + step
+					Slider: SetValue(cur)
+				else
+					cur = value
+					Slider: SetValue(cur)
+					self: SetScript("OnUpdate", nil)
+				end
+			end)
+		end
+	end)
+
 	frame.Slider = Slider
 	frame.Slider.Text = Text
 end
