@@ -538,8 +538,16 @@ local function Create_BagItemButton(f, bagID, slotID)
 	button.JunkIcon: SetSize(14,14)
 	button.JunkIcon: ClearAllPoints()
 	button.JunkIcon: SetPoint("BOTTOMLEFT", button, "BOTTOMLEFT", 2,0)
-
-	--button.UpgradeIcon: SetSize(16,16)
+	
+	if (not button.UpgradeIcon) then
+		button.UpgradeIcon = button: CreateTexture(nil, "OVERLAY", 1);
+	end
+	--Texture:SetAtlas("atlasName"[, useAtlasSize, "filterMode"])
+	button.UpgradeIcon: SetAtlas("bags-greenarrow", true)
+	button.UpgradeIcon: SetSize(18,20)
+	button.UpgradeIcon: ClearAllPoints()
+	button.UpgradeIcon: SetPoint("TOPLEFT", button, "TOPLEFT", -2,2)
+	button.UpgradeIcon: Hide()
 
 	button.QuestIcon = _G[slotName.."IconQuestTexture"] or button: CreateTexture(nil, "OVERLAY", 2)
 	button.QuestIcon: SetTexture(F.Path("Bag_Icon_Quest"))
@@ -703,6 +711,8 @@ local function Update_SlotItem(slot, v)
 	--SetItemButtonQuality(itemButton, quality, itemID)
 	SetItemButtonCount(slot,  v.itemCount)
 	SetItemButtonDesaturated(slot, v.itemLocked, 0.5,0.5,0.5)
+	ContainerFrameItemButton_UpdateItemUpgradeIcon(slot);
+
 	if v.itemQuality == 0 then
 		slot.JunkIcon: Show()
 	else
@@ -1074,21 +1084,35 @@ local function Update_ItemLock(self, event, ...)
 	end
 end
 
-local function Update_ItemCooldown(self, event, ...)
-	if ((event ~= "BAG_UPDATE_COOLDOWN") or (not self)) then return end
-	--local bagID = ...
+local function Update_ItemCooldown(frame, event, ...)
+	if ((event ~= "BAG_UPDATE_COOLDOWN") or (not frame)) then return end
+	local itemButton
 	for bagID = BANK_CONTAINER, NUM_BAG_SLOTS + NUM_BANKBAGSLOTS do
 		if _G[format("Quafe_Bag%s", bagID)] then
 			for slotID = 1, ContainerFrame_GetContainerNumSlots(bagID)do
 				local start, duration, enable = GetContainerItemCooldown(bagID, slotID)
-				local button = _G[format("Quafe_Bag%sSlot%s", bagID, slotID)]
-				if button then
-					CooldownFrame_Set(button.cooldown, start, duration, enable)
+				itemButton = _G[format("Quafe_Bag%sSlot%s", bagID, slotID)]
+				if itemButton then
+					CooldownFrame_Set(itemButton.cooldown, start, duration, enable)
 					if duration > 0 and enable == 0 then
-						SetItemButtonTextureVertexColor(button, 0.4, 0.4, 0.4)
+						SetItemButtonTextureVertexColor(itemButton, 0.4, 0.4, 0.4)
 					else
-						SetItemButtonTextureVertexColor(button, 1, 1, 1)
+						SetItemButtonTextureVertexColor(itemButton, 1, 1, 1)
 					end
+				end
+			end
+		end
+	end
+end
+
+local function Update_ItemUpgradeIcons(frame)
+	local itemButton
+	for bagID = BANK_CONTAINER, NUM_BAG_SLOTS + NUM_BANKBAGSLOTS do
+		if _G[format("Quafe_Bag%s", bagID)] then
+			for slotID = 1, ContainerFrame_GetContainerNumSlots(bagID)do
+				itemButton = _G[format("Quafe_Bag%sSlot%s", bagID, slotID)]
+				if itemButton then
+					ContainerFrameItemButton_UpdateItemUpgradeIcon(itemButton)
 				end
 			end
 		end
@@ -1097,10 +1121,11 @@ end
 
 local function Search_BagItem(f, event, ...)
 	if ((event ~= "INVENTORY_SEARCH_UPDATE") or (not f) or (not f:IsShown())) then return end
+	local itemButton
 	for bagID = 0, NUM_BAG_SLOTS do
 		for slotID = 1, ContainerFrame_GetContainerNumSlots(bagID) do
 			local _, _, _, quality, _, _, _, isFiltered = GetContainerItemInfo(bagID, slotID)
-			local itemButton = f["Bag"..bagID]["Slot"..slotID]
+			itemButton = f["Bag"..bagID]["Slot"..slotID]
 			if itemButton then
 				if isFiltered then
 					SetItemButtonDesaturated(item, 1)
@@ -1526,6 +1551,8 @@ local function Bag_Frame(frame)
 	--frame.BagFrame: RegisterEvent("BAG_CLOSED");
 	--frame.BagFrame: RegisterEvent("QUEST_ACCEPTED");
 	--frame.BagFrame: RegisterEvent("UNIT_QUEST_LOG_CHANGED");
+	frame.BagFrame: RegisterEvent("UNIT_INVENTORY_CHANGED")
+	frame.BagFrame: RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
 	frame.BagFrame: RegisterEvent("BAG_UPDATE")
 	--frame.BagFrame: RegisterEvent("BAG_UPDATE_DELAYED")
 	frame.BagFrame: RegisterEvent("BAG_NEW_ITEMS_UPDATED")
@@ -1551,6 +1578,9 @@ local function Bag_Frame(frame)
 		end
 		if event == "BAG_CLOSED" then
 
+		end
+		if ( event == "UNIT_INVENTORY_CHANGED" or event == "PLAYER_SPECIALIZATION_CHANGED" ) then
+			Update_ItemUpgradeIcons(self)
 		end
 		if event == "BAG_UPDATE" then
 			if self:IsShown() then
