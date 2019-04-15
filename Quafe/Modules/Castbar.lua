@@ -44,7 +44,7 @@ local function CastBar_OnEvent(frame, event, ...)
 	local arg1 = ...;
 	local unit = frame.Unit;
 
-	if ( event == "PLAYER_ENTERING_WORLD" ) then
+	if ( event == "PLAYER_ENTERING_WORLD" or event == "PLAYER_TARGET_CHANGED" or event == "PLAYER_FOCUS_CHANGED" ) then
 		local nameChannel = UnitChannelInfo(unit);
 		local nameSpell = UnitCastingInfo(unit);
 		if ( nameChannel ) then
@@ -71,6 +71,9 @@ local function CastBar_OnEvent(frame, event, ...)
 		frame.ApplyColor(frame, "Start", notInterruptible)
 		frame.Value = (GetTime() - (startTime / 1000));
 		frame.MaxValue = (endTime - startTime) / 1000;
+		if ( frame.Text ) then
+			frame.Text:SetText(text)
+		end
 		if ( frame.Icon ) then
 			frame.Icon: SetTexture(texture)
 		end

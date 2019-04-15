@@ -1169,10 +1169,10 @@ end
 local function AutoLoot_Click(frame)
 	local autoloot = GetCVar("autoLootDefault")
 	if autoloot == "0" then
-		SetCVar("autoLootDefault", 1, false)
+		SetCVar("autoLootDefault", 1)
 		--DEFAULT_CHAT_FRAME:AddMessage(L['AUTOLOOT'].." "..L['ON'])
 	else
-		SetCVar("autoLootDefault", 0, false)
+		SetCVar("autoLootDefault", 0)
 		--DEFAULT_CHAT_FRAME:AddMessage(L['AUTOLOOT'].." "..L['OFF'])
 	end
 	AutoLoot_Update(frame)
@@ -1261,7 +1261,15 @@ local function CommunicationMenu_Artwork(frame)
 	DVa: SetSize(64,64)
 	DVa: SetPoint("CENTER", frame, "CENTER", 0,0)
 
+	local Bd3 = F.Create.Texture(frame, "BORDER", 1, F.Path("CommunicationMenu\\Bd4"), C.Color.W3, 0.4, {1024,1024}, nil)
+	Bd3: SetPoint("CENTER", frame, "CENTER", 0,0)
+
+	local Bd4 = F.Create.Texture(frame, "ARTWORK", 1, F.Path("CommunicationMenu\\Bd5"), C.Color.B1, 1, {1024,1024}, nil)
+	Bd4: SetPoint("CENTER", frame, "CENTER", 0,0)
+	Bd4: Hide()
+
 	frame.DVa = DVa
+	frame.Bd = Bd4
 end
 
 local function Line_Update(f, angle)
@@ -1294,6 +1302,20 @@ local function Line_Create(f)
 	f.Line: SetFrameLevel(f:GetFrameLevel())
 	
 	Line_Update(f.Line, {22.5, 67.5, 112.5, 157.5, 202.5, 247.5, 292.5, 337.5})
+end
+
+local function CommunicationMenu_GetAngle(frame)
+	local uiScale = UIParent:GetEffectiveScale()
+	local x0, y0 = frame:GetCenter()
+	local x1, y1 = GetCursorPosition()
+	local x, y = (x1/uiScale - x0), (y1/uiScale - y0)
+	local a = deg(atan(y/x))
+	if x < 0 then
+		a = a + 180
+	elseif y < 0 then
+		a = a + 360
+	end
+	return a, x, y
 end
 
 local CommunicationMenu = CreateFrame("Button", "Quafe_CommunicationMenu", E)
@@ -1344,6 +1366,38 @@ local function Load()
 		end
 	end)
 	
+	CommunicationMenu: SetScript("OnEnter", function(self)
+		CommunicationMenu: SetScript("OnUpdate", function(self)
+			local a, x, y = CommunicationMenu_GetAngle(self)
+			if ((x*x+y*y) > 8000) and ((x*x+y*y) < 420000) then
+				self.Bd: Show()
+				if a < 22.5 or a > 337.5 then
+					self.Bd: SetRotation(rad(0))
+				elseif a < 67.5 then
+					self.Bd: SetRotation(rad(45))
+				elseif a < 112.5 then
+					self.Bd: SetRotation(rad(90))
+				elseif a < 157.5 then
+					self.Bd: SetRotation(rad(135))
+				elseif a < 202.5 then
+					self.Bd: SetRotation(rad(180))
+				elseif a < 247.5 then
+					self.Bd: SetRotation(rad(225))
+				elseif a < 292.5 then
+					self.Bd: SetRotation(rad(270))
+				elseif a < 337.5 then
+					self.Bd: SetRotation(rad(315))
+				end
+			else
+				self.Bd: Hide()
+			end
+		end)
+	end)
+
+	CommunicationMenu: SetScript("OnLeave", function(self)
+		CommunicationMenu: SetScript("OnUpdate", nil)
+	end)
+
 	CommunicationMenu: SetScript("OnClick", function(self, button)
 		if button == "LeftButton" then
 			local uiScale = UIParent:GetEffectiveScale()

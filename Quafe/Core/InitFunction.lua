@@ -77,7 +77,7 @@ F.FormatTime = function(s, n)
 	end
 end
 
-F.FormatNum = function(v, n, wan)
+function F.FormatNum(v, n, wan)
 	if not n then n = 0 end
 	if v < 1e4 then
 		return format("%.0f", v)  
@@ -93,6 +93,16 @@ end
 --if strlenutf8(currencyText) > 5 then
 --	currencyText = AbbreviateNumbers(count);
 --end
+
+function F.FormatPercent(value)
+	if not value then value = 0 end
+	value = value * 100
+	if value >= 10 then
+		return format("%d", value)
+	else
+		return format("%.1f", value)
+	end
+end
 
 ----------------------------------------------------------------
 
@@ -140,18 +150,22 @@ local function CalculateCorner(angle)
 	local radian = rad(angle);
 	return 0.5 + cos(radian) / sqrt(2), 0.5 + sin(radian) / sqrt(2);
 end
-F.RotateTexture = function(texture, angle)
+F.RotateTexture = function(texture, angle, cx, cy)
+	--[[
 	local LRx, LRy = CalculateCorner(angle + 45);
 	local LLx, LLy = CalculateCorner(angle + 135);
 	local ULx, ULy = CalculateCorner(angle + 225);
 	local URx, URy = CalculateCorner(angle - 45);
 
 	texture: SetTexCoord(ULx, ULy, LLx, LLy, URx, URy, LRx, LRy);
+	--]]
+	texture:SetRotation(rad(angle), cx, cy)
 end
 
 ----------------------------------------------------------------
 
 --> 同步闪烁
+F.Alpha1 = 0
 F.Alpha2 = 0
 F.Alpha4 = 0
 F.Last1 = 0
@@ -161,10 +175,30 @@ F.Last10 = 0
 F.Last10H = 0.05
 F.Last25 = 0
 F.Last25H = 0.02
+
+local Transfer1 = 0
 local Transfer2 = 0
 local Transfer4 = 0
 local flash = CreateFrame("Frame", nil, UIParent)
 flash:SetScript("OnUpdate",function(self, elapsed)
+	--> Flash1
+	local step1 = floor((1/GetFramerate())*1e3)/1e3
+	if Transfer1 == 0 then
+		F.Alpha1 = F.Alpha1 + step1
+	elseif Transfer1 == 1 then
+		F.Alpha1 = F.Alpha1 - step1
+	else
+		F.Alpha1 = 0
+		Transfer1 = 0
+	end
+	if F.Alpha1 <= 0 then
+		F.Alpha1 = 0
+		Transfer1 = 0
+	elseif F.Alpha1 >= 1 then
+		F.Alpha1 = 1
+		Transfer1 = 1
+	end
+
 	--> Flash2
 	local step2 = floor((2/GetFramerate())*1e3)/1e3
 	if Transfer2 == 0 then
@@ -462,6 +496,47 @@ function F.create_Texture(f, layer, texture, color, alpha)
 		tt:SetAlpha(alpha)
 	end
 	return tt
+end
+
+F.Create = {}
+
+function F.Create.Texture(frame, layer, sublayer, texture, color, alpha, size, coord)
+	local Dummy = frame:CreateTexture(nil, layer, nil, sublayer)
+	if texture then
+		Dummy: SetTexture(texture)
+	end
+	if color then
+		Dummy: SetVertexColor(F.Color(color))
+	end
+	if alpha then
+		Dummy: SetAlpha(alpha)
+	end
+	if size then
+		Dummy: SetSize(unpack(size))
+	end
+	if coord then
+		Dummy: SetTexCoord(unpack(coord))
+	end
+
+	return Dummy
+end
+
+function F.Create.Font(frame, layer, fontname, fontsize, outline, sdcolor, sdoffset, horizon, vertical)
+	local Dummy = frame:CreateFontString(nil, layer)
+	Dummy:SetFont(fontname, fontsize, outline)
+	if sdcolor then
+		Dummy:SetShadowColor(F.Color(unpack(sdcolor)))
+	end
+	if sdoffset then
+		Dummy:SetShadowOffset(unpack(sdoffset))
+	end
+	if horizon then
+		Dummy:SetJustifyH(horizon)
+	end
+	if vertical then
+		Dummy:SetJustifyV(vertical)
+	end
+	return Dummy
 end
 
 function F.create_StatusBar(f, texture, orientation, rotate)

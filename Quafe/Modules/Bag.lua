@@ -538,7 +538,7 @@ local function Create_BagItemButton(f, bagID, slotID)
 	button.JunkIcon: SetSize(14,14)
 	button.JunkIcon: ClearAllPoints()
 	button.JunkIcon: SetPoint("BOTTOMLEFT", button, "BOTTOMLEFT", 2,0)
-	
+
 	if (not button.UpgradeIcon) then
 		button.UpgradeIcon = button: CreateTexture(nil, "OVERLAY", 1);
 	end
@@ -1119,13 +1119,13 @@ local function Update_ItemUpgradeIcons(frame)
 	end
 end
 
-local function Search_BagItem(f, event, ...)
-	if ((event ~= "INVENTORY_SEARCH_UPDATE") or (not f) or (not f:IsShown())) then return end
+local function Search_BagItem(frame, event, ...)
+	if ((event ~= "INVENTORY_SEARCH_UPDATE") or (not frame) or (not frame:IsShown())) then return end
 	local itemButton
 	for bagID = 0, NUM_BAG_SLOTS do
 		for slotID = 1, ContainerFrame_GetContainerNumSlots(bagID) do
 			local _, _, _, quality, _, _, _, isFiltered = GetContainerItemInfo(bagID, slotID)
-			itemButton = f["Bag"..bagID]["Slot"..slotID]
+			itemButton = frame["Bag"..bagID]["Slot"..slotID]
 			if itemButton then
 				if isFiltered then
 					SetItemButtonDesaturated(item, 1)
