@@ -62,6 +62,18 @@ E.Value = {
 		Power = {Min = 0, Max = 0, Per = 0, Cur = 0},
 	},
 }
+E.UBU = {
+	Player = {
+		HP = {},
+		PP = {},
+		AS = {},
+		MN = {},
+	},
+	Pet = {
+		HP = {},
+		PP = {},
+	},
+}
 E.Aura = {}
 E.CombatLogList = {}
 
@@ -100,7 +112,7 @@ SlashCmdList["QUAFE"] = function(msg)
 		wipe(Quafe_DB.Global.AuraWatch)
 		Quafe_DB.Global.AuraWatch = E.Aurawatch
 	else
-		if E.Config then E.Config: Show() end
+		if _G["Quafe_Config"] then _G["Quafe_Config"]: Show() end
 	end
 end
 SLASH_QUAFE1 = "/quafe"

@@ -24,6 +24,12 @@ local insert = table.insert
 local remove = table.remove
 local wipe = table.wipe
 
+----------------------------------------------------------------
+--> Locale
+----------------------------------------------------------------
+
+C.Locale = {}
+
 --- ------------------------------------------------------------
 --> Colors
 --- ------------------------------------------------------------
@@ -36,13 +42,32 @@ C.Color.Class = {
 	["HUNTER"]			= {r = 206/255, g = 248/255, b =  74/255},  --{148/255, 219/255, 125/255}
 	["MAGE"]			= {r =  46/255, g = 208/255, b = 255/255},  --{  0/255, 194/255, 255/255}
 	["PALADIN"]			= {r = 255/255, g =  82/255, b = 204/255},  --{255/255,  56/255, 133/255}
-	["PRIEST"]			= {r = 218/255, g = 254/255, b = 254/255},  --{204/255, 252/255, 252/255}
+	["PRIEST"]			= {r = 218/255, g = 234/255, b = 234/255},  --{204/255, 252/255, 252/255}
 	["ROGUE"]			= {r = 255/255, g = 246/255, b =  14/255},  --{255/255, 232/255,  51/255}
 	["SHAMAN"]			= {r =  68/255, g = 148/255, b = 255/255},  --{  0/255, 153/255, 153/255}
 	["WARLOCK"]			= {r = 162/255, g = 144/255, b = 255/255},  --{153/255, 120/255, 217/255}
 	["WARRIOR"]			= {r = 242/255, g = 194/255, b = 160/255},  --{230/255, 166/255, 115/255}
 	["MONK"]			= {r =  96/255, g = 255/255, b = 194/255},  --{ 96/255, 255/255, 194/255}
-	["DEMONHUNTER"]		= {r =    0.64, g =    0.19, b =    0.79},
+	["DEMONHUNTER"]		= {r =    0.64, g =    0.19, b =    0.79},  --{r =    0.64, g =    0.19, b =    0.79}
+}
+
+C.Color.Matrix = {
+	[1] =	{r = 239, g =  83, b =  80}, -- Red
+	[2] =	{r = 236, g =  64, b = 122}, -- Pink
+	[3] =	{r = 171, g =  71, b = 188},
+	[4] =	{r = 126, g =  87, b = 194},
+	[5] =	{r =  92, g = 107, b = 192},
+	[6] =	{r =  66, g = 165, b = 245},
+	[7] =	{r =  41, g = 182, b = 246},
+	[8] =	{r =  38, g = 198, b = 218},
+	[9] =	{r =  38, g = 166, b = 154},
+	[10] =	{r = 102, g = 187, b = 106},
+	[11] =	{r = 156, g = 204, b = 101},
+	[12] =	{r = 212, g = 225, b =  87},
+	[13] =	{r = 255, g = 238, b =  88},
+	[14] =	{r = 250, g = 213, b =  62},
+	[15] =	{r = 255, g = 167, b =  38},
+	[16] =	{r = 255, g = 112, b =  67},
 }
 
 C.Color.DebuffType = {
@@ -101,7 +126,7 @@ C.Color["Denied"]	= {r =  87/255, g =  96/255, b = 105/255}
 
 
 
-C.Color.Color0  = {r = 242/255, g = 242/255, b = 252/255}    -- 黑
+C.Color.Color0  = {r = 243/255, g = 244/255, b = 255/255}    -- 黑
 C.Color.Color1  = {r =  26/255, g =  26/255, b =  26/255}    -- 黑
 C.Color.Color2  = {r =  90/255, g =  90/255, b =  90/255}    -- 黑
 C.Color.Color3  = {r = 249/255, g = 154/255, b = 164/255}    -- 红
@@ -125,7 +150,7 @@ C.Color.B1 = {r =  56/255, g = 154/255, b = 254/255}
 --C.Color.B2 = C.Color.Color8
 C.Color.B2 = {r =  36/255, g = 186/255, b = 254/255} 
 C.Color.B3 = C.Color["Blue"]
-C.Color.Y1 = {r = 210/255, g = 142/255, b =  64/255}
+C.Color.Y1 = {r = 220/255, g = 162/255, b =  64/255}
 C.Color.Y2 = C.Color.Color10
 C.Color.Y3 = C.Color.Color9
 C.Color.G1 = C.Color.Color5
@@ -144,13 +169,18 @@ C.Color.Rune = {
 --- ------------------------------------------------------------
 
 C.Font = {}
-
-C.Font["Txt"] = F.Path("Fonts\\Txt.ttf")
+C.Font["Txt"] = UNIT_NAME_FONT
 C.Font["Num"] = F.Path("Fonts\\Num.ttf")
 C.Font["NumSmall"] = F.Path("Fonts\\Futura.ttf")
 C.Font["NumOW"] = F.Path("Fonts\\BigNoodleToo.ttf")
-C.Font["TxtTTT"] = F.Path("Fonts\\TTTGB-Medium.ttf")
-
+C.Font["NumOWI"] = F.Path("Fonts\\BigNoodleTooOblique.ttf")
+--[[
+local locale = GetLocale()
+if locale == "zhCN" or locale == "zhTW" then
+	print(locale)
+	C.Font["Txt"] = F.Path("Fonts\\SourceHanSans.ttf")
+end
+--]]
 -- STANDARD_TEXT_FONT
 -- UNIT_NAME_FONT
 -- DAMAGE_TEXT_FONT
@@ -177,50 +207,29 @@ C.WatcherIcon = {
 	--XXX
 
 	--> OverWatch
-	"AdaptiveShield",
-	"AmpItUp",
-	"AmplificationMatrix",
-	"AngelicDescent",
-	"ArmorPack",
-	"Barrage",
-	"BarrierShield",
-	"BioticField",
-	"BioticGrenade",
-	"BioticOrb",
-	"Blink",
-	"Blizzard",
-	"Bob",
-	"Boosters",
-	"BuildTurret",
-	"CallMech",
-	"ChainHook",
-	"Charge",
-	"CoachGun",
-	"Coalescence",
-	"CombatRoll",
-	"ConcussionMine",
-	"ConcussiveBlast",
-	"Crossfade",
-	"CryoFreeze",
-	"Deadeye",
-	"DeathBlossom",
-	"DefenseMatrix",
-	"Deflect",
-	"DeployTurret",
-	"Dragonblade",
-	"Dragonstrike",
-	"Dynamite",
-	"EarthShatter",
-	"Emp",
-	"ExoBoots",
-	"Fade",
-	"FireStrike",
-	"Flashbang",
-	"Fortify",
-	"GrapplingClaw",
-	"GrapplingHook",
-	"GravitonSurge",
-	"GuardianAngel",
+	"AdaptiveShield", "AmpItUp", "AmplificationMatrix", "AngelicDescent", "ArmorPack",
+	"Barrage", "BarrierShield", "BioticField", "BioticGrenade", "BioticOrb",
+	"Blink", "Blizzard", "Bob", "Boosters", "BuildTurret", 
+	"CallMech", "ChainHook", "Charge", "CoachGun", "Coalescence",
+	"CombatRoll", "ConcussionMine", "ConcussiveBlast", "Crossfade", "CryoFreeze",
+	"Deadeye", "DeathBlossom", "DefenseMatrix", "Deflect", "DeployTurret",
+	"Dragonblade", "Dragonstrike", "Dynamite", "EarthShatter", "Emp",
+	"ExoBoots", "Fade", "FireStrike", "Flashbang", "Fortify",
+	"GrapplingClaw", "GrapplingHook", "GravitonSurge", "GuardianAngel", "Hack",
+	"Halt", "HelixRockets", "IceWall", "ImmortalityField", "InfraSight",
+	"JumpJet", "JumpPack", "LightGun", "Lunge", "MeteorStrike",
+	"MicroMissiles", "Minefield", "MoltenCore", "MoltenCore2", "OrbOfDiscord",
+	"OrbOfHarmony", "Overload", "ParticleBarrier", "PhotonBarrier", "PhotonShield",
+	"Piledriver", "PrimalRage", "ProjectedBarrier", "ProtectiveBarrier", "PulseBomb",
+	"Rally", "Recall", "Reconfigure", "RegenerativeBurst", "RemoteMine",
+	"RepairPack", "Resurrect", "Resurrect2", "RipTire", "RisingUppercut",
+	"RocketPunch", "Roll", "ScatterArrow", "SeismicSlam", "SelfDestruct",
+	"SelfRepair", "SentryTurret", "ShadowStep", "Shield", "ShieldBash",
+	"ShieldProjector", "SleepDart", "SonicArrow", "SoundBarrier", "Sprint",
+	"SteelTrap", "StimBoost", "StormArrows", "Supercharger", "SwiftStrike",
+	"TacticalVisor", "TakeABreather", "Teleporter", "TheBestDefense", "ThermopticCamo",
+	"TotalMayhem", "Transcendence", "Translocator", "Valkyrie", "VenomMine",
+	"WhipShot", "WholeHog", "WraithForm",
 }
 
 --[[

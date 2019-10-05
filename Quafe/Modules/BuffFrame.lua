@@ -113,15 +113,18 @@ local textureMapping = {
 local function Enchant_Update(button, index)
 	local quality = GetInventoryItemQuality("player", index)
 	local texture = GetInventoryItemTexture("player", index)
-	local hasMainHandEnchant, mainHandExpiration, mainHandCharges, hasOffHandEnchant, offHandExpiration, offHandCharges = GetWeaponEnchantInfo()
+	--local hasMainHandEnchant, mainHandExpiration, mainHandCharges, hasOffHandEnchant, offHandExpiration, offHandCharges = GetWeaponEnchantInfo()
+	local hasMainHandEnchant, mainHandExpiration, mainHandCharges, mainHandEnchantID, hasOffHandEnchant, offHandExpiration, offHandCharges, offHandEnchantId = GetWeaponEnchantInfo()
 	local remain,count = 0,0
 	if index == textureMapping[1] then
-		remain = mainHandExpiration	count = mainHandCharges
+		remain = mainHandExpiration
+		count = mainHandCharges
 	elseif index == textureMapping[2] then
 		remain = offHandExpiration
 		count = offHandCharges
 	elseif index == textureMapping[3] then
-		remain = mainHandExpiration	count = mainHandCharges
+		remain = mainHandExpiration
+		count = mainHandCharges
 	end
 
 	if texture then

@@ -44,7 +44,11 @@ function Quafe_CheckTable(A, B)
 			A[k] = v
 		else
 			if type(v) == "table" then
-				Quafe_CheckTable(A[k], v)
+				if type(A[k]) == "table" then
+					Quafe_CheckTable(A[k], v)
+				else
+					A[k] = v
+				end
 			end
 		end
 	end
@@ -79,13 +83,31 @@ local function Profile_Load()
 		Quafe_DBP.Profile = "Default"
 	end
 	Quafe_CheckTable(Quafe_DB, E.Database)
+	Profile_Check()
+	Quafe_CheckTable(Quafe_DB.Profile[Quafe_DBP.Profile], E.Database.Profile.Default)
+end
+
+function F.Reset()
+	if Quafe_DB then
+		wipe(Quafe_DB)
+	else
+		Quafe_DB = {}
+	end
+	if not Quafe_DBP then
+		Quafe_DBP = {}
+		Quafe_DBP.Profile = "Default"
+	end
+	Quafe_CheckTable(Quafe_DB, E.Database)
 	Quafe_CheckTable(Quafe_DB.Profile[Quafe_DBP.Profile], E.Database.Profile.Default)
 	Profile_Check()
+	if not Quafe_DB.Global.AuraWatch then
+		Quafe_DB.Global.AuraWatch = E.Aurawatch
+	end
 end
 
 local function Aura_Load()
 	if not Quafe_DB.Global.AuraWatch then
-		Quafe_DB.Global.AuraWatch = EAurawatch
+		Quafe_DB.Global.AuraWatch = E.Aurawatch
 	end
 	--[[
 	local class = select(2, UnitClass("player"))
@@ -127,7 +149,7 @@ local function Quafe_Init()
 	BINDING_NAME_QUAFE_COMMUNICATIONMENU = L['BINDING_COMMUNICATIONMENU']
 
 	--> 战斗字体
-	DAMAGE_TEXT_FONT = F.Path("Fonts\\TTTGB-Medium.ttf")
+	--DAMAGE_TEXT_FONT = F.Path("Fonts\\Txt.ttf")
 	--> 最大装备方案数量
 	MAX_EQUIPMENT_SETS_PER_PLAYER = 20
 end
@@ -140,15 +162,68 @@ local function Quafe_Load()
 end
 
 local function Quafe_Login()
-	SetCVar("cameraDistanceMaxZoomFactor", 2.6)
+	--SetCVar("cameraDistanceMaxZoomFactor", 2.6)
 	--SetCVar("rawMouseEnable", 1) --(0)[0,1]
 	--SetCVar("rawMouseRate", 1000) --(125)[125]
 	--SetCVar("rawMouseResolution", 2000) --(400)[400]
-	SetCVar("cameraYawMoveSpeed", 270) --(180)[90-270]
+	--SetCVar("cameraYawMoveSpeed", 270) --(180)[90-270]
 	--SetCVar("cameraPitchMoveSpeed", 1) --(90)[45-135]
-	SetCVar("breakUpLargeNumbers", 1) 
-	SetCVar("autoQuestProgress", 1) 
-	SetCVar("overrideArchive", 0) --反和谐(1)[0,1]
+	--SetCVar("breakUpLargeNumbers", 1) 
+	--SetCVar("autoQuestProgress", 1)
+	if GetLocale() == "zhCN" then
+		SetCVar("overrideArchive", 0) --反和谐(1)[0,1]
+		SetCVar("profanityFilter", 0) --语言过滤器(1)[0,1]
+		--SetCVar("nameplateMaxDistance", "4e1") --姓名板最大距离
+	end
+end
+
+local function Quafe_InterfaceOptions()
+	local QuafeInterfaceOptionsFrame = CreateFrame("Frame")
+	QuafeInterfaceOptionsFrame: SetSize(396,400)
+
+	local Logo = F.Create.Texture(QuafeInterfaceOptionsFrame, "ARTWORK", 1, F.Path("Logo"), {r = 250, g = 213, b =  62}, 1, {256,128})
+	Logo: SetPoint("TOPLEFT", QuafeInterfaceOptionsFrame, "TOPLEFT", 10,0)
+
+	local VersionText = F.Create.Font(QuafeInterfaceOptionsFrame, "ARTWORK", C.Font.NumOWI, 28, nil, {r = 250, g = 213, b =  62})
+	VersionText: SetPoint("TOPLEFT", QuafeInterfaceOptionsFrame, "TOPLEFT", 24,-110)
+	VersionText: SetText("Version: "..GetAddOnMetadata("Quafe", "Version"))
+	VersionText: SetAlpha(0.85)
+
+	local Mech = CreateFrame("Button", nil, QuafeInterfaceOptionsFrame)
+	Mech: SetSize(128,128)
+	Mech: SetPoint("CENTER", QuafeInterfaceOptionsFrame, "CENTER")
+
+	local Bd1 = F.Create.Texture(Mech, "BORDER", 1, F.Path("CommunicationMenu\\Bd1"), C.Color.W3, 0.4, {256,256})
+	Bd1: SetPoint("CENTER", Mech, "CENTER", 0,0)
+
+	local Bd2 = F.Create.Texture(Mech, "ARTWORK", 1, F.Path("CommunicationMenu\\Bd2"), C.Color.R3, 0, {256,256})
+	Bd2: SetPoint("CENTER", Mech, "CENTER", 0,0)
+	
+	local DVa = F.Create.Texture(Mech, "ARTWORK", 1, F.Path("CommunicationMenu\\DVa"), C.Color.R1, 0.8, {64,64})
+	DVa: SetPoint("CENTER", Mech, "CENTER", 0,0)
+
+	local Bd3 = F.Create.Texture(Mech, "BORDER", 1, F.Path("CommunicationMenu\\Bd6"), C.Color.W3, 0.8, {256,256})
+	Bd3: SetPoint("CENTER", Mech, "CENTER", 0,0)
+
+	local Config = F.Create.Texture(Mech, "ARTWORK", 1, F.Path("CommunicationMenu\\CONFIG"), C.Color.W3, 1, {128,32})
+	Config: SetPoint("CENTER", Mech, "CENTER", 0,-106)
+
+	Mech: SetScript("OnClick", function(self, button)
+		if Quafe_Config then
+			InterfaceOptionsFrameOkay_OnClick()
+			HideUIPanel(GameMenuFrame)
+			Quafe_Config: Show()
+		end
+	end)
+	Mech: SetScript("OnEnter", function(Self)
+		Bd2: SetAlpha(0.8)
+	end)
+	Mech: SetScript("OnLeave", function(Self)
+		Bd2: SetAlpha(0)
+	end)
+
+	QuafeInterfaceOptionsFrame.name = "Quafe UI"
+	InterfaceOptions_AddCategory(QuafeInterfaceOptionsFrame)
 end
 
 local Init_Help = CreateFrame("Frame", nil, E)
@@ -160,12 +235,17 @@ Init_Help: SetScript("OnEvent", function(self, event, addon)
 			Quafe_Init()
 			local OW_Load,OW_Reason = LoadAddOn("Quafe_Overwatch")
 			local TI_Load,TI_Reason = LoadAddOn("Quafe_TIE")
-			local MK_Load,MK_Reason = LoadAddOn("Quafe_MEKA")
+			if F.IsClassic then
+				LoadAddOn("Quafe_MEKA_Classic")
+			else
+				LoadAddOn("Quafe_MEKA")
+			end
 			C.PlayerName = GetUnitName("player", false)
 			C.PlayerClass = select(2, UnitClass("player"))
 			C.PlayerRealm = GetRealmName()
 			C.PlayerGuid = UnitGUID( "player")
 			Quafe_Load()
+			Quafe_InterfaceOptions()
 			self: UnregisterEvent(event)
 		end
 	end

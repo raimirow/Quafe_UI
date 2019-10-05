@@ -132,6 +132,7 @@ local function TalkingHead_RePos(f)
 end
 
 local function TalkingHead_Frame(f)
+	if F.IsClassic then return end
 	f.TalkingHead = CreateFrame("Frame", nil, f)
 	f.TalkingHead: SetSize(640+80, 110-20)
 	f.TalkingHead: SetPoint("TOP", f, "TOP", 0,0)
@@ -178,10 +179,88 @@ end
 --- ------------------------------------------------------------
 
 
-local Notification = CreateFrame("Frame", "Quafe_Notification", E)
-Notification: SetSize(640,80)
-Notification: SetPoint("TOP", UIParent, "TOP", 0,-4)
-function Notification.Load()
-	TalkingHead_Frame(Notification)
+local Quafe_Notification = CreateFrame("Frame", "Quafe_Notification", E)
+Quafe_Notification: SetSize(720,90)
+Quafe_Notification: SetPoint("TOP", UIParent, "TOP", 0,-4)
+Quafe_Notification.Init = false
+Quafe_Notification: Hide()
+
+local function Joystick_Update(self, elapsed)
+	local x2 = Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Notification.PosX
+	local y2 = Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Notification.PosY
+	local x0,y0 = Quafe_Notification: GetCenter()
+	local x1,y1 = self: GetCenter()
+	local step = floor(1/(GetFramerate())*1e3)/1e3
+	if x0 ~= x1 then
+		x2 = x2 + (x1-x0)*step/2
+	end
+	if y0 ~= y1 then
+		y2 = y2 + (y1-y0)*step/2
+	end
+	Quafe_Notification: SetPoint("TOP", UIParent, "TOP",x2, y2)
+	Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Notification.PosX = x2
+	Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Notification.PosY = y2
 end
-insert(E.Module, Notification)
+
+local function Quafe_Notification_Load()
+	if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Notification.Enable then
+		Quafe_Notification: SetPoint("TOP", UIParent, "TOP", Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Notification.PosX, Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Notification.PosY)
+		F.CreateJoystick(Quafe_Notification, 720,90, "Quafe_Notification( TalkingHeads )")
+		Quafe_Notification.Joystick.postUpdate = Joystick_Update
+		
+		Quafe_Notification: Show()
+		TalkingHead_Frame(Quafe_Notification)
+		Quafe_Notification.Init = true
+	end
+end
+
+local function Quafe_Notification_Toggle(arg)
+	if arg == "ON" then
+		if not Quafe_Notification.Init then
+			Quafe_Notification_Load()
+		end
+		Quafe_Notification: Show()
+		Quafe_Notification.Mover: Show()
+	elseif arg == "OFF" then
+		Quafe_Notification: Hide()
+		Quafe_Notification.Mover: Hide()
+		Quafe_NoticeReload()
+	end
+end
+
+local Quafe_Notification_Config = {
+	Database = {
+		Quafe_Notification = {
+			Enable = true,
+			PosX = 0,
+			PosY = -4,
+		},
+	},
+	Config = {
+		Name = "Quafe ".."Talking Heads",
+		Type = "Switch",
+		Click = function(self, button)
+			if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Notification.Enable then
+				Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Notification.Enable = false
+				self.Text:SetText(L["OFF"])
+				Quafe_Notification_Toggle("OFF")
+			else
+				Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Notification.Enable = true
+				self.Text:SetText(L["ON"])
+				Quafe_Notification_Toggle("ON")
+			end
+		end,
+		Show = function(self)
+			if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Notification.Enable then
+				self.Text:SetText(L["ON"])
+			else
+				self.Text:SetText(L["OFF"])
+			end
+		end,
+		Sub = nil,
+	},
+}
+
+Quafe_Notification.Load = Quafe_Notification_Load
+Quafe_Notification.Config = Quafe_Notification_Config
+insert(E.Module, Quafe_Notification)

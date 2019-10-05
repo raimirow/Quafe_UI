@@ -34,22 +34,6 @@ QuickDeleteGood.Load = QuickDeleteGood_Load()
 insert(E.Module, QuickDeleteGood)
 
 ----------------------------------------------------------------
---> 职业大厅信息栏
-----------------------------------------------------------------
-
-local function SkinOrderHall_Load()
-	if (not IsAddOnLoaded("Blizzard_OrderHallUI")) then
-		LoadAddOn("Blizzard_OrderHallUI")
-	end
-	OrderHallCommandBar.Background: SetAlpha(0.5)
-	OrderHallCommandBar.Background: SetTexture(F.Path("StatusBar\\Raid"))
-	OrderHallCommandBar.Background: SetVertexColor(F.Color(C.Color.W1))
-end
-local SkinOrderHall = {}
-SkinOrderHall.Load = SkinOrderHall_Load()
-insert(E.Module, SkinOrderHall)
-
-----------------------------------------------------------------
 --> Character Frame
 ----------------------------------------------------------------
 -- itemLevel = LibItemUpgradeInfo:GetUpgradedItemLevel(itemString)
@@ -274,9 +258,13 @@ local function CharacterFramePlus_Load()
 	hooksecurefunc("PaperDollItemSlotButton_Update", function(self)
 		Hook_PaperDollSlotButton(self, "player")
 	end)
-	hooksecurefunc("EquipmentFlyout_DisplayButton", function(button, paperDollItemSlot)
-		Hook_EquipmentFlyout_DisplayButton(button, paperDollItemSlot)
-	end)
+	if F.IsClassic then
+		
+	else
+		hooksecurefunc("EquipmentFlyout_DisplayButton", function(button, paperDollItemSlot)
+			Hook_EquipmentFlyout_DisplayButton(button, paperDollItemSlot)
+		end)
+	end
 end
 local CharacterFramePlus = {}
 CharacterFramePlus.Load = CharacterFramePlus_Load()
@@ -575,3 +563,16 @@ local Wormhole_List = {
 
 -- "COMBAT_LOG_EVENT_UNFILTERED"
 -- CombatLogGetCurrentEventInfo()
+
+--[[
+PlayerPowerBarAlt:SetMovable(true)
+PlayerPowerBarAlt:SetUserPlaced(true)
+
+local fPA = CreateFrame("Frame")
+fPA:RegisterEvent("UNIT_POWER_BAR_SHOW")
+fPA:RegisterEvent("UNIT_POWER")
+fPA:SetScript("OnEvent", function()
+	PlayerPowerBarAlt:ClearAllPoints()
+	PlayerPowerBarAlt:SetPoint("TOP","oUF_BrethrenRFBossPower","TOP")	
+end)
+--]]

@@ -1,4 +1,5 @@
 local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
+if F.IsClassic then return end
 local WatcherList = {}
 
 --- ------------------------------------------------------------
@@ -6,81 +7,325 @@ local WatcherList = {}
 --- ------------------------------------------------------------
 
 WatcherList.DEATHKNIGHT = {
-	[1] = {
-		-->鲜血
-		{ --血之瘟疫
-			Show = true,  Style = "BR",  Color = C.Color.R3,
-			Aura = "55078",  Unit = "target",  Filter = "Debuff"
-		},
-	},
-	[2] = {
-		-->冰霜
-		{ --冷酷严冬
-			Show = true,  Style = "CL",  Color = C.Color.B1,      
-			Spell = "196770",
-			Aura = "196770", Unit = "player", Filter = "Buff"
-		},
-		{ --心灵冰冻
-			Show = true,  Style = "CR",  Color = C.Color.Bar["F5512C"],      
-			Spell = "47528",
-		},
-
-		{ --冰霜瘟疫
-			Show = true,  Style = "BR",  Color = C.Color.B1,
-			Aura = "55095",  Unit = "target",  Filter = "Debuff"
-		},
-		{ --寒酷突袭
-			Show = true,  Style = "BR",  Color = C.Color.B1,
-			Aura = "253595",  Unit = "player",  Filter = "Buff"
-		},
-	},
-	[3] = {
-		-->邪恶
-		{ --心灵冰冻
-			Show = true,  Style = "CR",  Color = C.Color.Bar["F5512C"],      
-			Spell = "47528",
-		},
-
-		{ --黑暗冲裁者
-			Show = true,  Style = "BL",  Color = C.Color.Bar["F5512C"],      
-			Spell = "207349", SpellColor = C.Color.Bar["F5512C"],
-		},
-		{ --召唤石像鬼
-			Show = true,  Style = "BL",  Color = C.Color.Bar["F5512C"],      
-			Spell = "49206", SpellColor = C.Color.Y1,
-		},
-		{ --黑暗突变
-			Show = true,  Style = "BL",  Color = C.Color.Bar["F5512C"],      
-			Spell = "63560", SpellColor = C.Color.Y1,
-		},
-		{ --亡者大军
-			Show = true,  Style = "BL",  Color = C.Color.Bar["F5512C"],      
-			Spell = "42650", SpellColor = C.Color.Y1,
-		},
-		
-		{ --恶性瘟疫
-			Show = true,  Style = "BR",  Color = C.Color.Rune[3],
-			Aura = "191587",  Unit = "target", Caster = "player", Filter = "Debuff",
-		},
-		{ --枯萎凋零-亵渎
-			Show = true,  Style = "BR",  Color = C.Color.Rune[2],
-			Aura = "218100",  Unit = "player",  Filter = "Buff", AuraColor = C.Color.Rune[2],
-			Spell = "152280", SpellColor = C.Color.Y1,
-		},
-		{ --枯萎凋零
-			Show = false,  Style = "BR",  Color = C.Color.Rune[2],
-			Aura = "188290",  Unit = "player",  Filter = "Buff",
-			Spell = "152280", SpellColor = C.Color.Y1,
-		},
-		{ --天启
-			Show = true,  Style = "BR",  Color = C.Color.Bar["F5512C"],      
-			Spell = "220143", SpellColor = C.Color.Y1,
-		},
-		{ --溃烂之伤
-			Show = false,  Style = "BR",  Color = C.Color.Bar["CE3176"],
-			Aura = "194310",  Unit = "target",  Filter = "Debuff",
-		},
-	},
+	{
+		{
+			["Show"] = true,
+			["Style"] = "MEKA_BR",
+			["Aura"] = "55078",
+			["Caster"] = "player",
+			["AuraColor"] = {
+				["b"] = 0.305882352941177,
+				["g"] = 0.113725490196078,
+				["r"] = 0.890196078431373,
+			},
+			["Unit"] = "target",
+		}, -- [1]
+		{
+			["SpellColor"] = {
+				["r"] = 0.890196078431373,
+				["g"] = 0.113725490196078,
+				["b"] = 0.305882352941177,
+			},
+			["Spell"] = "50842",
+			["Style"] = "MEKA_IR",
+			["Icon"] = "Default",
+			["Show"] = true,
+		}, -- [2]
+		{
+			["Spell"] = "43265",
+			["Caster"] = "player",
+			["Unit"] = "player",
+			["SpellColor"] = {
+				["b"] = 0.305882352941177,
+				["g"] = 0.113725490196078,
+				["r"] = 0.890196078431373,
+			},
+			["Style"] = "MEKA_IR",
+			["Aura"] = "188290",
+			["Show"] = true,
+			["Icon"] = "Default",
+			["AuraColor"] = {
+				["b"] = 0.305882352941177,
+				["g"] = 0.113725490196078,
+				["r"] = 0.890196078431373,
+			},
+		}, -- [3]
+		{
+			["SpellColor"] = {
+				["r"] = 0.219607843137255,
+				["g"] = 0.603921568627451,
+				["b"] = 0.996078431372549,
+			},
+			["Spell"] = "47528",
+			["Style"] = "MEKA_IR",
+			["Icon"] = "Default",
+			["Show"] = true,
+		}, -- [4]
+		{
+			["SpellColor"] = {
+				["b"] = 0.305882352941177,
+				["g"] = 0.113725490196078,
+				["r"] = 0.890196078431373,
+			},
+			["Spell"] = "221562",
+			["Style"] = "MEKA_IR",
+			["Icon"] = "Default",
+			["Show"] = true,
+		}, -- [5]
+		{
+			["SpellColor"] = {
+				["b"] = 0.305882352941177,
+				["g"] = 0.113725490196078,
+				["r"] = 0.890196078431373,
+			},
+			["Spell"] = "108199",
+			["Style"] = "MEKA_IR",
+			["Icon"] = "Default",
+			["Show"] = true,
+		}, -- [6]
+		{
+			["SpellColor"] = {
+				["b"] = 0.305882352941177,
+				["g"] = 0.113725490196078,
+				["r"] = 0.890196078431373,
+			},
+			["Spell"] = "55233",
+			["Style"] = "MEKA_IL",
+			["Show"] = true,
+		}, -- [7]
+	}, -- [1]
+	{
+		{
+			["Show"] = true,
+			["Aura"] = "55095",
+			["Style"] = "MEKA_BR",
+			["Caster"] = "player",
+			["Color"] = {
+				["b"] = 0.996078431372549,
+				["g"] = 0.603921568627451,
+				["r"] = 0.219607843137255,
+			},
+			["Filter"] = "Debuff",
+			["AuraColor"] = {
+				["r"] = 0.219607843137255,
+				["g"] = 0.603921568627451,
+				["b"] = 0.996078431372549,
+			},
+			["Unit"] = "target",
+		}, -- [1]
+		{
+			["Show"] = true,
+			["Caster"] = "player",
+			["Style"] = "MEKA_BR",
+			["Aura"] = "253595",
+			["Color"] = {
+				["b"] = 0.996078431372549,
+				["g"] = 0.603921568627451,
+				["r"] = 0.219607843137255,
+			},
+			["Filter"] = "Buff",
+			["AuraColor"] = {
+				["b"] = 0.305882352941177,
+				["g"] = 0.113725490196078,
+				["r"] = 0.890196078431373,
+			},
+			["Unit"] = "player",
+		}, -- [2]
+		{
+			["Show"] = true,
+			["Spell"] = "47528",
+			["Style"] = "MEKA_IR",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["SpellColor"] = {
+				["r"] = 0.890196078431373,
+				["g"] = 0.113725490196078,
+				["b"] = 0.305882352941177,
+			},
+		}, -- [3]
+		{
+			["Spell"] = "196770",
+			["Color"] = {
+				["b"] = 0.996078431372549,
+				["g"] = 0.603921568627451,
+				["r"] = 0.219607843137255,
+			},
+			["Unit"] = "player",
+			["Show"] = true,
+			["Style"] = "MEKA_IR",
+			["Aura"] = "196770",
+			["SpellColor"] = {
+				["b"] = 0.305882352941177,
+				["g"] = 0.113725490196078,
+				["r"] = 0.890196078431373,
+			},
+			["Icon"] = "GravitonSurge",
+			["AuraColor"] = {
+				["b"] = 0.996078431372549,
+				["g"] = 0.603921568627451,
+				["r"] = 0.219607843137255,
+			},
+			["Filter"] = "Buff",
+		}, -- [4]
+	}, -- [2]
+	{
+		{
+			["Show"] = true,
+			["Aura"] = "191587",
+			["Style"] = "MEKA_BR",
+			["Caster"] = "player",
+			["Color"] = {
+				["b"] = 39,
+				["g"] = 214,
+				["r"] = 113,
+			},
+			["Filter"] = "Debuff",
+			["AuraColor"] = {
+				["r"] = 0.443137254901961,
+				["g"] = 0.83921568627451,
+				["b"] = 0.152941176470588,
+			},
+			["Unit"] = "target",
+		}, -- [1]
+		{
+			["Show"] = true,
+			["Style"] = "MEKA_BR",
+			["Caster"] = "player",
+			["Aura"] = "101568",
+			["AuraColor"] = {
+				["b"] = 0.305882352941177,
+				["g"] = 0.113725490196078,
+				["r"] = 0.890196078431373,
+			},
+			["Unit"] = "player",
+		}, -- [2]
+		{
+			["SpellColor"] = {
+				["r"] = 0.219607843137255,
+				["g"] = 0.603921568627451,
+				["b"] = 0.996078431372549,
+			},
+			["Spell"] = "152280",
+			["Style"] = "MEKA_BR",
+			["Filter"] = "Buff",
+			["Color"] = {
+				["b"] = 255,
+				["g"] = 220,
+				["r"] = 49,
+			},
+			["Show"] = true,
+		}, -- [3]
+		{
+			["Show"] = true,
+			["Spell"] = "47528",
+			["Style"] = "MEKA_IR",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["Icon"] = "Emp",
+			["SpellColor"] = {
+				["r"] = 0.584313725490196,
+				["g"] = 0.870588235294118,
+				["b"] = 0.894117647058824,
+			},
+		}, -- [4]
+		{
+			["Spell"] = "43265",
+			["Caster"] = "player",
+			["Color"] = {
+				["b"] = 255,
+				["g"] = 220,
+				["r"] = 49,
+			},
+			["Unit"] = "player",
+			["SpellColor"] = {
+				["b"] = 0.250980392156863,
+				["g"] = 0.556862745098039,
+				["r"] = 0.823529411764706,
+			},
+			["Style"] = "MEKA_IR",
+			["Filter"] = "Buff",
+			["Show"] = true,
+			["Icon"] = "DeathBlossom",
+			["AuraColor"] = {
+				["b"] = 0.305882352941177,
+				["g"] = 0.113725490196078,
+				["r"] = 0.890196078431373,
+			},
+			["Aura"] = "188290",
+		}, -- [5]
+		{
+			["Show"] = true,
+			["Spell"] = "275699",
+			["Style"] = "MEKA_IL",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["SpellColor"] = {
+				["r"] = 0.96078431372549,
+				["g"] = 0.317647058823529,
+				["b"] = 0.172549019607843,
+			},
+		}, -- [6]
+		{
+			["Show"] = true,
+			["Spell"] = "63560",
+			["Style"] = "MEKA_IL",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["Icon"] = "BuildTurret",
+			["SpellColor"] = {
+				["r"] = 0.443137254901961,
+				["g"] = 0.83921568627451,
+				["b"] = 0.152941176470588,
+			},
+		}, -- [7]
+		{
+			["SpellColor"] = {
+				["b"] = 0.525490196078431,
+				["g"] = 0.823529411764706,
+				["r"] = 0.87843137254902,
+			},
+			["Spell"] = "207289",
+			["Style"] = "MEKA_IL",
+			["Show"] = true,
+		}, -- [8]
+		{
+			["SpellColor"] = {
+				["b"] = 0.996078431372549,
+				["g"] = 0.603921568627451,
+				["r"] = 0.219607843137255,
+			},
+			["Spell"] = "130736",
+			["Style"] = "MEKA_IL",
+			["Show"] = true,
+		}, -- [9]
+		{
+			["SpellColor"] = {
+				["r"] = 0.380392156862745,
+				["g"] = 0.192156862745098,
+				["b"] = 1,
+			},
+			["Spell"] = "42650",
+			["Style"] = "MEKA_IR",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["Show"] = true,
+		}, -- [10]
+	}, -- [3]
 }
 
 --- ------------------------------------------------------------
@@ -88,125 +333,465 @@ WatcherList.DEATHKNIGHT = {
 --- ------------------------------------------------------------
 
 WatcherList.DRUID = {
-	[1] = {	
-		-->平衡
-		{ --阳炎术
-			Show = true,  Style = "MEKA_BR",  Color = C.Color.Bar["E31D4E"],
-			Aura = "164815", Unit = "target", Caster = "player", Filter = "Debuff",   
-		},
-		{ --月火术
-			Show = true,  Style = "MEKA_BR",  Color = C.Color.B1,
-			Aura = {"155625", "164547", "164812"}, Unit = "target", Caster = "player", Filter = "Debuff",   
-		},
-		{ --星辰耀斑
-			Show = true, Style = "MEKA_BR",
-			Aura = "202347", Unit = "target", Caster = "player", Filter = "Debuff", AuraColor = C.Color.Bar["95DEE4"]
-		},
-
-		{ --日光增效
-			Show = true,  Style = "MEKA_BL",  Color = C.Color.Bar["E31D4E"],
-			Aura = "164545", Unit = "player", Caster = "player", Filter = "Buff",   
-		},
-		{ --月火术
-			Show = true,  Style = "MEKA_BL",  Color = C.Color.B1,
-			Aura = {"155625", "164547", "164812"}, Unit = "player", Caster = "player", Filter = "Buff",   
-		},
-		{ --星辰领主
-			Show = true,  Style = "MEKA_BL",
-			Aura = "279709", Unit = "player", Caster = "player", Filter = "Buff", AuraColor = C.Color.G2 
-		},
-	},
-	[2] = {
-		-->野性
-		{ --痛击
-			Show = true,  Style = "MEKA_BR",
-			Aura = {"106830","192090"}, Unit = "target", Caster = "player", Filter = "Debuff", AuraColor = C.Color.Bar["CE3176"],
-		},
-		{ --割裂
-			Show = true, Style = "MEKA_BR",
-			Aura = "1079", Unit = "target", Caster = "player", Filter = "Debuff", AuraColor = C.Color.R1,
-		},
-		{ --斜掠
-			Show = true, Style = "MEKA_BR",
-			Aura = "155722", Unit = "target", Caster = "player", Filter = "Debuff", AuraColor = C.Color.Bar["F5512C"],
-		},
-		{ --月火术
-			Show = true,  Style = "MEKA_BR",
-			Aura = {"155625", "164547", "164812"}, Unit = "target", Caster = "player", Filter = "Debuff", AuraColor = C.Color.B1,
-		},
-
-		{ --迎头痛击
-			Show = true,  Style = "MEKA_BL",
-			Spell = "106839", SpellColor = C.Color.R3
-		},
-		{ --血腥爪击
-			Show = true, Style = "MEKA_BL",
-			Aura = "145152", Unit = "player", Caster = "player", Filter = "Buff", AuraColor = C.Color.R3,
-		},
-		{ --掠食者的迅捷
-			Show = true, Style = "MEKA_BL",
-			Aura = "69369", Unit = "player", Caster = "player", Filter = "Buff", AuraColor = C.Color.G1,
-		},
-		{ --猛虎之怒
-			Show = true,  Style = "MEKA_BL",
-			Spell = "5217", SpellColor = C.Color.Y1
-		},
-
-		
-	},
-	[3] = {
-		-->守护
-		{ --痛击
-			Show = true,  Style = "MEKA_BR",
-			Aura = {"106830","192090"}, Unit = "target", Caster = "player", Filter = "Debuff", AuraColor = C.Color.Bar["CE3176"],
-		},
-		{ --月火术
-			Show = true,  Style = "MEKA_BR",
-			Aura = {"155625", "164547", "164812"}, Unit = "target", Caster = "player", Filter = "Debuff", AuraColor = C.Color.B1,
-		},
-
-		{ --迎头痛击
-			Show = true,  Style = "MEKA_BL",
-			Spell = "106839", SpellColor = C.Color.R3
-		},
-		{ --铁鬃
-			Show = true,  Style = "MEKA_BL",
-			Aura = "192081", Unit = "player", Caster = "player", Filter = "Buff", AuraColor = C.Color.G2,
-		},
-		{ --粉碎
-			Show = true,  Style = "MEKA_BL",
-			Aura = "158792", Unit = "player", Caster = "player", Filter = "Buff", AuraColor = C.Color.B2,
-		},
-		{ --艾露恩的卫士
-			Show = true,  Style = "MEKA_BL",
-			Aura = "213680", Unit = "player", Caster = "player", Filter = "Buff", AuraColor = C.Color.Bar["CE3176"],
-		},
-
-	},
-	[4] = {
-		-->恢复
-		{ --自然之愈
-			Show = true,  Style = "MEKA_BL",  Color = C.Color.B1,
-			Spell = "88423",
-		},
-		{ --迅捷治愈
-			Show = true,  Style = "MEKA_BL",  Color = C.Color.Bar["F5512C"],  
-			Spell = "18562",
-		},
-		{ --野性成长
-			Show = true,  Style = "MEKA_BL",  Color = C.Color.G1,  
-			Spell = "48438", 
-		},
-
-		{ --阳炎术
-			Show = true,  Style = "MEKA_BR",  Color = C.Color.Bar["E31D4E"],
-			Aura = "164815", Unit = "target", Caster = "player", Filter = "Debuff",   
-		},
-		{ --月火术
-			Show = true,  Style = "MEKA_BR",  Color = C.Color.B1,
-			Aura = {"155625", "164547", "164812"}, Unit = "target", Caster = "player", Filter = "Debuff",   
-		},
-	},
+	{
+		{
+			["Show"] = true,
+			["Style"] = "MEKA_BR",
+			["Aura"] = "202347",
+			["Caster"] = "player",
+			["Filter"] = "Debuff",
+			["AuraColor"] = {
+				["b"] = 0.894117647058824,
+				["g"] = 0.870588235294118,
+				["r"] = 0.584313725490196,
+			},
+			["Unit"] = "target",
+		}, -- [1]
+		{
+			["Show"] = true,
+			["Aura"] = {
+				"155625", -- [1]
+				"164547", -- [2]
+				"164812", -- [3]
+			},
+			["Style"] = "MEKA_BR",
+			["Caster"] = "player",
+			["Color"] = {
+				["b"] = 0.996078431372549,
+				["g"] = 0.603921568627451,
+				["r"] = 0.219607843137255,
+			},
+			["Filter"] = "Debuff",
+			["AuraColor"] = {
+				["r"] = 0.219607843137255,
+				["g"] = 0.603921568627451,
+				["b"] = 0.996078431372549,
+			},
+			["Unit"] = "target",
+		}, -- [2]
+		{
+			["Show"] = true,
+			["Aura"] = "164815",
+			["Style"] = "MEKA_BR",
+			["Caster"] = "player",
+			["Color"] = {
+				["b"] = 0.305882352941177,
+				["g"] = 0.113725490196078,
+				["r"] = 0.890196078431373,
+			},
+			["Filter"] = "Debuff",
+			["AuraColor"] = {
+				["r"] = 0.988235294117647,
+				["g"] = 0.36078431372549,
+				["b"] = 0.36078431372549,
+			},
+			["Unit"] = "target",
+		}, -- [3]
+		{
+			["Caster"] = "player",
+			["Color"] = {
+				["b"] = 0.996078431372549,
+				["g"] = 0.603921568627451,
+				["r"] = 0.219607843137255,
+			},
+			["Unit"] = "player",
+			["Show"] = true,
+			["Style"] = "MEKA_IL",
+			["Filter"] = "Buff",
+			["Aura"] = "164547",
+			["AuraColor"] = {
+				["r"] = 0.219607843137255,
+				["g"] = 0.603921568627451,
+				["b"] = 0.996078431372549,
+			},
+			["Icon"] = "Default",
+		}, -- [4]
+		{
+			["Caster"] = "player",
+			["Color"] = {
+				["b"] = 0.305882352941177,
+				["g"] = 0.113725490196078,
+				["r"] = 0.890196078431373,
+			},
+			["Unit"] = "player",
+			["Show"] = true,
+			["Style"] = "MEKA_IL",
+			["Aura"] = "164545",
+			["Filter"] = "Buff",
+			["AuraColor"] = {
+				["r"] = 0.988235294117647,
+				["g"] = 0.36078431372549,
+				["b"] = 0.36078431372549,
+			},
+			["Icon"] = "Default",
+		}, -- [5]
+		{
+			["Show"] = true,
+			["Aura"] = "279709",
+			["Style"] = "MEKA_IL",
+			["Caster"] = "player",
+			["AuraColor"] = {
+				["b"] = 0.152941176470588,
+				["g"] = 0.83921568627451,
+				["r"] = 0.443137254901961,
+			},
+			["Filter"] = "Buff",
+			["Icon"] = "Default",
+			["Unit"] = "player",
+		}, -- [6]
+		{
+			["Show"] = true,
+			["Style"] = "MEKA_IL",
+			["Caster"] = "player",
+			["Aura"] = "超凡之盟",
+			["AuraColor"] = {
+				["b"] = 0.996078431372549,
+				["g"] = 0.603921568627451,
+				["r"] = 0.219607843137255,
+			},
+			["Icon"] = "Default",
+			["Unit"] = "player",
+		}, -- [7]
+		{
+			["SpellColor"] = {
+				["b"] = 0.525490196078431,
+				["g"] = 0.823529411764706,
+				["r"] = 0.87843137254902,
+			},
+			["Spell"] = "78675",
+			["Style"] = "MEKA_IR",
+			["Icon"] = "Coalescence",
+			["Show"] = true,
+		}, -- [8]
+	}, -- [1]
+	{
+		{
+			["Show"] = true,
+			["Style"] = "MEKA_BR",
+			["Aura"] = "155722",
+			["Caster"] = "player",
+			["Filter"] = "Debuff",
+			["AuraColor"] = {
+				["b"] = 0.172549019607843,
+				["g"] = 0.317647058823529,
+				["r"] = 0.96078431372549,
+			},
+			["Unit"] = "target",
+		}, -- [1]
+		{
+			["Show"] = true,
+			["Style"] = "MEKA_BR",
+			["Aura"] = "1079",
+			["Caster"] = "player",
+			["Filter"] = "Debuff",
+			["AuraColor"] = {
+				["b"] = 0.643137254901961,
+				["g"] = 0.603921568627451,
+				["r"] = 0.976470588235294,
+			},
+			["Unit"] = "target",
+		}, -- [2]
+		{
+			["Show"] = true,
+			["Style"] = "MEKA_BR",
+			["Aura"] = {
+				"106830", -- [1]
+				"192090", -- [2]
+			},
+			["Caster"] = "player",
+			["Filter"] = "Debuff",
+			["AuraColor"] = {
+				["b"] = 0.462745098039216,
+				["g"] = 0.192156862745098,
+				["r"] = 0.807843137254902,
+			},
+			["Unit"] = "target",
+		}, -- [3]
+		{
+			["Show"] = true,
+			["Style"] = "MEKA_BR",
+			["Aura"] = {
+				"155625", -- [1]
+				"164547", -- [2]
+				"164812", -- [3]
+			},
+			["Caster"] = "player",
+			["Filter"] = "Debuff",
+			["AuraColor"] = {
+				["b"] = 0.996078431372549,
+				["g"] = 0.603921568627451,
+				["r"] = 0.219607843137255,
+			},
+			["Unit"] = "target",
+		}, -- [4]
+		{
+			["Show"] = true,
+			["Filter"] = "Buff",
+			["Style"] = "MEKA_BR",
+			["Aura"] = "145152",
+			["AuraColor"] = {
+				["r"] = 0.890196078431373,
+				["g"] = 0.113725490196078,
+				["b"] = 0.305882352941177,
+			},
+			["Caster"] = "player",
+			["Icon"] = "Default",
+			["Unit"] = "player",
+		}, -- [5]
+		{
+			["SpellColor"] = {
+				["b"] = 0.36078431372549,
+				["g"] = 0.36078431372549,
+				["r"] = 0.988235294117647,
+			},
+			["Spell"] = "106839",
+			["Style"] = "MEKA_IR",
+			["Icon"] = "ChainHook",
+			["Show"] = true,
+		}, -- [6]
+		{
+			["Spell"] = "5217",
+			["Caster"] = "player",
+			["Unit"] = "player",
+			["SpellColor"] = {
+				["b"] = 0.250980392156863,
+				["g"] = 0.556862745098039,
+				["r"] = 0.823529411764706,
+			},
+			["Style"] = "MEKA_IL",
+			["Aura"] = "5217",
+			["AuraColor"] = {
+				["r"] = 0.823529411764706,
+				["g"] = 0.556862745098039,
+				["b"] = 0.250980392156863,
+			},
+			["Icon"] = "Default",
+			["Show"] = true,
+		}, -- [7]
+		{
+			["Show"] = true,
+			["Aura"] = "69369",
+			["Style"] = "MEKA_IL",
+			["Caster"] = "player",
+			["AuraColor"] = {
+				["b"] = 0.72156862745098,
+				["g"] = 0.768627450980392,
+				["r"] = 0.407843137254902,
+			},
+			["Filter"] = "Buff",
+			["Icon"] = "Default",
+			["Unit"] = "player",
+		}, -- [8]
+	}, -- [2]
+	{
+		{
+			["Show"] = true,
+			["Style"] = "MEKA_BR",
+			["Aura"] = {
+				"155625", -- [1]
+				"164547", -- [2]
+				"164812", -- [3]
+			},
+			["Caster"] = "player",
+			["Filter"] = "Debuff",
+			["AuraColor"] = {
+				["b"] = 0.996078431372549,
+				["g"] = 0.603921568627451,
+				["r"] = 0.219607843137255,
+			},
+			["Unit"] = "target",
+		}, -- [1]
+		{
+			["Show"] = true,
+			["Style"] = "MEKA_BR",
+			["Caster"] = "player",
+			["Aura"] = {
+				"106830", -- [1]
+				"192090", -- [2]
+			},
+			["AuraColor"] = {
+				["r"] = 0.823529411764706,
+				["g"] = 0.556862745098039,
+				["b"] = 0.250980392156863,
+			},
+			["Icon"] = "Default",
+			["Unit"] = "target",
+		}, -- [2]
+		{
+			["Show"] = true,
+			["Aura"] = "158792",
+			["Style"] = "MEKA_BR",
+			["Caster"] = "player",
+			["AuraColor"] = {
+				["b"] = 0.996078431372549,
+				["g"] = 0.729411764705882,
+				["r"] = 0.141176470588235,
+			},
+			["Filter"] = "Buff",
+			["Icon"] = "Default",
+			["Unit"] = "player",
+		}, -- [3]
+		{
+			["Show"] = true,
+			["Aura"] = "192081",
+			["Style"] = "MEKA_BR",
+			["Caster"] = "player",
+			["AuraColor"] = {
+				["b"] = 0.152941176470588,
+				["g"] = 0.83921568627451,
+				["r"] = 0.443137254901961,
+			},
+			["Filter"] = "Buff",
+			["Icon"] = "Default",
+			["Unit"] = "player",
+		}, -- [4]
+		{
+			["SpellColor"] = {
+				["b"] = 0.36078431372549,
+				["g"] = 0.36078431372549,
+				["r"] = 0.988235294117647,
+			},
+			["Spell"] = "106839",
+			["Style"] = "MEKA_IR",
+			["Icon"] = "Default",
+			["Show"] = true,
+		}, -- [5]
+		{
+			["Spell"] = "33917",
+			["Caster"] = "player",
+			["Unit"] = "player",
+			["SpellColor"] = {
+				["r"] = 0.890196078431373,
+				["g"] = 0.113725490196078,
+				["b"] = 0.305882352941177,
+			},
+			["Style"] = "MEKA_IL",
+			["Aura"] = "213680",
+			["AuraColor"] = {
+				["r"] = 0.890196078431373,
+				["g"] = 0.113725490196078,
+				["b"] = 0.305882352941177,
+			},
+			["Icon"] = "Default",
+			["Show"] = true,
+		}, -- [6]
+		{
+			["Spell"] = "77758",
+			["Caster"] = "player",
+			["Unit"] = "target",
+			["SpellColor"] = {
+				["r"] = 0.823529411764706,
+				["g"] = 0.556862745098039,
+				["b"] = 0.250980392156863,
+			},
+			["Style"] = "MEKA_IL",
+			["Aura"] = {
+				"106830", -- [1]
+				"192090", -- [2]
+			},
+			["Show"] = true,
+			["Icon"] = "Default",
+			["AuraColor"] = {
+				["r"] = 0.823529411764706,
+				["g"] = 0.556862745098039,
+				["b"] = 0.250980392156863,
+			},
+		}, -- [7]
+	}, -- [3]
+	{
+		{
+			["Show"] = true,
+			["Caster"] = "player",
+			["Style"] = "MEKA_BR",
+			["Aura"] = "164812",
+			["Color"] = {
+				["b"] = 0.996078431372549,
+				["g"] = 0.603921568627451,
+				["r"] = 0.219607843137255,
+			},
+			["Filter"] = "Debuff",
+			["AuraColor"] = {
+				["b"] = 0.996078431372549,
+				["g"] = 0.603921568627451,
+				["r"] = 0.219607843137255,
+			},
+			["Unit"] = "target",
+		}, -- [1]
+		{
+			["Show"] = true,
+			["Caster"] = "player",
+			["Style"] = "MEKA_BR",
+			["Aura"] = "164815",
+			["Color"] = {
+				["b"] = 0.305882352941177,
+				["g"] = 0.113725490196078,
+				["r"] = 0.890196078431373,
+			},
+			["Filter"] = "Debuff",
+			["AuraColor"] = {
+				["b"] = 0.36078431372549,
+				["g"] = 0.36078431372549,
+				["r"] = 0.988235294117647,
+			},
+			["Unit"] = "target",
+		}, -- [2]
+		{
+			["Show"] = true,
+			["Spell"] = "88423",
+			["Style"] = "MEKA_BR",
+			["Color"] = {
+				["b"] = 0.996078431372549,
+				["g"] = 0.603921568627451,
+				["r"] = 0.219607843137255,
+			},
+			["Icon"] = "Default",
+			["SpellColor"] = {
+				["b"] = 0.894117647058824,
+				["g"] = 0.870588235294118,
+				["r"] = 0.584313725490196,
+			},
+		}, -- [3]
+		{
+			["Show"] = true,
+			["Spell"] = "18562",
+			["Style"] = "MEKA_IL",
+			["Color"] = {
+				["b"] = 0.172549019607843,
+				["g"] = 0.317647058823529,
+				["r"] = 0.96078431372549,
+			},
+			["Icon"] = "Default",
+			["SpellColor"] = {
+				["b"] = 0.996078431372549,
+				["g"] = 0.603921568627451,
+				["r"] = 0.219607843137255,
+			},
+		}, -- [4]
+		{
+			["Spell"] = "48438",
+			["Caster"] = "player",
+			["Color"] = {
+				["b"] = 0.72156862745098,
+				["g"] = 0.768627450980392,
+				["r"] = 0.407843137254902,
+			},
+			["Unit"] = "player",
+			["Show"] = true,
+			["Style"] = "MEKA_IR",
+			["Aura"] = "48438",
+			["AuraColor"] = {
+				["r"] = 0.443137254901961,
+				["g"] = 0.83921568627451,
+				["b"] = 0.152941176470588,
+			},
+			["Icon"] = "Default",
+			["SpellColor"] = {
+				["b"] = 0.152941176470588,
+				["g"] = 0.83921568627451,
+				["r"] = 0.443137254901961,
+			},
+		}, -- [5]
+	}, -- [4]
 }
 
 --- ------------------------------------------------------------
@@ -230,79 +815,408 @@ WatcherList.MAGE = {
 --- ------------------------------------------------------------
 
 WatcherList.HUNTER = {
-	[1] = {
-		-->野兽
-		{ --治疗宠物
-			Show = true,  Style = "MEKA_BL",  Color = C.Color.Bar["F5512C"],
-			Aura = "136", Unit = "pet", Caster = "player", Filter = "Buff", AuraColor = C.Color.Bar["F5512C"],
-		},
-		{ --狂野怒火
-			Show = true,  Style = "MEKA_BL",  Color = C.Color.Bar["F5512C"],
-			Aura = "19574", Unit = "player", Caster = "player", Filter = "Buff", AuraColor = C.Color.Bar["F5512C"],
-			Spell = "19574", SpellColor = C.Color.Y1
-		},
-		{ --野性守护
-			Show = true,  Style = "MEKA_BL",  Color = C.Color.Bar["F5512C"],
-			Aura = "193530", Unit = "player", Caster = "player", Filter = "Buff", AuraColor = C.Color.Bar["F5512C"],
-			Spell = "193530", SpellColor = C.Color.Y1
-		},
-
-		{ --倒刺射击
-			Show = true,  Style = "MEKA_BR",  Color = C.Color.Bar["F5512C"],      
-			Spell = "217200",
-		},
-		{ --杀戮命令
-			Show = true,  Style = "MEKA_BR",  Color = C.Color.Bar["F5512C"],      
-			Spell = "34026",
-		},
-		{ --野兽顺劈
-			Show = true,  Style = "MEKA_BR",  Color = C.Color.Bar["F5512C"],
-			Aura = "118455", Unit = "pet", Caster = "player", Filter = "Buff", AuraColor = C.Color.R1,
-		},
-		{ --反制射击
-			Show = true,  Style = "MEKA_BL",  Color = C.Color.Bar["F5512C"],      
-			Spell = "147362",
-		},
-
-		{ --夺命黑鸦
-			Show = true,  Style = "BR",  Color = C.Color.Bar["F5512C"],
-			Aura = "131894", Unit = "target", Caster = "player", Filter = "Debuff", AuraColor = C.Color.Bar["F5512C"],
-			Spell = "131894", SpellColor = C.Color.Y1
-		},
-		
-	},
-	[2] = {
-		-->射击
-		{ --急速射击
-			Show = true,  Style = "CL",  Color = C.Color.Bar["F5512C"],      
-			Spell = "257044",
-		},
-		{ --瞄准射击
-			Show = true,  Style = "CL",  Color = C.Color.Bar["F5512C"],      
-			Spell = "19434",
-		},
-		
-		{ --反制射击
-			Show = true,  Style = "CR",  Color = C.Color.Bar["F5512C"],      
-			Spell = "147362",
-		},
-
-		{ --毒蛇钉刺
-			Show = true,  Style = "BR",  Color = C.Color.G2,
-			Aura = "271788",  Unit = "target", Caster = "player", Filter = "Debuff",
-		},
-	},
-	[3] = {
-		-->生存
-		{Show = false,  Style = "Bar",   Type = "Aura",   Aura = "201081",   Unit = "player",  Filter = "Buff",     Color = C.Color.B1,  Name = "作战技巧"},
-		{Show = false,  Style = "Bar",   Type = "Aura",   Aura = "190931",   Unit = "player",  Filter = "Buff",     Color = C.Color.B1,  Name = "猫鼬撕咬"},
-		{Show = false,  Style = "Bar",   Type = "Aura",   Aura = "118253",   Unit = "target",  Filter = "Debuff",   Color = C.Color.G1,  Name = "毒蛇钉刺"},
-		{Show = false,  Style = "Bar",   Type = "Aura",   Aura = "185855",   Unit = "target",  Filter = "Debuff",   Color = C.Color.R1,  Name = "裂痕"},
-		
-		{Show = false,  Style = "Icon",  Type = "Spell",  Spell = "202800",  Unit = nil,                            Color = C.Color.Y1,  Name = "侧翼打击"},
-		{Show = false,  Style = "Icon",  Type = "Spell",  Spell = "190928",  Unit = nil,                            Color = C.Color.Y1,  Name = "猫鼬撕咬"},
-		{Show = false,  Style = "Icon",  Type = "Spell",  Spell = "191433",  Unit = nil,                            Color = C.Color.Y1,  Name = "爆炸陷阱"},
-	},
+	{
+		{
+			["Show"] = true,
+			["Spell"] = "217200",
+			["Style"] = "MEKA_IL",
+			["Color"] = {
+				["b"] = 0.172549019607843,
+				["g"] = 0.317647058823529,
+				["r"] = 0.96078431372549,
+			},
+			["SpellColor"] = {
+				["r"] = 0.890196078431373,
+				["g"] = 0.113725490196078,
+				["b"] = 0.305882352941177,
+			},
+			["Icon"] = "Default",
+		}, -- [1]
+		{
+			["Show"] = true,
+			["Spell"] = "53209",
+			["Style"] = "MEKA_IL",
+			["SpellColor"] = {
+				["r"] = 0.443137254901961,
+				["g"] = 0.83921568627451,
+				["b"] = 0.152941176470588,
+			},
+			["Icon"] = "Default",
+		}, -- [2]
+		{
+			["SpellColor"] = {
+				["r"] = 0.96078431372549,
+				["g"] = 0.317647058823529,
+				["b"] = 0.172549019607843,
+			},
+			["Spell"] = "34026",
+			["Style"] = "MEKA_IL",
+			["Color"] = {
+				["b"] = 0.172549019607843,
+				["g"] = 0.317647058823529,
+				["r"] = 0.96078431372549,
+			},
+			["Show"] = true,
+			["Icon"] = "Default",
+		}, -- [3]
+		{
+			["Spell"] = "131894",
+			["Caster"] = "player",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["Unit"] = "target",
+			["Show"] = true,
+			["Style"] = "MEKA_IL",
+			["Aura"] = "131894",
+			["SpellColor"] = {
+				["r"] = 0.890196078431373,
+				["g"] = 0.113725490196078,
+				["b"] = 0.305882352941177,
+			},
+			["AuraColor"] = {
+				["b"] = 0.172549019607843,
+				["g"] = 0.317647058823529,
+				["r"] = 0.96078431372549,
+			},
+			["Filter"] = "Debuff",
+		}, -- [4]
+		{
+			["Show"] = true,
+			["Spell"] = "147362",
+			["Style"] = "MEKA_IR",
+			["Color"] = {
+				["b"] = 0.172549019607843,
+				["g"] = 0.317647058823529,
+				["r"] = 0.96078431372549,
+			},
+			["SpellColor"] = {
+				["r"] = 0.584313725490196,
+				["g"] = 0.870588235294118,
+				["b"] = 0.894117647058824,
+			},
+		}, -- [5]
+		{
+			["Spell"] = "19574",
+			["Caster"] = "player",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["Unit"] = "player",
+			["Show"] = true,
+			["Icon"] = "Default",
+			["Style"] = "MEKA_IR",
+			["Aura"] = "19574",
+			["SpellColor"] = {
+				["b"] = 0.250980392156863,
+				["g"] = 0.556862745098039,
+				["r"] = 0.823529411764706,
+			},
+			["AuraColor"] = {
+				["r"] = 0.988235294117647,
+				["g"] = 0.36078431372549,
+				["b"] = 0.36078431372549,
+			},
+			["Filter"] = "Buff",
+		}, -- [6]
+		{
+			["Spell"] = "193530",
+			["Caster"] = "player",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["Unit"] = "player",
+			["Show"] = true,
+			["Icon"] = "Default",
+			["Style"] = "MEKA_IR",
+			["Aura"] = "193530",
+			["SpellColor"] = {
+				["b"] = 0.250980392156863,
+				["g"] = 0.556862745098039,
+				["r"] = 0.823529411764706,
+			},
+			["AuraColor"] = {
+				["r"] = 0.219607843137255,
+				["g"] = 0.603921568627451,
+				["b"] = 0.996078431372549,
+			},
+			["Filter"] = "Buff",
+		}, -- [7]
+		{
+			["Show"] = true,
+			["Style"] = "MEKA_BR",
+			["Caster"] = "player",
+			["Aura"] = "272790",
+			["AuraColor"] = {
+				["r"] = 0.890196078431373,
+				["g"] = 0.113725490196078,
+				["b"] = 0.305882352941177,
+			},
+			["Unit"] = "pet",
+		}, -- [8]
+		{
+			["Show"] = true,
+			["Caster"] = "player",
+			["Style"] = "MEKA_BR",
+			["Aura"] = "118455",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["Filter"] = "Buff",
+			["AuraColor"] = {
+				["b"] = 0.643137254901961,
+				["g"] = 0.603921568627451,
+				["r"] = 0.976470588235294,
+			},
+			["Unit"] = "pet",
+		}, -- [9]
+		{
+			["Caster"] = "player",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["Unit"] = "pet",
+			["Show"] = true,
+			["Style"] = "MEKA_BR",
+			["Filter"] = "Buff",
+			["AuraColor"] = {
+				["r"] = 0.443137254901961,
+				["g"] = 0.83921568627451,
+				["b"] = 0.152941176470588,
+			},
+			["Aura"] = "136",
+		}, -- [10]
+	}, -- [1]
+	{
+		{
+			["Show"] = true,
+			["Spell"] = "19434",
+			["Style"] = "MEKA_IL",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["SpellColor"] = {
+				["r"] = 0.890196078431373,
+				["g"] = 0.113725490196078,
+				["b"] = 0.305882352941177,
+			},
+		}, -- [1]
+		{
+			["Show"] = true,
+			["Spell"] = "260402",
+			["Style"] = "MEKA_IL",
+			["SpellColor"] = {
+				["r"] = 0.890196078431373,
+				["g"] = 0.113725490196078,
+				["b"] = 0.305882352941177,
+			},
+		}, -- [2]
+		{
+			["Show"] = true,
+			["Spell"] = "257044",
+			["Style"] = "MEKA_IL",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["SpellColor"] = {
+				["r"] = 0.890196078431373,
+				["g"] = 0.113725490196078,
+				["b"] = 0.305882352941177,
+			},
+		}, -- [3]
+		{
+			["Show"] = true,
+			["Spell"] = "147362",
+			["Style"] = "MEKA_IR",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["SpellColor"] = {
+				["r"] = 0.890196078431373,
+				["g"] = 0.113725490196078,
+				["b"] = 0.305882352941177,
+			},
+		}, -- [4]
+		{
+			["Show"] = true,
+			["Style"] = "MEKA_BR",
+			["Aura"] = "257284",
+			["Caster"] = "player",
+			["AuraColor"] = {
+				["r"] = 0.890196078431373,
+				["g"] = 0.113725490196078,
+				["b"] = 0.305882352941177,
+			},
+			["Unit"] = "target",
+		}, -- [5]
+		{
+			["Show"] = true,
+			["Aura"] = {
+				"271788", -- [1]
+				"131894", -- [2]
+			},
+			["Style"] = "MEKA_BR",
+			["Caster"] = "player",
+			["Color"] = {
+				["b"] = 39,
+				["g"] = 214,
+				["r"] = 113,
+			},
+			["Filter"] = "Debuff",
+			["AuraColor"] = {
+				["b"] = 0.152941176470588,
+				["g"] = 0.83921568627451,
+				["r"] = 0.443137254901961,
+			},
+			["Unit"] = "target",
+		}, -- [6]
+		{
+			["Show"] = true,
+			["Style"] = "MEKA_BR",
+			["Caster"] = "player",
+			["Aura"] = "260395",
+			["AuraColor"] = {
+				["r"] = 0.219607843137255,
+				["g"] = 0.603921568627451,
+				["b"] = 0.996078431372549,
+			},
+			["Unit"] = "player",
+		}, -- [7]
+		{
+			["Show"] = true,
+			["Style"] = "MEKA_BR",
+			["Caster"] = "player",
+			["Aura"] = "260242",
+			["AuraColor"] = {
+				["r"] = 0.96078431372549,
+				["g"] = 0.317647058823529,
+				["b"] = 0.172549019607843,
+			},
+			["Unit"] = "player",
+		}, -- [8]
+	}, -- [2]
+	{
+		{
+			["Type"] = "Aura",
+			["Caster"] = "player",
+			["Color"] = {
+				["b"] = 0.996078431372549,
+				["g"] = 0.603921568627451,
+				["r"] = 0.219607843137255,
+			},
+			["Unit"] = "target",
+			["Show"] = true,
+			["Name"] = "猫鼬撕咬",
+			["Filter"] = "Buff",
+			["Aura"] = "259491",
+			["AuraColor"] = {
+				["r"] = 0.443137254901961,
+				["g"] = 0.83921568627451,
+				["b"] = 0.152941176470588,
+			},
+			["Style"] = "MEKA_BR",
+		}, -- [1]
+		{
+			["Show"] = true,
+			["Style"] = "MEKA_BR",
+			["Aura"] = "268552",
+			["Caster"] = "player",
+			["AuraColor"] = {
+				["b"] = 0.525490196078431,
+				["g"] = 0.823529411764706,
+				["r"] = 0.87843137254902,
+			},
+			["Unit"] = "player",
+		}, -- [2]
+		{
+			["Type"] = "Aura",
+			["Caster"] = "player",
+			["Color"] = {
+				["b"] = 0.996078431372549,
+				["g"] = 0.603921568627451,
+				["r"] = 0.219607843137255,
+			},
+			["Unit"] = "player",
+			["Show"] = true,
+			["Name"] = "作战技巧",
+			["Filter"] = "Buff",
+			["Aura"] = "259388",
+			["AuraColor"] = {
+				["r"] = 0.890196078431373,
+				["g"] = 0.113725490196078,
+				["b"] = 0.305882352941177,
+			},
+			["Style"] = "MEKA_BR",
+		}, -- [3]
+		{
+			["Show"] = true,
+			["Style"] = "MEKA_BR",
+			["Caster"] = "player",
+			["Aura"] = "136",
+			["AuraColor"] = {
+				["b"] = 0.152941176470588,
+				["g"] = 0.83921568627451,
+				["r"] = 0.443137254901961,
+			},
+			["Unit"] = "pet",
+		}, -- [4]
+		{
+			["Show"] = true,
+			["Spell"] = "187707",
+			["Style"] = "MEKA_IR",
+			["SpellColor"] = {
+				["r"] = 0.890196078431373,
+				["g"] = 0.113725490196078,
+				["b"] = 0.305882352941177,
+			},
+		}, -- [5]
+		{
+			["Show"] = true,
+			["Spell"] = "187708",
+			["Style"] = "MEKA_IR",
+			["SpellColor"] = {
+				["b"] = 0.305882352941177,
+				["g"] = 0.113725490196078,
+				["r"] = 0.890196078431373,
+			},
+		}, -- [6]
+		{
+			["Show"] = true,
+			["Spell"] = "259495",
+			["Style"] = "MEKA_IL",
+			["SpellColor"] = {
+				["r"] = 0.890196078431373,
+				["g"] = 0.113725490196078,
+				["b"] = 0.305882352941177,
+			},
+		}, -- [7]
+		{
+			["Show"] = true,
+			["Spell"] = "259489",
+			["Style"] = "MEKA_IL",
+			["SpellColor"] = {
+				["b"] = 0.305882352941177,
+				["g"] = 0.113725490196078,
+				["r"] = 0.890196078431373,
+			},
+		}, -- [8]
+	}, -- [3]
 }
 
 --- ------------------------------------------------------------
@@ -310,92 +1224,457 @@ WatcherList.HUNTER = {
 --- ------------------------------------------------------------
 
 WatcherList.MONK = {
-	[1] = {
-		-->酒仙
-
-	},
-	[2] = {
-		-->织雾
-		{ --雷光聚神茶
-			Show = true,  Style = "CL",  Color = C.Color.Bar["F5512C"],
-			Aura = "116680", Unit = "player", Caster = "player", Filter = "Buff", AuraColor = C.Color.G2,
-			Spell = "116680", SpellColor = C.Color.Bar["F5512C"],
-		},
-		{ --复苏之雾
-			Show = true,  Style = "CL",  Color = C.Color.Bar["F5512C"],      
-			Spell = "115151",
-		},
-		{ --做茧缚命
-			Show = true,  Style = "CL",  Color = C.Color.Bar["F5512C"],      
-			Spell = "116849",
-		},
-		{ --清创生血
-			Show = true,  Style = "CR",  Color = C.Color.Bar["F5512C"],      
-			Spell = "115450",
-		},
-		{ --还魂术
-			Show = true,  Style = "CR",  Color = C.Color.Bar["F5512C"],      
-			Spell = "115310",
-		},
-		{ --精华之泉
-			Show = true,  Style = "CR",  Color = C.Color.Bar["F5512C"],      
-			Spell = "191837",
-		},
-		
-		{ --禅院教诲
-			Show = true,  Style = "BL",  Color = C.Color.G1,
-			Aura = "202090",  Unit = "player",  Filter = "Buff",
-		},
-		{ --幻灭踢
-			Show = true,  Style = "BL",  Color = C.Color.R1,
-			Spell = "100784",
-		},
-		{ --旭日东升踢
-			Show = true,  Style = "BL",  Color = C.Color.Bar["F5512C"],
-			Spell = "107428",
-		},
-	},
-	[3] = {
-		-->踏风
-		{ --旭日东升踢
-			Show = true,  Style = "CL",  Color = C.Color.Bar["F5512C"],      
-			Spell = "107428",
-		},
-		{ --怒雷破
-			Show = true,  Style = "CL",  Color = C.Color.Bar["F5512C"],      
-			Spell = "113656",
-		},
-		{ --升龙霸
-			Show = true,  Style = "CL",  Color = C.Color.Bar["F5512C"],      
-			Spell = "152175",
-		},
-		{ --切喉手
-			Show = true,  Style = "CR",  Color = C.Color.Bar["F5512C"],      
-			Spell = "116705",
-		},
-		{ --风火雷电
-			Show = true,  Style = "CR",  Color = C.Color.Bar["F5512C"],      
-			Spell = "137639",
-			Aura = "137639", Unit = "player", Filter = "Buff",
-		},
-		{ --白虎拳
-			Show = true,  Style = "CR",  Color = C.Color.Bar["F5512C"],      
-			Spell = "261947",
-		},
-		
-		{ --连击
-			Show = true,  Style = "BL",  Color = C.Color.G1,
-			Aura = "196741",  Unit = "player",  Filter = "Buff"
-		},
-		{ --转化力量
-			Show = false,  Style = "BL",  Color = C.Color.B1,
-			Aura = "195321",  Unit = "player",  Filter = "Buff"
-		},
-		{ --白虎下凡
-			Show = true,  Style = "BL",  Color = C.Color.Bar["F5512C"],      
-			Spell = "123904",
-		},
-	},
+	{
+		{
+			["Show"] = true,
+			["Style"] = "MEKA_BR",
+			["Caster"] = "player",
+			["Aura"] = "215479",
+			["AuraColor"] = {
+				["b"] = 0.152941176470588,
+				["g"] = 0.83921568627451,
+				["r"] = 0.443137254901961,
+			},
+			["Icon"] = "Default",
+			["Unit"] = "player",
+		}, -- [1]
+		{
+			["Show"] = true,
+			["Spell"] = "115315",
+			["Style"] = "MEKA_BR",
+			["Icon"] = "SelfDestruct",
+			["SpellColor"] = {
+				["r"] = 1,
+				["g"] = 0.933333333333333,
+				["b"] = 0.345098039215686,
+			},
+		}, -- [2]
+		{
+			["SpellColor"] = {
+				["r"] = 0.925490196078432,
+				["g"] = 0.250980392156863,
+				["b"] = 0.47843137254902,
+			},
+			["Spell"] = "115546",
+			["Style"] = "MEKA_BR",
+			["Show"] = true,
+		}, -- [3]
+		{
+			["SpellColor"] = {
+				["r"] = 0.611764705882353,
+				["g"] = 0.8,
+				["b"] = 0.396078431372549,
+			},
+			["Spell"] = "121253",
+			["Style"] = "MEKA_IL",
+			["Icon"] = "Dynamite",
+			["Show"] = true,
+		}, -- [4]
+		{
+			["SpellColor"] = {
+				["r"] = 0.937254901960784,
+				["g"] = 0.325490196078431,
+				["b"] = 0.313725490196078,
+			},
+			["Spell"] = "115181",
+			["Style"] = "MEKA_IL",
+			["Icon"] = "MoltenCore2",
+			["Show"] = true,
+		}, -- [5]
+		{
+			["SpellColor"] = {
+				["r"] = 0.937254901960784,
+				["g"] = 0.325490196078431,
+				["b"] = 0.313725490196078,
+			},
+			["Spell"] = "205523",
+			["Style"] = "MEKA_IL",
+			["Icon"] = "GrapplingClaw",
+			["Show"] = true,
+		}, -- [6]
+		{
+			["SpellColor"] = {
+				["r"] = 0.937254901960784,
+				["g"] = 0.325490196078431,
+				["b"] = 0.313725490196078,
+			},
+			["Spell"] = "115078",
+			["Style"] = "MEKA_IR",
+			["Icon"] = "MeteorStrike",
+			["Show"] = true,
+		}, -- [7]
+		{
+			["SpellColor"] = {
+				["r"] = 0.937254901960784,
+				["g"] = 0.325490196078431,
+				["b"] = 0.313725490196078,
+			},
+			["Spell"] = "116705",
+			["Style"] = "MEKA_IR",
+			["Icon"] = "Emp",
+			["Show"] = true,
+		}, -- [8]
+		{
+			["Spell"] = "115203",
+			["Caster"] = "player",
+			["Unit"] = "player",
+			["SpellColor"] = {
+				["r"] = 0.937254901960784,
+				["g"] = 0.325490196078431,
+				["b"] = 0.313725490196078,
+			},
+			["Style"] = "MEKA_IR",
+			["Aura"] = "120954",
+			["Show"] = true,
+			["Icon"] = "CoachGun",
+			["AuraColor"] = {
+				["r"] = 0.831372549019608,
+				["g"] = 0.882352941176471,
+				["b"] = 0.341176470588235,
+			},
+		}, -- [9]
+		{
+			["SpellColor"] = {
+				["r"] = 0.937254901960784,
+				["g"] = 0.325490196078431,
+				["b"] = 0.313725490196078,
+			},
+			["Spell"] = "122281",
+			["Style"] = "MEKA_IR",
+			["Icon"] = "TakeABreather",
+			["Show"] = true,
+		}, -- [10]
+	}, -- [1]
+	{
+		{
+			["Spell"] = "116680",
+			["Caster"] = "player",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["Unit"] = "player",
+			["Show"] = true,
+			["Style"] = "MEKA_IL",
+			["Aura"] = "116680",
+			["SpellColor"] = {
+				["b"] = 0.305882352941177,
+				["g"] = 0.113725490196078,
+				["r"] = 0.890196078431373,
+			},
+			["Icon"] = "MoltenCore2",
+			["AuraColor"] = {
+				["b"] = 0.152941176470588,
+				["g"] = 0.83921568627451,
+				["r"] = 0.443137254901961,
+			},
+			["Filter"] = "Buff",
+		}, -- [1]
+		{
+			["Show"] = true,
+			["Spell"] = "115151",
+			["Style"] = "MEKA_IL",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["Icon"] = "OrbOfHarmony",
+			["SpellColor"] = {
+				["b"] = 0.305882352941177,
+				["g"] = 0.113725490196078,
+				["r"] = 0.890196078431373,
+			},
+		}, -- [2]
+		{
+			["Show"] = true,
+			["Spell"] = "116849",
+			["Style"] = "MEKA_IL",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["Icon"] = "PhotonShield",
+			["SpellColor"] = {
+				["b"] = 0.305882352941177,
+				["g"] = 0.113725490196078,
+				["r"] = 0.890196078431373,
+			},
+		}, -- [3]
+		{
+			["Show"] = true,
+			["Spell"] = "115450",
+			["Style"] = "MEKA_IR",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["Icon"] = "PhotonBarrier",
+			["SpellColor"] = {
+				["b"] = 0.305882352941177,
+				["g"] = 0.113725490196078,
+				["r"] = 0.890196078431373,
+			},
+		}, -- [4]
+		{
+			["Show"] = true,
+			["Spell"] = "191837",
+			["Style"] = "MEKA_IR",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["Icon"] = "RegenerativeBurst",
+			["SpellColor"] = {
+				["b"] = 0.305882352941177,
+				["g"] = 0.113725490196078,
+				["r"] = 0.890196078431373,
+			},
+		}, -- [5]
+		{
+			["Show"] = true,
+			["Spell"] = "115310",
+			["Style"] = "MEKA_IR",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["Icon"] = "BioticField",
+			["SpellColor"] = {
+				["b"] = 0.305882352941177,
+				["g"] = 0.113725490196078,
+				["r"] = 0.890196078431373,
+			},
+		}, -- [6]
+		{
+			["Show"] = true,
+			["Caster"] = "player",
+			["Style"] = "MEKA_BR",
+			["Filter"] = "Buff",
+			["Color"] = {
+				["b"] = 0.72156862745098,
+				["g"] = 0.768627450980392,
+				["r"] = 0.407843137254902,
+			},
+			["Aura"] = "202090",
+			["AuraColor"] = {
+				["b"] = 0.894117647058824,
+				["g"] = 0.870588235294118,
+				["r"] = 0.584313725490196,
+			},
+			["Unit"] = "player",
+		}, -- [7]
+		{
+			["Show"] = true,
+			["Spell"] = "100784",
+			["Style"] = "MEKA_BR",
+			["Color"] = {
+				["b"] = 0.643137254901961,
+				["g"] = 0.603921568627451,
+				["r"] = 0.976470588235294,
+			},
+			["SpellColor"] = {
+				["b"] = 0.47843137254902,
+				["g"] = 0.250980392156863,
+				["r"] = 0.925490196078432,
+			},
+		}, -- [8]
+		{
+			["Show"] = true,
+			["Spell"] = "107428",
+			["Style"] = "MEKA_BR",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["SpellColor"] = {
+				["b"] = 0.149019607843137,
+				["g"] = 0.654901960784314,
+				["r"] = 1,
+			},
+		}, -- [9]
+	}, -- [2]
+	{
+		{
+			["Show"] = true,
+			["Spell"] = "107428",
+			["Style"] = "MEKA_IL",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["Icon"] = "FireStrike",
+			["SpellColor"] = {
+				["r"] = 0.890196078431373,
+				["g"] = 0.113725490196078,
+				["b"] = 0.305882352941177,
+			},
+		}, -- [1]
+		{
+			["Show"] = true,
+			["Spell"] = "113656",
+			["Style"] = "MEKA_IL",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["Icon"] = "ScatterArrow",
+			["SpellColor"] = {
+				["r"] = 0.890196078431373,
+				["g"] = 0.113725490196078,
+				["b"] = 0.305882352941177,
+			},
+		}, -- [2]
+		{
+			["Show"] = true,
+			["Spell"] = "152175",
+			["Style"] = "MEKA_IL",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["Icon"] = "Resurrect2",
+			["SpellColor"] = {
+				["r"] = 0.890196078431373,
+				["g"] = 0.113725490196078,
+				["b"] = 0.305882352941177,
+			},
+		}, -- [3]
+		{
+			["Show"] = false,
+			["Spell"] = "115098",
+			["Style"] = "MEKA_IL",
+			["SpellColor"] = {
+				["r"] = 0.890196078431373,
+				["g"] = 0.113725490196078,
+				["b"] = 0.305882352941177,
+			},
+		}, -- [4]
+		{
+			["Show"] = true,
+			["Spell"] = "116705",
+			["Style"] = "MEKA_IR",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["Icon"] = "Emp",
+			["SpellColor"] = {
+				["r"] = 0.890196078431373,
+				["g"] = 0.113725490196078,
+				["b"] = 0.305882352941177,
+			},
+		}, -- [5]
+		{
+			["SpellColor"] = {
+				["r"] = 0.890196078431373,
+				["g"] = 0.113725490196078,
+				["b"] = 0.305882352941177,
+			},
+			["Spell"] = "115078",
+			["Style"] = "MEKA_IR",
+			["Icon"] = "SeismicSlam",
+			["Show"] = true,
+		}, -- [6]
+		{
+			["Spell"] = "137639",
+			["Caster"] = "player",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["Unit"] = "player",
+			["Show"] = true,
+			["Style"] = "MEKA_IR",
+			["Filter"] = "Buff",
+			["Aura"] = "137639",
+			["AuraColor"] = {
+				["r"] = 0.807843137254902,
+				["g"] = 0.192156862745098,
+				["b"] = 0.462745098039216,
+			},
+			["Icon"] = "Supercharger",
+			["SpellColor"] = {
+				["r"] = 0.807843137254902,
+				["g"] = 0.192156862745098,
+				["b"] = 0.462745098039216,
+			},
+		}, -- [7]
+		{
+			["Caster"] = "player",
+			["Color"] = {
+				["b"] = 0.72156862745098,
+				["g"] = 0.768627450980392,
+				["r"] = 0.407843137254902,
+			},
+			["Unit"] = "player",
+			["Show"] = true,
+			["Style"] = "MEKA_BR",
+			["Filter"] = "Buff",
+			["Aura"] = "196741",
+			["Icon"] = "Default",
+			["AuraColor"] = {
+				["r"] = 0.443137254901961,
+				["g"] = 0.83921568627451,
+				["b"] = 0.152941176470588,
+			},
+		}, -- [8]
+		{
+			["Caster"] = "player",
+			["Color"] = {
+				["b"] = 0.996078431372549,
+				["g"] = 0.603921568627451,
+				["r"] = 0.219607843137255,
+			},
+			["Unit"] = "player",
+			["Show"] = true,
+			["Style"] = "MEKA_BR",
+			["Filter"] = "Buff",
+			["Aura"] = "195321",
+			["Icon"] = "Default",
+			["AuraColor"] = {
+				["r"] = 0.87843137254902,
+				["g"] = 0.823529411764706,
+				["b"] = 0.525490196078431,
+			},
+		}, -- [9]
+		{
+			["Show"] = true,
+			["Style"] = "MEKA_BR",
+			["Caster"] = "player",
+			["Aura"] = "115080",
+			["AuraColor"] = {
+				["r"] = 0.890196078431373,
+				["g"] = 0.113725490196078,
+				["b"] = 0.305882352941177,
+			},
+			["Icon"] = "Default",
+			["Unit"] = "target",
+		}, -- [10]
+		{
+			["Show"] = true,
+			["Style"] = "MEKA_BR",
+			["Caster"] = "player",
+			["Aura"] = "286587",
+			["AuraColor"] = {
+				["r"] = 0.611764705882353,
+				["g"] = 0.8,
+				["b"] = 0.396078431372549,
+			},
+			["Unit"] = "player",
+		}, -- [11]
+	}, -- [3]
 }
 
 --- ------------------------------------------------------------
@@ -403,164 +1682,516 @@ WatcherList.MONK = {
 --- ------------------------------------------------------------
 
 WatcherList.PRIEST = {
-	[1] = {
-		-->戒律
-		{ --苦修
-			Show = true,  Style = "CL",  Color = C.Color.Bar["F5512C"],      
-			Spell = "47540",
-		},
-		{ --真言术：慰
-			Show = true,  Style = "CL",  Color = C.Color.Bar["F5512C"],      
-			Spell = "129250",
-		},
-		{ --教派分歧
-			Show = true,  Style = "CL",  Color = C.Color.Bar["F5512C"],      
-			Spell = "214621",
-		},
-		
-		{ --纯净术
-			Show = true,  Style = "CR",  Color = C.Color.Bar["F5512C"],      
-			Spell = "527",
-		},
-		{ --真言术：耀
-			Show = true,  Style = "CR",  Color = C.Color.Bar["F5512C"],      
-			Spell = "194509",
-		},
-		{ --真言术：盾
-			Show = false,  Style = "CR",  Color = C.Color.Bar["F5512C"],      
-			Spell = "17",
-		},
-		
-		{ --净化邪恶
-			Show = true,  Style = "BR",  Color = C.Color.R1,
-			Aura = "204213",  Unit = "target",  Filter = "Debuff",
-		},
-		{ --暗言术：痛
-			Show = true,  Style = "BR",  Color = C.Color.Bar["F5512C"],
-			Aura = "589",  Unit = "target",  Filter = "Debuff",
-		},
-		{ --天堂之羽
-			Show = true,  Style = "BL",  Color = C.Color.Bar["F5512C"],      
-			Spell = "121536",
-		},
-		{ --真言术：盾
-			Show = true,  Style = "BL",  Color = C.Color.G1,
-			Aura = "17",  Unit = "player",  Filter = "Buff", AuraColor = C.Color.G1,
-			Spell = "17", SpellColor = C.Color.Y1,
-		},
-		{ --救赎
-			Show = true,  Style = "BL",  Color = C.Color.G1,
-			Aura = "194384",  Unit = "player",  Filter = "Buff", AuraColor = C.Color.B1,
-		},
-	},
-	[2] = {
-		-->神圣
-		{ --圣言术：静
-			Show = true,  Style = "CL",  Color = C.Color.Bar["F5512C"],      
-			Spell = "2050",
-		},
-		{ --圣言术：灵
-			Show = true,  Style = "CL",  Color = C.Color.Bar["F5512C"],      
-			Spell = "34861",
-		},
-		{ --愈合祷言
-			Show = true,  Style = "CL",  Color = C.Color.Bar["F5512C"],      
-			Spell = "33076",
-		},
-
-		{ --圣言术：罚
-			Show = true,  Style = "CR",  Color = C.Color.Bar["F5512C"],      
-			Spell = "88625",
-		},
-		{ --神圣之火
-			Show = true,  Style = "CR",  Color = C.Color.Bar["F5512C"],      
-			Spell = "14914",
-		},
-		{ --纯净术
-			Show = true,  Style = "CR",  Color = C.Color.Bar["F5512C"],      
-			Spell = "527",
-		},
-
-		{ --天堂之羽
-			Show = true,  Style = "BL",  Color = C.Color.Bar["F5512C"],      
-			Spell = "121536",
-		},
-	},
-	[3] = {
-		-->暗影
-		{ --心灵震爆
-			Show = true,  Style = "CL",  Color = C.Color.Bar["F5512C"],      
-			Spell = "8092",
-		},
-		{ --暗言术：虚
-			Show = false,  Style = "CL",  Color = C.Color.Bar["F5512C"],      
-			Spell = "205351",
-		},
-		{ --虚空爆发
-			Show = true,  Style = "CL",  Color = C.Color.Bar["F5512C"],      
-			Spell = "228260",
-		},
-		{ --暗言术：灭
-			Show = false,  Style = "CL",  Color = C.Color.Bar["F5512C"],      
-			Spell = "32379",
-		},
-		{ --虚空洪流
-			Show = true,  Style = "CL",  Color = C.Color.Bar["F5512C"],      
-			Spell = "263165",
-		},
-		{ --黑暗升华
-			Show = false,  Style = "CL",  Color = C.Color.Bar["F5512C"],      
-			Spell = "280711",
-		},
-		
-		{ --群体驱散
-			Show = true,  Style = "CR",  Color = C.Color.Bar["F5512C"],      
-			Spell = "32375",
-		},
-		{ --沉默
-			Show = true,  Style = "CR",  Color = C.Color.Bar["F5512C"],      
-			Spell = "15487",
-		},
-		{ --黑暗虚空
-			Show = false,  Style = "CR",  Color = C.Color.Bar["F5512C"],      
-			Spell = "263346",
-		},
-		{ --暗影冲撞
-			Show = true,  Style = "CR",  Color = C.Color.Bar["F5512C"],      
-			Spell = "205385",
-		},
-
-		{ --虚空形态
-			Show = true,  Style = "BL",  Color = C.Color.G1,
-			Aura = "194249",  Unit = "player",  Filter = "Buff"
-		},
-		{ --消散
-			Show = true,  Style = "BL",  Color = C.Color.B1,
-			Aura = "47585",  Unit = "player",  Filter = "Buff"
-		},
-		{ --真言术：盾
-			Show = true, Style = "BL", Color = C.Color.G1,
-			Aura = "17", Unit = "player", Filter = "Buff", AuraColor = C.Color.G1,
-			Spell = "17", SpellColor = C.Color.Y1,
-		},
-
-		{ --暗言术：痛
-			Show = true,  Style = "BR",  Color = C.Color.Bar["F5512C"],
-			Aura = "589",  Unit = "target",  Filter = "Debuff",
-		},
-		{ --吸血鬼之触
-			Show = true,  Style = "BR",  Color = C.Color.B1,
-			Aura = "34914",  Unit = "target",  Filter = "Debuff", Dura = 24,
-		},
-		{ --虚空洪流
-			Show = true,  Style = "BR",  Color = C.Color.Bar["CE3176"],
-			Spell = "205065",
-		},
-		{ --摧心魔
-			Show = true,  Style = "BR",  Color = C.Color.Bar["E31D4E"],
-			Spell = "200174",
-		},
-	},
+	{
+		{
+			["Show"] = true,
+			["Spell"] = "47540",
+			["Style"] = "MEKA_IL",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["Icon"] = "Barrage",
+			["SpellColor"] = {
+				["b"] = 0.305882352941177,
+				["g"] = 0.113725490196078,
+				["r"] = 0.890196078431373,
+			},
+		}, -- [1]
+		{
+			["Show"] = true,
+			["Spell"] = "129250",
+			["Style"] = "MEKA_IL",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["Icon"] = "MicroMissiles",
+			["SpellColor"] = {
+				["b"] = 0.525490196078431,
+				["g"] = 0.823529411764706,
+				["r"] = 0.87843137254902,
+			},
+		}, -- [2]
+		{
+			["Show"] = true,
+			["Spell"] = "214621",
+			["Style"] = "MEKA_IL",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["Icon"] = "OrbOfDiscord",
+			["SpellColor"] = {
+				["b"] = 0.305882352941177,
+				["g"] = 0.113725490196078,
+				["r"] = 0.890196078431373,
+			},
+		}, -- [3]
+		{
+			["Show"] = true,
+			["Spell"] = "194509",
+			["Style"] = "MEKA_IL",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["Icon"] = "RegenerativeBurst",
+			["SpellColor"] = {
+				["b"] = 0.525490196078431,
+				["g"] = 0.823529411764706,
+				["r"] = 0.87843137254902,
+			},
+		}, -- [4]
+		{
+			["SpellColor"] = {
+				["b"] = 0.76078431372549,
+				["g"] = 0.341176470588235,
+				["r"] = 0.494117647058824,
+			},
+			["Spell"] = "32375",
+			["Style"] = "MEKA_IR",
+			["Icon"] = "BioticOrb",
+			["Show"] = true,
+		}, -- [5]
+		{
+			["Show"] = true,
+			["Spell"] = "527",
+			["Style"] = "MEKA_IR",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["Icon"] = "Resurrect2",
+			["SpellColor"] = {
+				["b"] = 0.996078431372549,
+				["g"] = 0.603921568627451,
+				["r"] = 0.219607843137255,
+			},
+		}, -- [6]
+		{
+			["SpellColor"] = {
+				["b"] = 0.345098039215686,
+				["g"] = 0.933333333333333,
+				["r"] = 1,
+			},
+			["Spell"] = "204263",
+			["Style"] = "MEKA_IR",
+			["Icon"] = "ConcussiveBlast",
+			["Show"] = true,
+		}, -- [7]
+		{
+			["Caster"] = "player",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["Unit"] = "player",
+			["Show"] = true,
+			["Style"] = "MEKA_IR",
+			["Aura"] = "17",
+			["AuraColor"] = {
+				["b"] = 0.305882352941177,
+				["g"] = 0.113725490196078,
+				["r"] = 0.890196078431373,
+			},
+			["Icon"] = "PhotonShield",
+			["Aura2"] = "6788",
+		}, -- [8]
+		{
+			["Show"] = true,
+			["Aura"] = {
+				"589", -- [1]
+				"204213", -- [2]
+			},
+			["Style"] = "MEKA_BR",
+			["Caster"] = "player",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["Filter"] = "Debuff",
+			["AuraColor"] = {
+				["b"] = 0.172549019607843,
+				["g"] = 0.317647058823529,
+				["r"] = 0.96078431372549,
+			},
+			["Unit"] = "target",
+		}, -- [9]
+		{
+			["SpellColor"] = {
+				["r"] = 0.980392156862745,
+				["g"] = 0.835294117647059,
+				["b"] = 0.243137254901961,
+			},
+			["Spell"] = "214621",
+			["Style"] = "MEKA_BR",
+			["Caster"] = "player",
+			["Show"] = true,
+			["Aura"] = "214621",
+			["AuraColor"] = {
+				["r"] = 0.670588235294118,
+				["g"] = 0.27843137254902,
+				["b"] = 0.737254901960784,
+			},
+			["Unit"] = "target",
+		}, -- [10]
+		{
+			["Show"] = true,
+			["Caster"] = "player",
+			["Style"] = "MEKA_BR",
+			["Filter"] = "Buff",
+			["Color"] = {
+				["b"] = 0.72156862745098,
+				["g"] = 0.768627450980392,
+				["r"] = 0.407843137254902,
+			},
+			["Aura"] = "194384",
+			["AuraColor"] = {
+				["b"] = 0.152941176470588,
+				["g"] = 0.83921568627451,
+				["r"] = 0.443137254901961,
+			},
+			["Unit"] = "player",
+		}, -- [11]
+	}, -- [1]
+	{
+		{
+			["Show"] = true,
+			["Spell"] = "2050",
+			["Style"] = "MEKA_IL",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["Icon"] = "RepairPack",
+			["SpellColor"] = {
+				["b"] = 0.305882352941177,
+				["g"] = 0.113725490196078,
+				["r"] = 0.890196078431373,
+			},
+		}, -- [1]
+		{
+			["Show"] = true,
+			["Spell"] = "34861",
+			["Style"] = "MEKA_IL",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["Icon"] = "RegenerativeBurst",
+			["SpellColor"] = {
+				["b"] = 0.305882352941177,
+				["g"] = 0.113725490196078,
+				["r"] = 0.890196078431373,
+			},
+		}, -- [2]
+		{
+			["Show"] = true,
+			["Spell"] = "33076",
+			["Style"] = "MEKA_IL",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["Icon"] = "Crossfade",
+			["SpellColor"] = {
+				["b"] = 0.305882352941177,
+				["g"] = 0.113725490196078,
+				["r"] = 0.890196078431373,
+			},
+		}, -- [3]
+		{
+			["SpellColor"] = {
+				["b"] = 0.47843137254902,
+				["g"] = 0.250980392156863,
+				["r"] = 0.925490196078432,
+			},
+			["Spell"] = "204883",
+			["Style"] = "MEKA_IL",
+			["Icon"] = "BioticField",
+			["Show"] = true,
+		}, -- [4]
+		{
+			["Show"] = true,
+			["Spell"] = "88625",
+			["Style"] = "MEKA_IR",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["Icon"] = "RocketPunch",
+			["SpellColor"] = {
+				["b"] = 0.305882352941177,
+				["g"] = 0.113725490196078,
+				["r"] = 0.890196078431373,
+			},
+		}, -- [5]
+		{
+			["Show"] = true,
+			["Spell"] = "14914",
+			["Style"] = "MEKA_IR",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["Icon"] = "Lunge",
+			["SpellColor"] = {
+				["b"] = 0.305882352941177,
+				["g"] = 0.113725490196078,
+				["r"] = 0.890196078431373,
+			},
+		}, -- [6]
+		{
+			["SpellColor"] = {
+				["b"] = 0.47843137254902,
+				["g"] = 0.250980392156863,
+				["r"] = 0.925490196078432,
+			},
+			["Spell"] = "32375",
+			["Style"] = "MEKA_IR",
+			["Icon"] = "BioticOrb",
+			["Show"] = true,
+		}, -- [7]
+		{
+			["Show"] = true,
+			["Spell"] = "527",
+			["Style"] = "MEKA_IR",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["Icon"] = "Resurrect2",
+			["SpellColor"] = {
+				["b"] = 0.305882352941177,
+				["g"] = 0.113725490196078,
+				["r"] = 0.890196078431373,
+			},
+		}, -- [8]
+	}, -- [2]
+	{
+		{
+			["Show"] = true,
+			["Aura"] = "589",
+			["Style"] = "MEKA_BR",
+			["Caster"] = "player",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["Filter"] = "Debuff",
+			["AuraColor"] = {
+				["r"] = 0.96078431372549,
+				["g"] = 0.317647058823529,
+				["b"] = 0.172549019607843,
+			},
+			["Unit"] = "target",
+		}, -- [1]
+		{
+			["Caster"] = "player",
+			["Dura"] = 24,
+			["Unit"] = "target",
+			["Show"] = true,
+			["Style"] = "MEKA_BR",
+			["Aura"] = "34914",
+			["Color"] = {
+				["b"] = 0.996078431372549,
+				["g"] = 0.603921568627451,
+				["r"] = 0.219607843137255,
+			},
+			["Icon"] = "BioticOrb",
+			["AuraColor"] = {
+				["r"] = 0.219607843137255,
+				["g"] = 0.603921568627451,
+				["b"] = 0.996078431372549,
+			},
+			["Filter"] = "Debuff",
+		}, -- [2]
+		{
+			["Show"] = true,
+			["Style"] = "MEKA_BR",
+			["Caster"] = "player",
+			["Aura"] = "123254",
+			["AuraColor"] = {
+				["b"] = 1,
+				["g"] = 0.192156862745098,
+				["r"] = 0.380392156862745,
+			},
+			["Unit"] = "player",
+		}, -- [3]
+		{
+			["Show"] = true,
+			["Style"] = "MEKA_BR",
+			["Caster"] = "player",
+			["Aura"] = "15286",
+			["AuraColor"] = {
+				["r"] = 0.611764705882353,
+				["g"] = 0.8,
+				["b"] = 0.396078431372549,
+			},
+			["Unit"] = "player",
+		}, -- [4]
+		{
+			["Show"] = true,
+			["Style"] = "MEKA_BR",
+			["Caster"] = "player",
+			["Aura"] = "288343",
+			["AuraColor"] = {
+				["r"] = 0.494117647058824,
+				["g"] = 0.341176470588235,
+				["b"] = 0.76078431372549,
+			},
+			["Unit"] = "player",
+		}, -- [5]
+		{
+			["Show"] = false,
+			["Spell"] = "8092",
+			["Style"] = "MEKA_IL",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["Icon"] = "Deadeye",
+			["SpellColor"] = {
+				["r"] = 0.584313725490196,
+				["g"] = 0.870588235294118,
+				["b"] = 0.894117647058824,
+			},
+		}, -- [6]
+		{
+			["SpellColor"] = {
+				["r"] = 0.925490196078432,
+				["g"] = 0.250980392156863,
+				["b"] = 0.47843137254902,
+			},
+			["Spell"] = "205351",
+			["Style"] = "MEKA_IL",
+			["Icon"] = "Deadeye",
+			["Show"] = true,
+		}, -- [7]
+		{
+			["Spell"] = "228260",
+			["Caster"] = "player",
+			["Color"] = {
+				["b"] = 44,
+				["g"] = 81,
+				["r"] = 245,
+			},
+			["Unit"] = "player",
+			["SpellColor"] = {
+				["r"] = 0.584313725490196,
+				["g"] = 0.870588235294118,
+				["b"] = 0.894117647058824,
+			},
+			["Style"] = "MEKA_IL",
+			["Aura"] = "194249",
+			["Icon"] = "Default",
+			["AuraColor"] = {
+				["r"] = 0.380392156862745,
+				["g"] = 0.192156862745098,
+				["b"] = 1,
+			},
+			["Show"] = true,
+		}, -- [8]
+		{
+			["Show"] = true,
+			["Spell"] = "34433",
+			["Style"] = "MEKA_IL",
+			["Icon"] = "SentryTurret",
+			["SpellColor"] = {
+				["r"] = 0.584313725490196,
+				["g"] = 0.870588235294118,
+				["b"] = 0.894117647058824,
+			},
+		}, -- [9]
+		{
+			["SpellColor"] = {
+				["r"] = 0.890196078431373,
+				["g"] = 0.113725490196078,
+				["b"] = 0.305882352941177,
+			},
+			["Spell"] = "205385",
+			["Style"] = "MEKA_IL",
+			["Icon"] = "MeteorStrike",
+			["Show"] = true,
+		}, -- [10]
+		{
+			["Spell"] = "47585",
+			["Caster"] = "player",
+			["Unit"] = "player",
+			["Show"] = true,
+			["Style"] = "MEKA_IR",
+			["Aura"] = "47585",
+			["Icon"] = "CoachGun",
+			["AuraColor"] = {
+				["b"] = 0.36078431372549,
+				["g"] = 0.36078431372549,
+				["r"] = 0.988235294117647,
+			},
+			["SpellColor"] = {
+				["b"] = 0.894117647058824,
+				["g"] = 0.870588235294118,
+				["r"] = 0.584313725490196,
+			},
+		}, -- [11]
+		{
+			["SpellColor"] = {
+				["r"] = 0.584313725490196,
+				["g"] = 0.870588235294118,
+				["b"] = 0.894117647058824,
+			},
+			["Spell"] = "586",
+			["Style"] = "MEKA_IR",
+			["Icon"] = "ThermopticCamo",
+			["Show"] = true,
+		}, -- [12]
+		{
+			["Caster"] = "player",
+			["Color"] = {
+				["b"] = 0.72156862745098,
+				["g"] = 0.768627450980392,
+				["r"] = 0.407843137254902,
+			},
+			["Unit"] = "player",
+			["Show"] = true,
+			["Style"] = "MEKA_IR",
+			["Aura"] = "17",
+			["Filter"] = "Buff",
+			["Icon"] = "PhotonShield",
+			["AuraColor"] = {
+				["r"] = 0.890196078431373,
+				["g"] = 0.113725490196078,
+				["b"] = 0.305882352941177,
+			},
+			["Aura2"] = "6788",
+		}, -- [13]
+		{
+			["SpellColor"] = {
+				["r"] = 0.807843137254902,
+				["g"] = 0.192156862745098,
+				["b"] = 0.462745098039216,
+			},
+			["Spell"] = "15487",
+			["Style"] = "MEKA_IR",
+			["Icon"] = "Emp",
+			["Show"] = true,
+		}, -- [14]
+	}, -- [3]
 }
 
 --- ------------------------------------------------------------
@@ -569,122 +2200,13 @@ WatcherList.PRIEST = {
 
 WatcherList.SHAMAN = {
 	[1] = {
-		-->元素
-		{ --烈焰震击
-			Show = true, Style = "BR", Color = C.Color.R1,
-			Aura = "188389",  Unit = "target", Caster = "player", Filter = "Debuff",
-		},
-		{ --引雷针
-			Show = true, Style = "BR",  Color = C.Color.B1,
-			Aura = "197209",  Unit = "target", Caster = "player", Filter = "Debuff",
-		},
-		{ --元素冲击 173183 173184 118522
-			Show = true, Style = "BL",  Color = C.Color.Bar["95DEE4"],
-			Aura = "173184",  Unit = "player", Caster = "player", Filter = "Buff",
-		},
-		{ --风暴守护者
-			Show = true, Style = "BL",
-			Aura = "191634", Unit = "player", Filter = "Buff", AuraColor = C.Color.B1,
-			Spell = "191634", SpellColor = C.Color.B1,
-		},
 		
-		{ --熔岩爆裂
-			Show = true, Style = "CL",  Color = C.Color.R1,
-			Aura = nil,
-			Spell = "51505",
-		},
-		{ --烈焰震击
-			Show = true, Style = "CL",  Color = C.Color.Bar["95DEE4"],
-			Aura = nil,        
-			Spell = "188389",
-		},
-		{ --大地震击
-			Show = true, Style = "CL",  Color = C.Color.Bar["95DEE4"],
-			Aura = nil,        
-			Spell = "8042",
-		},
-		
-		{ --风剪
-			Show = true, Style = "CR",  Color = C.Color.Bar["F5512C"],
-			Spell = "57994",
-		},
-		{ --元素冲击
-			Show = false, Style = "CR",  Color = C.Color.Bar["95DEE4"],
-			Aura = nil,        
-			Spell = "191634",
-		},
-		{ --元素冲击
-			Show = false, Style = "CR",  Color = C.Color.Bar["95DEE4"],
-			Aura = nil,        
-			Spell = "117014",
-		},
 	},
 	[2] = {
-		-->增强
-		{ --山崩
-			Show = true, Style = "BL",  Color = C.Color.Bar["CE3176"],
-			Aura = "202004",  Unit = "player", Filter = "Buff", AuraColor = C.Color.Bar["CE3176"],
-		},
-		{ --火舌
-			Show = true, Style = "BL",  Color = C.Color.R1,
-			Aura = "194084",  Unit = "player", Filter = "Buff",
-		},
-		{ --冰雹
-			Show = true, Style = "BL",  Color = C.Color.B1,
-			Aura = "196834",  Unit = "player", Filter = "Buff",
-		},
-		{ --风剪
-			Show = false, Style = "BR",  Color = C.Color.Bar["F5512C"],
-			Spell = "57994",
-		},
-		{ --降雨
-			Show = true, Style = "BR",  Color = C.Color.B1,
-			Aura = "215864",  Unit = "player",  Filter = "Buff",
-		},
-		{ --大地之刺
-			Show = true, Style = "BR",  Color = C.Color.Bar["F5512C"],
-			Aura = "188089",  Unit = "target", Caster = "player", Filter = "Debuff",
-		},
-
-		{ --石化
-			Show = true, Style = "CL",  Color = C.Color.Bar["F5512C"],
-			Spell = "193786",
-		},
-		{ --火舌
-			Show = true, Style = "CL",  Color = C.Color.Bar["F5512C"],
-			Spell = "193796",
-		},
-		{ --风暴打击
-			Show = true, Style = "CL",  Color = C.Color.Bar["F5512C"],
-			Aura = "201846",  Unit = "player", Caster = "player", Filter = "Buff",
-			Spell = "17364",
-		},
-		{ --大地之刺
-			Show = true, Style = "CL",  Color = C.Color.Bar["F5512C"],
-			Aura = "188089",  Unit = "target", Caster = "player", Filter = "Debuff",
-			Spell = "188089",
-		},
-
-		{ --风剪
-			Show = true, Style = "CR",  Color = C.Color.Bar["F5512C"],
-			Spell = "57994",
-		},
-		{ --裂地术
-			Show = true, Style = "CR",  Color = C.Color.Bar["F5512C"],
-			Spell = "197214",
-		},
-		{ --毁灭闪电
-			Show = true, Style = "CR",  Color = C.Color.Bar["F5512C"],
-			Spell = "187874",
-		},
 		
 	},
 	[3] = {
-		-->恢复
-		{ --风剪
-			Show = true, Style = "CR",  Color = C.Color.Bar["F5512C"],
-			Spell = "57994",
-		},
+		
 	},
 }
 
@@ -693,116 +2215,274 @@ WatcherList.SHAMAN = {
 --- ------------------------------------------------------------
 
 WatcherList.WARLOCK = {
-	[1] = {
-		-->痛苦
-		{ --召唤黑眼
-			Show = true,  Style = "MEKA_BL",
-			Spell = "205180", SpellColor = C.Color.B1,
-		},
-		{ --死亡之箭
-			Show = true,  Style = "MEKA_BL",
-			Spell = "264106", SpellColor = C.Color.Bar["F5512C"],
-		},
-
-		{ --诡异魅影
-			Show = false,  Style = "CL",
-			Aura = "205179",  Unit = "target", Caster = "player", Filter = "Debuff", AuraColor = C.Color.Bar["6131FF"],
-			Spell = "205179", SpellColor = C.Color.Y1,
-		},
-		
-		{ --恶魔法阵
-			Show = true,  Style = "CR",
-			Aura = "48018",  Unit = "player", Caster = "player", Filter = "Buff", AuraColor = C.Color.B2,
-			Spell = "48020", SpellColor = C.Color.Y1,
-		},
-		{ --恶魔掌控
-			Show = true,  Style = "CR",
-			Spell = "119910", SpellColor = C.Color.Y1,
-		},
-
-		{ --痛苦无常
-			Show = true,  Style = "MEKA_BR",  Color = C.Color.Bar["F5512C"],
-			Aura = "痛苦无常",  Unit = "target", Caster = "player", Filter = "Debuff",
-		},
-		{ --生命虹吸
-			Show = true,  Style = "MEKA_BR",  Color = C.Color.G2,
-			Aura = "63106",  Unit = "target", Caster = "player", Filter = "Debuff",
-		},
-		{ --腐蚀术
-			Show = true,  Style = "MEKA_BR",  Color = C.Color.Bar["CE3176"],
-			Aura = "146739",  Unit = "target", Caster = "player", Filter = "Debuff",
-		},
-		{ --痛楚
-			Show = true,  Style = "MEKA_BR",  Color = C.Color.Bar["F5512C"],
-			Aura = "980",  Unit = "target", Caster = "player", Filter = "Debuff",
-		},
-		{ --鬼影缠身
-			Show = true,  Style = "MEKA_BR",
-			Aura = "48181",  Unit = "target", Caster = "player", Filter = "Debuff", AuraColor = C.Color.G2,
-			Spell = "48181", SpellColor = C.Color.Y1,
-		},
-		{ --腐蚀之种
-			Show = true,  Style = "MEKA_BR",  Color = C.Color.Bar["6131FF"],
-			Aura = "27243",  Unit = "target", Caster = "player", Filter = "Debuff",
-		},
-	},
-	[2] = {
-		-->恶魔学识
-		{ --末日降临
-			Show = true,  Style = "BR",  Color = C.Color.G2,
-			Aura = "603",  Unit = "target", Caster = "player", Filter = "Debuff",
-		},
-		{ --恶魔增效
-			Show = true,  Style = "BR",  Color = C.Color.B1,
-			Aura = "193396",  Unit = "pet", Caster = "player", Filter = "Buff",
-		},
-		{ --暗影启迪
-			Show = true,  Style = "BR",  Color = C.Color.Bar["F5512C"],
-			Aura = "196606",  Unit = "player", Caster = "player", Filter = "Buff",
-		},
-
-		{ --召唤恐惧猎犬
-			Show = true,  Style = "CL",
-			Spell = "104316", SpellColor = C.Color.Y1,
-		},
-
-	},
-	[3] = {
-		-->毁灭
-		{ --腐蚀术
-			Show = true,  Style = "BR",  Color = C.Color.Bar["CE3176"],
-			Aura = "157736",  Unit = "target", Caster = "player", Filter = "Debuff",
-		},
-		{ --爆燃
-			Show = true,  Style = "BR",  Color = C.Color.B1,
-			Aura = "117828",  Unit = "player", Caster = "player", Filter = "Buff",
-		},
-		{ --燃烧
-			Show = true,  Style = "BR",  Color = C.Color.Bar["F5512C"],
-			Spell = "17962",
-		},
-		{ --灭杀
-			Show = true,  Style = "BR",  Color = C.Color.G2,
-			Aura = "196414",  Unit = "target", Caster = "player", Filter = "Debuff",
-		},
-
-		{ --爆燃
-			Show = true,  Style = "BL",  Color = C.Color.B1,
-			Aura = "235156",  Unit = "player", Caster = "player", Filter = "Buff",
-		},
-		{ --恶魔之火
-			Show = true,  Style = "BL",  Color = C.Color.G2,
-			Spell = "196447",
-		},
-		{ --次元裂隙
-			Show = true,  Style = "BL",  Color = C.Color.Bar["CE3176"],
-			Spell = "196586",
-		},
-		{ --浩劫
-			Show = true,  Style = "BL",  Color = C.Color.Bar["E31D4E"],
-			Spell = "80240",
-		},
-	},
+	{
+		{
+			["Spell"] = "48181",
+			["Caster"] = "player",
+			["Unit"] = "target",
+			["Show"] = true,
+			["Style"] = "MEKA_BR",
+			["Aura"] = "48181",
+			["Icon"] = "Default",
+			["Filter"] = "Debuff",
+			["AuraColor"] = {
+				["r"] = 0.443137254901961,
+				["g"] = 0.83921568627451,
+				["b"] = 0.152941176470588,
+			},
+			["SpellColor"] = {
+				["r"] = 0.823529411764706,
+				["g"] = 0.556862745098039,
+				["b"] = 0.250980392156863,
+			},
+		}, -- [1]
+		{
+			["Show"] = true,
+			["Caster"] = "player",
+			["Style"] = "MEKA_BR",
+			["Aura"] = "980",
+			["Color"] = {
+				["r"] = 245,
+				["g"] = 81,
+				["b"] = 44,
+			},
+			["Filter"] = "Debuff",
+			["AuraColor"] = {
+				["b"] = 0.36078431372549,
+				["g"] = 0.36078431372549,
+				["r"] = 0.988235294117647,
+			},
+			["Unit"] = "target",
+		}, -- [2]
+		{
+			["Show"] = true,
+			["Caster"] = "player",
+			["Style"] = "MEKA_BR",
+			["Aura"] = "146739",
+			["Color"] = {
+				["r"] = 206,
+				["g"] = 49,
+				["b"] = 118,
+			},
+			["Filter"] = "Debuff",
+			["AuraColor"] = {
+				["b"] = 0.305882352941177,
+				["g"] = 0.113725490196078,
+				["r"] = 0.890196078431373,
+			},
+			["Unit"] = "target",
+		}, -- [3]
+		{
+			["Show"] = true,
+			["Caster"] = "player",
+			["Style"] = "MEKA_BR",
+			["Aura"] = "63106",
+			["Color"] = {
+				["r"] = 113,
+				["g"] = 214,
+				["b"] = 39,
+			},
+			["Filter"] = "Debuff",
+			["AuraColor"] = {
+				["b"] = 0.152941176470588,
+				["g"] = 0.83921568627451,
+				["r"] = 0.443137254901961,
+			},
+			["Unit"] = "target",
+		}, -- [4]
+		{
+			["Caster"] = "player",
+			["Color"] = {
+				["r"] = 245,
+				["g"] = 81,
+				["b"] = 44,
+			},
+			["Unit"] = "target",
+			["Show"] = true,
+			["Style"] = "MEKA_BR",
+			["Filter"] = "Debuff",
+			["AuraColor"] = {
+				["b"] = 0.172549019607843,
+				["g"] = 0.317647058823529,
+				["r"] = 0.96078431372549,
+			},
+			["Aura"] = {
+				"233490", -- [1]
+				"233496", -- [2]
+				"233497", -- [3]
+				"233498", -- [4]
+				"233499", -- [5]
+			},
+		}, -- [5]
+		{
+			["SpellColor"] = {
+				["b"] = 0.462745098039216,
+				["g"] = 0.192156862745098,
+				["r"] = 0.807843137254902,
+			},
+			["Spell"] = "264106",
+			["Style"] = "MEKA_IL",
+			["Show"] = true,
+		}, -- [6]
+		{
+			["SpellColor"] = {
+				["b"] = 0.152941176470588,
+				["g"] = 0.83921568627451,
+				["r"] = 0.443137254901961,
+			},
+			["Spell"] = "205180",
+			["Style"] = "MEKA_IL",
+			["Show"] = true,
+		}, -- [7]
+		{
+			["Show"] = true,
+			["Spell"] = "205179",
+			["Style"] = "MEKA_IL",
+			["SpellColor"] = {
+				["b"] = 0.305882352941177,
+				["g"] = 0.113725490196078,
+				["r"] = 0.890196078431373,
+			},
+		}, -- [8]
+		{
+			["Show"] = true,
+			["Spell"] = "48020",
+			["Style"] = "MEKA_IR",
+			["SpellColor"] = {
+				["b"] = 0.305882352941177,
+				["g"] = 0.113725490196078,
+				["r"] = 0.890196078431373,
+			},
+		}, -- [9]
+		{
+			["Caster"] = "player",
+			["Color"] = {
+				["r"] = 97,
+				["g"] = 49,
+				["b"] = 255,
+			},
+			["Unit"] = "target",
+			["Show"] = true,
+			["Icon"] = "Default",
+			["Style"] = "MEKA_IR",
+			["Filter"] = "Debuff",
+			["AuraColor"] = {
+				["b"] = 1,
+				["g"] = 0.192156862745098,
+				["r"] = 0.380392156862745,
+			},
+			["Aura"] = "27243",
+		}, -- [10]
+	}, -- [1]
+	{
+		{
+			["SpellColor"] = {
+				["r"] = 0.890196078431373,
+				["g"] = 0.113725490196078,
+				["b"] = 0.305882352941177,
+			},
+			["Spell"] = "104316",
+			["Style"] = "MEKA_IL",
+			["Show"] = true,
+		}, -- [1]
+		{
+			["Show"] = true,
+			["Spell"] = "264119",
+			["Style"] = "MEKA_IL",
+			["SpellColor"] = {
+				["r"] = 0.890196078431373,
+				["g"] = 0.113725490196078,
+				["b"] = 0.305882352941177,
+			},
+		}, -- [2]
+		{
+			["Show"] = true,
+			["Spell"] = "265187",
+			["Style"] = "MEKA_IL",
+			["SpellColor"] = {
+				["r"] = 0.890196078431373,
+				["g"] = 0.113725490196078,
+				["b"] = 0.305882352941177,
+			},
+		}, -- [3]
+		{
+			["Show"] = true,
+			["Spell"] = "267217",
+			["Style"] = "MEKA_IL",
+			["SpellColor"] = {
+				["r"] = 0.890196078431373,
+				["g"] = 0.113725490196078,
+				["b"] = 0.305882352941177,
+			},
+		}, -- [4]
+		{
+			["Show"] = true,
+			["Spell"] = "119898",
+			["Style"] = "MEKA_IR",
+			["SpellColor"] = {
+				["b"] = 0.305882352941177,
+				["g"] = 0.113725490196078,
+				["r"] = 0.890196078431373,
+			},
+		}, -- [5]
+		{
+			["Show"] = true,
+			["Style"] = "MEKA_BR",
+			["Aura"] = "265412",
+			["Caster"] = "player",
+			["AuraColor"] = {
+				["b"] = 0.152941176470588,
+				["g"] = 0.83921568627451,
+				["r"] = 0.443137254901961,
+			},
+			["Unit"] = "target",
+		}, -- [6]
+		{
+			["Show"] = true,
+			["Style"] = "MEKA_BR",
+			["Aura"] = "264173",
+			["Caster"] = "player",
+			["AuraColor"] = {
+				["r"] = 0.96078431372549,
+				["g"] = 0.317647058823529,
+				["b"] = 0.172549019607843,
+			},
+			["Unit"] = "player",
+		}, -- [7]
+		{
+			["Show"] = true,
+			["Style"] = "MEKA_BR",
+			["Aura"] = "267218",
+			["Caster"] = "player",
+			["AuraColor"] = {
+				["r"] = 0.380392156862745,
+				["g"] = 0.192156862745098,
+				["b"] = 1,
+			},
+			["Unit"] = "player",
+		}, -- [8]
+	}, -- [2]
+	{
+		{
+			["Caster"] = "player",
+			["Color"] = {
+				["r"] = 206,
+				["g"] = 49,
+				["b"] = 118,
+			},
+			["Unit"] = "target",
+			["Show"] = true,
+			["Style"] = "MEKA_BR",
+			["Aura"] = "157736",
+			["Icon"] = "Default",
+			["AuraColor"] = {
+				["b"] = 0.172549019607843,
+				["g"] = 0.317647058823529,
+				["r"] = 0.96078431372549,
+			},
+			["Filter"] = "Debuff",
+		}, -- [1]
+	}, -- [3]
 }
 
 ----------------------------------------------------------------

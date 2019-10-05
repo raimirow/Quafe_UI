@@ -264,7 +264,9 @@ local function MicroMenu_Frame(f)
 
 	MenuContainer: RegisterEvent("PLAYER_ENTERING_WORLD")
 	MenuContainer: RegisterEvent("PLAYER_GUILD_UPDATE")
-	MenuContainer: RegisterEvent("NEUTRAL_FACTION_SELECT_RESULT")
+	if not F.IsClassic then
+		MenuContainer: RegisterEvent("NEUTRAL_FACTION_SELECT_RESULT")
+	end
 	MenuContainer: SetScript("OnEvent", function(self, event, ...)
 		MicroMenuButton_Update(Button)
 	end)
@@ -333,11 +335,15 @@ local function Time_Frame(f)
 	end)
 	
 	f.TimeFrame: SetScript("OnClick", function(self, button)
-		if button == "LeftButton" then
-			ToggleCalendar()
-		elseif button == "RightButton" then
+		if F.IsClassic then
 			TimeManagerClockButton_OnClick(TimeManagerClockButton)
-			--TimeManager_Toggle()
+		else
+			if button == "LeftButton" then
+				ToggleCalendar()
+			elseif button == "RightButton" then
+				TimeManagerClockButton_OnClick(TimeManagerClockButton)
+				--TimeManager_Toggle()
+			end
 		end
 		GameTooltip: Hide()
 	end)
@@ -591,7 +597,7 @@ local function MBC_SkinButton(button)
 			highlight: ClearAllPoints()
 			highlight: SetSize(20,20)
 			highlight: SetPoint("CENTER")
-			highlight: SetColorTexture(1,1,1,0.25)
+			highlight: SetColorTexture(1,1,1,0.5)
 		end
 	end
 end
@@ -680,11 +686,17 @@ local function MBC_Frame(f)
 			end
 		end)
 	end)
+
+	local function MBC_Refresh()
+		CollectButtons(MBContainer)
+		pos_Collect(MBContainer)
+	end
 	
 	MBCFrame: RegisterEvent("PLAYER_ENTERING_WORLD")
 	MBCFrame: SetScript("OnEvent", function(self)
-		CollectButtons(MBContainer)
-		pos_Collect(MBContainer)
+		if Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_InfoBar"].MBC then
+			MBC_Refresh()
+		end
 	end)
 	
 	MBCFrame: SetScript("OnClick", function(self, button)
@@ -695,8 +707,9 @@ local function MBC_Frame(f)
 		--		MBContainer:Show()
 		--	end
 		--elseif button == "RightButton" then
-			CollectButtons(MBContainer)
-			pos_Collect(MBContainer)
+		if Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_InfoBar"].MBC then
+			MBC_Refresh()
+		end
 		--end
 		GameTooltip: Hide()
 	end)
@@ -711,7 +724,11 @@ local function MBC_Frame(f)
 	--f.MBCFrame: SetScript("OnLeave", function(self)
 	--	GameTooltip: Hide()
 	--end)
+
+	
+
 	f.MBCFrame = MBCFrame
+	f.MBCFrame.Refresh = MBC_Refresh
 end
 
 --- ------------------------------------------------------------
@@ -805,14 +822,14 @@ local function Friend_ListUpdate(f)
 	local MAX_LINES = 30
 	local nameText, nameColor
 	local i,j = 1,1
-	local BN, WF = true, true
+	local BN,WF = 1,1 
 	
 	local numBNetTotal, numBNetOnline = BNGetNumFriends()
 	if numBNetTotal and numBNetTotal >= 1 then
-		while (i <= numBNetTotal) and (i <= MAX_LINES) and BN do
-			local bnetIDAccount, accountName, battleTag, isBattleTagPresence, characterName, bnetIDGameAccount, client, isOnline, lastOnline, isAFK, isDND, messageText, noteText, isRIDFriend, messageTime, canSoR, isReferAFriend, canSummonFriend = BNGetFriendInfo(i)
+		while (BN <= numBNetTotal) and (i <= numBNetOnline) and (i <= MAX_LINES) do
+			local bnetIDAccount, accountName, battleTag, isBattleTagPresence, characterName, bnetIDGameAccount, client, isOnline, lastOnline, isAFK, isDND, messageText, noteText, isRIDFriend, messageTime, canSoR, isReferAFriend, canSummonFriend = BNGetFriendInfo(BN)
 			if isOnline then
-				local _, _, _, realmName, realmID, faction, _, _, _, zoneName, _, gameText, _, _, _, _, _, isGameAFK, isGameBusy, guid = BNGetGameAccountInfo(bnetIDGameAccount)
+				local _, _, _, realmName, realmID, faction, race, class, _, zoneName, level, gameText, _, _, _, _, _, isGameAFK, isGameBusy, guid = BNGetGameAccountInfo(bnetIDGameAccount)
 				if ( accountName ) then
 					nameText = accountName
 				else
@@ -820,8 +837,7 @@ local function Friend_ListUpdate(f)
 				end
 				characterName = BNet_GetValidatedCharacterName(characterName, battleTag, client)
 				if characterName then
-					if (client == BNET_CLIENT_WOW) and bnetIDGameAccount then
-						local _, _, _, realmName, realmID, faction, race, class, _, zoneName, level, gameText = BNGetGameAccountInfo(bnetIDGameAccount)
+					if (client == BNET_CLIENT_WOW) and class then
 						nameText = format("%s %s(%s-%s)%s", nameText,FRIENDS_WOW_NAME_COLOR_CODE,characterName,class,FONT_COLOR_CODE_CLOSE)
 					else
 						if ( ENABLE_COLORBLIND_MODE == "1" ) then
@@ -853,15 +869,15 @@ local function Friend_ListUpdate(f)
 				f.List[i]: Show()
 
 				i = i + 1
-			else
-				BN = false
 			end
+			BN = BN + 1
 		end
 	end
 	
-	local numberOfFriends, onlineFriends = GetNumFriends()
+	local numberOfFriends = C_FriendList.GetNumFriends() or 0
+	local onlineFriends = C_FriendList.GetNumOnlineFriends() or 0
 	if numberOfFriends and numberOfFriends >= 1 then
-		while (j <= numberOfFriends) and (i <= MAX_LINES) and WF do
+		while (WF <= numberOfFriends) and (j <= onlineFriends) and (i <= MAX_LINES) do
 			local name, level, class, area, connected, status, note, isRaF, guid = GetFriendInfo(j);
 			if connected then
 				if not f.List[i] then
@@ -889,9 +905,8 @@ local function Friend_ListUpdate(f)
 
 				j = j + 1
 				i = i + 1
-			else
-				WF = false
 			end
+			WF = WF + 1
 		end
 	end
 	f: SetHeight((i-1)*24+2)
@@ -948,8 +963,8 @@ local function Friend_Frame(f)
 	f.Friend: RegisterEvent("BN_CONNECTED")
 	f.Friend: RegisterEvent("BN_DISCONNECTED")
 	f.Friend: SetScript("OnEvent", function(self, event, ...)
-		local _, numBNetOnline = BNGetNumFriends()
-		local _, numWoWOnline = GetNumFriends()
+		local numBNetOnline = select(2,BNGetNumFriends()) or 0
+		local numWoWOnline = C_FriendList.GetNumOnlineFriends() or 0
 		local num = min(numBNetOnline + numWoWOnline, 99)
 		Num: SetText(format("%02d", num))
 	end)
@@ -963,8 +978,8 @@ local function Friend_Frame(f)
 	end)
 	
 	f.Friend: SetScript("OnEnter", function(self)
-		local _, numBNetOnline = BNGetNumFriends()
-		local _, numWoWOnline = GetNumFriends()
+		local numBNetOnline = select(2,BNGetNumFriends()) or 0
+		local numWoWOnline = C_FriendList.GetNumOnlineFriends() or 0
 		if ((numBNetOnline+numWoWOnline) >= 1) then
 			ListHold: Show()
 			MBCC_Hide()
@@ -1072,7 +1087,6 @@ local function Guild_Frame(frame)
 
 	local EVENT_LIST = {
 		"PLAYER_GUILD_UPDATE",
-		"NEUTRAL_FACTION_SELECT_RESULT",
 		"BN_DISCONNECTED",
 		"BN_CONNECTED",
 		"INITIAL_CLUBS_LOADED",
@@ -1084,6 +1098,9 @@ local function Guild_Frame(frame)
 
 	for k, event in ipairs(EVENT_LIST) do
 		Guild: RegisterEvent(event)
+	end
+	if not F.IsClassic then
+		Guild: RegisterEvent("NEUTRAL_FACTION_SELECT_RESULT")
 	end
 	Guild: SetScript("OnEvent", Guild_Event)
 
@@ -1229,6 +1246,7 @@ local function WIM_Frame(f)
 	Icon: SetPoint("CENTER", WIM, "LEFT", 16,0)
 
 	local Flash = CreateFrame("Frame", nil, WIM, "Quafe_GarrisonNotificationTemplate")
+	Flash: SetFrameLevel(WIM: GetFrameLevel())
 	Flash: SetAllPoints(WIM)
 	Flash.Timing = false
 	Flash: HookScript("OnShow", function(self)
@@ -1245,7 +1263,7 @@ local function WIM_Frame(f)
 	FlashGlow: SetTexture(F.Path("White"))
 	FlashGlow: SetVertexColor(F.Color(C.Color.Y3))
 	FlashGlow: SetAlpha(0.5)
-	FlashGlow: SetAllPoints(frame)
+	FlashGlow: SetAllPoints(WIM)
 
 	WIM: SetScript("OnClick", function(self, button)
 		if IsAddOnLoaded("WIM") then
@@ -1273,26 +1291,93 @@ end
 local InfoBar = CreateFrame("Frame", "Quafe_InfoBar", E)
 InfoBar: SetSize(26,26)
 InfoBar: SetPoint("BOTTOMLEFT", UIParent, "BOTTOMLEFT", 2,2)
-local function Load()
-	MicroMenu_Frame(InfoBar)
-	Time_Frame(InfoBar)
-	Network_Frame(InfoBar)
-	MBC_Frame(InfoBar)
-	Friend_Frame(InfoBar)
-	Guild_Frame(InfoBar)
-	MeetingStone_Frame(InfoBar)
-	WIM_Frame(InfoBar)
+InfoBar.Init = false
+InfoBar: Hide()
+
+local function Quafe_InfoBar_Load()
+	if Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_InfoBar"].Enable then
+		MicroMenu_Frame(InfoBar)
+		Time_Frame(InfoBar)
+		Network_Frame(InfoBar)
+		MBC_Frame(InfoBar)
+		Friend_Frame(InfoBar)
+		Guild_Frame(InfoBar)
+		MeetingStone_Frame(InfoBar)
+		WIM_Frame(InfoBar)
+
+		InfoBar: Show()
+
+		InfoBar.Init = true
+	end
 end
-local function Options(option, ...)
-	if option == "ON" then
-		
-	elseif option == "OFF" then
-		
-	elseif option == "COLOR" then
+local function Quafe_InfoBar_Toggle(arg)
+	if arg == "ON" then
+		Quafe_NoticeReload()
+	elseif arg == "OFF" then
+		Quafe_NoticeReload()
+	elseif arg == "COLOR" then
 		
 	end
 end
-InfoBar.Load = Load
+
+local Quafe_InfoBar_Config = {
+	Database = {
+		["Quafe_InfoBar"] = {
+			Enable = true,
+			MBC = true,
+		},
+	},
+
+	Config = {
+		Name = "Quafe "..L['INFO_BAR'],
+		Type = "Switch",
+		Click = function(self, button)
+			if Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_InfoBar"].Enable then
+				Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_InfoBar"].Enable = false
+				self.Text:SetText(L["OFF"])
+				Quafe_InfoBar_Toggle("OFF")
+			else
+				Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_InfoBar"].Enable = true
+				self.Text:SetText(L["ON"])
+				Quafe_InfoBar_Toggle("ON")
+			end
+		end,
+		Show = function(self)
+			if Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_InfoBar"].Enable then
+				self.Text:SetText(L["ON"])
+			else
+				self.Text:SetText(L["OFF"])
+			end
+		end,
+		Sub = {
+			[1] = {
+				Name = L['MBC'],
+				Type = "Switch",
+				Click = function(self, button)
+					if Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_InfoBar"].MBC then
+						Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_InfoBar"].MBC = false
+						self.Text:SetText(L["OFF"])
+						Quafe_NoticeReload()
+					else
+						Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_InfoBar"].MBC = true
+						self.Text:SetText(L["ON"])
+						InfoBar.MBCFrame.Refresh()
+					end
+				end,
+				Show = function(self)
+					if Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_InfoBar"].MBC then
+						self.Text:SetText(L["ON"])
+					else
+						self.Text:SetText(L["OFF"])
+					end
+				end,
+			},
+		},
+	},
+}
+
+InfoBar.Load = Quafe_InfoBar_Load
+InfoBar.Config = Quafe_InfoBar_Config
 insert(E.Module, InfoBar)
 
 
@@ -1400,8 +1485,14 @@ end
 
 local function ExpBar_Event(frame, event, ...)
 	local newLevel = UnitLevel("player")
-	local ShowExp = (newLevel < MAX_PLAYER_LEVEL) and (not IsXPUserDisabled());
-	local AzeriteItemLocation = C_AzeriteItem.FindActiveAzeriteItem();
+	local ShowExp,AzeriteItemLocation
+	if F.IsClassic then
+		ShowExp = (newLevel < MAX_PLAYER_LEVEL);
+		AzeriteItemLocation = false;
+	else
+		ShowExp = (newLevel < MAX_PLAYER_LEVEL) and (not IsXPUserDisabled());
+		AzeriteItemLocation = C_AzeriteItem.FindActiveAzeriteItem();
+	end
 	local DATA = Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_ExpBar"]
 	if (ShowExp and DATA.Enable) then
 		local minXP = UnitXP("player") or 0
@@ -1456,7 +1547,7 @@ local function ExpBar_Refresh(frame)
 	frame: RegisterEvent("PLAYER_XP_UPDATE")
 	frame: RegisterEvent("PLAYER_LEVEL_UP")
 	frame: RegisterEvent("GROUP_ROSTER_UPDATE")
-	if Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_ExpBar"].Azerite then
+	if (not F.IsClassic) and Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_ExpBar"].Azerite then
 		frame: RegisterEvent("AZERITE_ITEM_EXPERIENCE_CHANGED")
 		frame: RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
 	end
@@ -1493,8 +1584,10 @@ local function Quafe_ExpBar_Toggle(arg)
 	elseif arg == "A_ON" then
 
 	elseif arg == "A_OFF" then
-		Quafe_ExpBar: UnregisterEvent("AZERITE_ITEM_EXPERIENCE_CHANGED")
-		Quafe_ExpBar: UnregisterEvent("PLAYER_EQUIPMENT_CHANGED")
+		if (not F.IsClassic) then
+			Quafe_ExpBar: UnregisterEvent("AZERITE_ITEM_EXPERIENCE_CHANGED")
+			Quafe_ExpBar: UnregisterEvent("PLAYER_EQUIPMENT_CHANGED")
+		end
 	end
 	ExpBar_Refresh(Quafe_ExpBar)
 end

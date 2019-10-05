@@ -24,6 +24,20 @@ F.Void = function() end
 
 F.PlayerClass = select(2, UnitClass("player"))
 F.PlayerName = GetUnitName("player")
+F.Build = select(2, GetBuildInfo())
+
+local function CheckClassic()
+	local version, build, date, tocversion = GetBuildInfo()
+	if tocversion then
+		if tocversion < 20000 then
+			return true
+		else
+			return false
+		end
+	end
+end
+
+F.IsClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
 
 ----------------------------------------------------------------
 
@@ -108,6 +122,7 @@ end
 
 F.Color = function(color, alpha)
 	local c = color
+	if not (c and c.r) then return end 
 	if c.r > 1 then
 		c.r = c.r/255
 		c.g = c.g/255
@@ -122,7 +137,11 @@ end
 
 F.Hex = function(rgb)
 	if rgb.r then
-		return format("|cff%02x%02x%02x",rgb.r*255,rgb.g*255,rgb.b*255)
+		if (rgb.r > 1) or (rgb.g > 1) or (rgb.b > 1) then
+			return format("|cff%02x%02x%02x",rgb.r,rgb.g,rgb.b)
+		else
+			return format("|cff%02x%02x%02x",rgb.r*255,rgb.g*255,rgb.b*255)
+		end
 	else
 		local r,g,b = rgb[1],rgb[2],rgb[3]
 		return format("|cff%02x%02x%02x",r*255,g*255,b*255)
@@ -311,78 +330,136 @@ F.init_Smooth = function(self)
 	self.PowerType = nil
 end
 
-F.Smooth_Health = function(unit)
-	local u
-	--UnitInVehicleHidesPetFrame("player")
-	if (unit == "player") and UnitHasVehiclePlayerFrameUI("player") then
-		u = "vehicle"
-	elseif (unit == "pet") and UnitHasVehiclePlayerFrameUI("player") then
-		u = "player"
-	else
-		u = unit
-	end
-	local minHealth,maxHealth = UnitHealth(u),UnitHealthMax(u)
-	
-	local h,hv = 0,0
-	if maxHealth == 0 or minHealth == 0 then
-		h = 0
-	else
-		h = floor(minHealth/maxHealth*1e4)/1e4
-	end
-	if not E.Value[unit].Health then
-		E.Value[unit].Health = {}
-	end
-	E.Value[unit].Health.Per = h
-	E.Value[unit].Health.Min = minHealth
-	E.Value[unit].Health.Max = maxHealth
-end
-
-function F.Smooth_Absorb(unit)
-	local u
-	if (unit == "player") and UnitHasVehiclePlayerFrameUI("player") then
-		u = "vehicle"
-	elseif (unit == "pet") and UnitHasVehiclePlayerFrameUI("player") then
-		u = "player"
-	else
-		u = unit
-	end
-	local TotalAbsorb = UnitGetTotalAbsorbs(u)
-
-	local h = 0
-	if E.Value[unit].Health.Max == 0 then
-		h = 0
-	else
-		h = floor(TotalAbsorb/E.Value[unit].Health.Max*1e4)/1e4
+if F.IsClassic then
+	F.Smooth_Health = function(unit)
+		local u
+		--UnitInVehicleHidesPetFrame("player")
+		--if (unit == "player") and UnitHasVehiclePlayerFrameUI("player") then
+		--	u = "vehicle"
+		--elseif (unit == "pet") and UnitHasVehiclePlayerFrameUI("player") then
+		--	u = "player"
+		--else
+			u = unit
+		--end
+		local minHealth,maxHealth = UnitHealth(u),UnitHealthMax(u)
+		
+		local h,hv = 0,0
+		if maxHealth == 0 or minHealth == 0 then
+			h = 0
+		else
+			h = floor(minHealth/maxHealth*1e4)/1e4
+		end
+		if not E.Value[unit].Health then
+			E.Value[unit].Health = {}
+		end
+		E.Value[unit].Health.Per = h
+		E.Value[unit].Health.Min = minHealth
+		E.Value[unit].Health.Max = maxHealth
 	end
 
-	E.Value[unit].Absorb.Min = TotalAbsorb
-	E.Value[unit].Absorb.Per = h
-end
+	F.Smooth_Power = function(unit)
+		local u
+		--if (unit == "player") and UnitHasVehiclePlayerFrameUI("player") then
+		--	u = "vehicle"
+		--elseif (unit == "pet") and UnitHasVehiclePlayerFrameUI("player") then
+		--	u = "player"
+		--else
+			u = unit
+		--end
+		local minPower,maxPower = UnitPower(u),UnitPowerMax(u)
+		local powerType = UnitPowerType(u)
+		local p,pv = 0,0
+		if maxPower == 0 or minPower == 0 then
+			p = 0
+		else
+			p = floor(minPower/maxPower*1e4)/1e4
+		end
+		if not E.Value[unit].Power then
+			E.Value[unit].Power = {}
+		end
+		E.Value[unit].Power.Per = p
+		E.Value[unit].Power.Min = minPower
+		E.Value[unit].Power.Max = maxPower
+		E.Value[unit].Power.Type = powerType
+	end
 
-F.Smooth_Power = function(unit)
-	local u
-	if (unit == "player") and UnitHasVehiclePlayerFrameUI("player") then
-		u = "vehicle"
-	elseif (unit == "pet") and UnitHasVehiclePlayerFrameUI("player") then
-		u = "player"
-	else
-		u = unit
+	F.Smooth_Absorb = function(unit)
+		
 	end
-	local minPower,maxPower = UnitPower(u),UnitPowerMax(u)
-	local powerType = UnitPowerType(u)
-	local p,pv = 0,0
-	if maxPower == 0 or minPower == 0 then
-		p = 0
-	else
-		p = floor(minPower/maxPower*1e4)/1e4
+else
+	F.Smooth_Health = function(unit)
+		local u
+		--UnitInVehicleHidesPetFrame("player")
+		if (unit == "player") and UnitHasVehiclePlayerFrameUI("player") then
+			u = "vehicle"
+		elseif (unit == "pet") and UnitHasVehiclePlayerFrameUI("player") then
+			u = "player"
+		else
+			u = unit
+		end
+		local minHealth,maxHealth = UnitHealth(u),UnitHealthMax(u)
+		
+		local h,hv = 0,0
+		if maxHealth == 0 or minHealth == 0 then
+			h = 0
+		else
+			h = floor(minHealth/maxHealth*1e4)/1e4
+		end
+		if not E.Value[unit].Health then
+			E.Value[unit].Health = {}
+		end
+		E.Value[unit].Health.Per = h
+		E.Value[unit].Health.Min = minHealth
+		E.Value[unit].Health.Max = maxHealth
 	end
-	if not E.Value[unit].Power then
-		E.Value[unit].Power = {}
+
+	F.Smooth_Power = function(unit)
+		local u
+		if (unit == "player") and UnitHasVehiclePlayerFrameUI("player") then
+			u = "vehicle"
+		elseif (unit == "pet") and UnitHasVehiclePlayerFrameUI("player") then
+			u = "player"
+		else
+			u = unit
+		end
+		local minPower,maxPower = UnitPower(u),UnitPowerMax(u)
+		local powerType = UnitPowerType(u)
+		local p,pv = 0,0
+		if maxPower == 0 or minPower == 0 then
+			p = 0
+		else
+			p = floor(minPower/maxPower*1e4)/1e4
+		end
+		if not E.Value[unit].Power then
+			E.Value[unit].Power = {}
+		end
+		E.Value[unit].Power.Per = p
+		E.Value[unit].Power.Min = minPower
+		E.Value[unit].Power.Max = maxPower
+		E.Value[unit].Power.Type = powerType
 	end
-	E.Value[unit].Power.Per = p
-	E.Value[unit].Power.Min = minPower
-	E.Value[unit].Power.Max = maxPower
-	E.Value[unit].Power.Type = powerType
+
+	F.Smooth_Absorb = function(unit)
+		local u
+		if (unit == "player") and UnitHasVehiclePlayerFrameUI("player") then
+			u = "vehicle"
+		elseif (unit == "pet") and UnitHasVehiclePlayerFrameUI("player") then
+			u = "player"
+		else
+			u = unit
+		end
+		local TotalAbsorb = UnitGetTotalAbsorbs(u)
+
+		local h = 0
+		if E.Value[unit].Health.Max == 0 then
+			h = 0
+		else
+			h = floor(TotalAbsorb/E.Value[unit].Health.Max*1e4)/1e4
+		end
+
+		E.Value[unit].Absorb.Min = TotalAbsorb
+		E.Value[unit].Absorb.Per = h
+	end
 end
 
 function F.Smooth_Mana(unit)
@@ -430,23 +507,46 @@ F.update_Power = function(self, unit)
 	self.Power.PowerType = powerType
 end
 
+--[[
 F.Smooth_Update = function(f)
-	local limit = 30/GetFramerate()
+	--local limit = 30/GetFramerate()
+	local limit = 1
 	local per = f.Per or 0
 	local cur = f.Cur or 0
-	local new = cur + min((per-cur)/6, max(per-cur, limit))
-	if new ~= new then
-		new = per
+	if per ~= cur then
+		local new = cur + min((per-cur)/6, max(per-cur, limit))
+		if new ~= new then
+			new = per
+		end
+		cur = floor(new*1e6+0.5)/1e6
+		if abs(cur) < 1e-5 then 
+			new = 0
+			cur = 0 
+		end
+		if abs(cur - per) <= 1e-4 then
+			cur = per
+		end
+		f.Cur = cur
 	end
-	cur = floor(new*1e6+0.5)/1e6
-	if abs(cur) < 1e-5 then 
-		new = 0
-		cur = 0 
+end
+--]]
+
+local function SmoothNumUpdate(Per, Cur)
+	if abs(Per-Cur) < 1e-4 then
+		Cur = Per
+	else
+		Cur = Cur + (Per-Cur)/6
 	end
-	if abs(cur - per) <= 1e-4 then
-		cur = per
+	return Cur
+end
+
+F.Smooth_Update = function(frame)
+	local Per = frame.Per or 0
+	local Cur = frame.Cur or 0
+	if Per ~= Cur then
+		frame.Cur = SmoothNumUpdate(Per, Cur)
+		--frame.Cur = Per
 	end
-	f.Cur = cur
 end
 
 function F.create_Backdrop(f, d1, d2, d3, color1,alpha1, color2,alpha2)
@@ -521,20 +621,23 @@ function F.Create.Texture(frame, layer, sublayer, texture, color, alpha, size, c
 	return Dummy
 end
 
-function F.Create.Font(frame, layer, fontname, fontsize, outline, sdcolor, sdoffset, horizon, vertical)
+function F.Create.Font(frame, layer, fontname, fontsize, outline, textcolor, sdcolor, sdoffset, horizon, vertical)
 	local Dummy = frame:CreateFontString(nil, layer)
-	Dummy:SetFont(fontname, fontsize, outline)
+	Dummy: SetFont(fontname, fontsize, outline)
+	if textcolor then
+		Dummy: SetTextColor(F.Color(textcolor))
+	end
 	if sdcolor then
-		Dummy:SetShadowColor(F.Color(unpack(sdcolor)))
+		Dummy: SetShadowColor(F.Color(unpack(sdcolor)))
 	end
 	if sdoffset then
-		Dummy:SetShadowOffset(unpack(sdoffset))
+		Dummy: SetShadowOffset(unpack(sdoffset))
 	end
 	if horizon then
-		Dummy:SetJustifyH(horizon)
+		Dummy: SetJustifyH(horizon)
 	end
 	if vertical then
-		Dummy:SetJustifyV(vertical)
+		Dummy: SetJustifyV(vertical)
 	end
 	return Dummy
 end
@@ -553,26 +656,30 @@ function F.create_StatusBar(f, texture, orientation, rotate)
 	return sb
 end
 
-F.init_Unit = function(f, unit, showmenu)
-	f: RegisterForClicks("AnyDown")
+F.init_Unit = function(frame, unit, showmenu)
+	frame: RegisterForClicks("AnyDown")
 	
-	f: SetAttribute("unit", unit)
-	f: SetAttribute("*type1", "target")
+	frame: SetAttribute("unit", unit)
+	frame: SetAttribute("*type1", "target")
 	if showmenu then
-		f: SetAttribute("*type2", "togglemenu")
+		frame: SetAttribute("*type2", "togglemenu")
 	end
 	if unit == "focus" then
-		f: SetAttribute("shift-type1", "macro")
-		f: SetAttribute("macrotext", "/clearfocus")
-		f: SetAttribute("ctrl-type1", "macro")
-		f: SetAttribute("macrotext", "/clearfocus")
+		frame: SetAttribute("shift-type1", "macro")
+		frame: SetAttribute("macrotext", "/clearfocus")
+		frame: SetAttribute("ctrl-type1", "macro")
+		frame: SetAttribute("macrotext", "/clearfocus")
 	else
-		f: SetAttribute("shift-type1", "focus")
-		f: SetAttribute("ctrl-type1", "focus")
+		frame: SetAttribute("shift-type1", "focus")
+		frame: SetAttribute("ctrl-type1", "focus")
 	end
 	
-	f: SetAttribute("toggleForVehicle", true)
-	RegisterUnitWatch(f)
+	frame: SetAttribute("toggleForVehicle", true)
+	RegisterUnitWatch(frame)
+
+	if F.CliqueSupport then
+		F.CliqueSupport(frame, unit)
+	end
 end
 
 F.UnitFrame_OnEnter = function(self)
@@ -690,6 +797,24 @@ function F.HideFrame(frame, unrevent, unanchor)
 	end
 end
 
+function F.IsAddonEnabled(name)
+	local enabled
+	for i = 1,GetNumAddOns() do
+		local addon, title, notes, loadable, reason, security, newVersion = GetAddOnInfo(i)
+		if addon == name then
+			enabled = (GetAddOnEnableState(UnitName("player"), i)) or 0
+			if enabled == 0 then
+				enabled = nil
+			end
+			if (reason and (reason == "DISABLED" or reason == "DEP_DISABLED")) then 
+				enabled = nil
+			end
+		end
+	end
+
+	return enabled
+end
+
 ----------------------------------------------------------------
 --> Scale
 ----------------------------------------------------------------
@@ -704,7 +829,7 @@ function F.AutoScale()
 		SetCVar("uiScale", newScale)
 		DEFAULT_CHAT_FRAME:AddMessage("Scale:"..newScale)
 	end
-	DEFAULT_CHAT_FRAME:AddMessage("1080 E")
+	DEFAULT_CHAT_FRAME:AddMessage("1080 P")
 end
 
 ----------------------------------------------------------------

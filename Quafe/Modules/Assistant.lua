@@ -92,7 +92,7 @@ end
 local function SoulStoneNotification_OnEvent(frame)
 	frame:RegisterEvent("UNIT_SPELLCAST_SENT")
 	frame:RegisterEvent("UNIT_SPELLCAST_START")
-	--frame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
+	frame:RegisterEvent("UNIT_SPELLCAST_SUCCEEDED")
 	frame: SetScript("OnEvent", function(self, event, ...)
 		SoulStoneNotification_Event(self, event, ...)
 	end)
@@ -130,17 +130,74 @@ local function SoulStoneNotification_Create(frame)
 end
 
 --- ------------------------------------------------------------
+--> 职业大厅信息栏
+--- ------------------------------------------------------------
+
+local Quafe_SkinOrderHall = CreateFrame("Frame", nil, E)
+Quafe_SkinOrderHall.Info = {}
+Quafe_SkinOrderHall.Init = false
+
+local function SkinOrderHall_New()
+	OrderHallCommandBar.Background: SetAlpha(0.5)
+	OrderHallCommandBar.Background: SetTexture(F.Path("StatusBar\\Raid"))
+	OrderHallCommandBar.Background: SetVertexColor(F.Color(C.Color.W1))
+end
+
+local function SkinOrderHall_Old()
+	OrderHallCommandBar.Background: SetAlpha(Quafe_SkinOrderHall.Info.Alpha)
+	OrderHallCommandBar.Background: SetTexture(Quafe_SkinOrderHall.Info.Texture)
+	OrderHallCommandBar.Background: SetVertexColor(Quafe_SkinOrderHall.Info.Color)
+end
+
+local function SkinOrderHall_Load()
+	if F.IsClassic then return end
+	if (not IsAddOnLoaded("Blizzard_OrderHallUI")) then
+		LoadAddOn("Blizzard_OrderHallUI")
+	end
+	Quafe_SkinOrderHall.Info.Alpha = OrderHallCommandBar.Background:GetAlpha()
+	Quafe_SkinOrderHall.Info.Texture = OrderHallCommandBar.Background:GetTexture()
+	Quafe_SkinOrderHall.Info.Color = OrderHallCommandBar.Background:GetVertexColor()
+	SkinOrderHall_New()
+	Quafe_SkinOrderHall.Init = true
+end
+
+local function Quafe_SOH_Toggle(arg)
+	if arg == "ON" then
+		if not Quafe_SkinOrderHall.Init then
+			SkinOrderHall_Load()
+		else
+			SkinOrderHall_New()
+		end
+	elseif arg == "OFF" then
+		SkinOrderHall_Old()
+	end
+end
+
+--- ------------------------------------------------------------
+--> Character Frame
+--- ------------------------------------------------------------
+
+local Quafe_CharacterFrame = CreateFrame("Frame", nil, E)
+Quafe_CharacterFrame.Init = false
+
+
+
+--- ------------------------------------------------------------
 --> Assistants
 --- ------------------------------------------------------------
 
 local function Quafe_Assistant_Load()
 	SoulStoneNotification_Create(Quafe_Assistant)
+	if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Assistant.SkinOrderHall then
+		SkinOrderHall_Load()
+	end
 end
 
 local Quafe_Assistant_Config = {
 	Database = {
 		["Quafe_Assistant"] = {
-			["SoulStone"] = false,
+			SoulStone = false,
+			SkinOrderHall = true,
 		},
 	},
 
@@ -149,6 +206,17 @@ local Quafe_Assistant_Config = {
 		Type = "Blank", --Switch, Trigger, Blank, Dropdown
 		Sub = {
 			[1] = {
+				Name = L['AUTO_SCALE'],
+				Text = L['START'],
+				Type = "Trigger",
+				Click = function(self, button)
+					F.AutoScale()
+				end,
+				Show = function(self)
+
+				end,
+			},
+			[2] = {
 				Name = L['RESURRECTION_NOTIFICATION'],
 				Text = L["OFF"],
 				Type = "Dropdown",
@@ -192,6 +260,28 @@ local Quafe_Assistant_Config = {
 						end,
 					},
 				},
+			},
+			[3] = {
+				Name = L['SKIN_ORDERHALL'],
+				Type = "Switch",
+				Click = function(self, button)
+					if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Assistant.SkinOrderHall then
+						Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Assistant.SkinOrderHall = false
+						self.Text:SetText(L["OFF"])
+						Quafe_SOH_Toggle("OFF")
+					else
+						Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Assistant.SkinOrderHall = true
+						self.Text:SetText(L["ON"])
+						Quafe_SOH_Toggle("ON")
+					end
+				end,
+				Show = function(self)
+					if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Assistant.SkinOrderHall then
+						self.Text:SetText(L["ON"])
+					else
+						self.Text:SetText(L["OFF"])
+					end
+				end,
 			},
 		},
 	},

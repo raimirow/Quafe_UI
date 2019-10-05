@@ -148,7 +148,7 @@ local function Exp_Bar(frame)
 	ExpBar: RegisterEvent("PLAYER_UPDATE_RESTING");
 	ExpBar: SetScript("OnEvent", function(self, event, ...)
 		local newLevel = UnitLevel("player")
-		frame.ShowExp = (newLevel < MAX_PLAYER_LEVEL) and (not IsXPUserDisabled());
+		frame.ShowExp = (newLevel < MAX_PLAYER_LEVEL) and (F.IsClassic or (not IsXPUserDisabled()));
 		if frame.ShowExp then
 			local d, dMax, dPer, dLv, dEx, dExPer = 0,0,0,0,0,0
 			d = UnitXP("player")
@@ -176,6 +176,7 @@ local function Exp_Bar(frame)
 		end
 	end)
 	ExpBar: SetScript("OnEnter", function(self)
+		if F.IsClassic then return end
 		GameTooltip:SetOwner(self, "ANCHOR_NONE", 0,0)
 		GameTooltip:SetPoint("LEFT", self, "RIGHT", 8,2)
 		local label
@@ -248,16 +249,110 @@ local function Exp_Bar(frame)
 	frame.ExpBar = ExpBar
 end
 
+local function Faction_Bar(frame)
+	local FactionBar =  CreateFrame("Button", nil, frame)
+	FactionBar:SetSize(319, frame.NormalHeight)
+	XpBar_Templet(FactionBar)
+	FactionBar: SetPoint("BOTTOMLEFT", frame.ExpBar, "TOPLEFT", 0,0)
+
+	FactionBar: RegisterEvent("PLAYER_ENTERING_WORLD")
+	FactionBar: RegisterEvent("UPDATE_FACTION")
+	--FactionBar: RegisterEvent("CVAR_UPDATE")
+	FactionBar: SetScript("OnEvent", function(self, event, ...)
+		local FactionName, FactionStanding, FactionLvMin, FactionLvMax, FactionValue, FactionID = GetWatchedFactionInfo()
+		frame.ShowFaction = FactionName
+		self.FactionName = FactionName
+		if frame.ShowFaction then
+			local d, dMax, dPer, dLv, dEx, dExPer = 0,0,0,0,0,0
+			if F.IsClassic then
+				d = FactionValue - FactionLvMin
+				dMax = FactionLvMax - FactionLvMin
+				if FactionStanding == MAX_REPUTATION_REACTION then
+					dPer = 1
+				else
+					dPer = min(d/dMax, 1)
+				end
+				dLv = L.FactionStandingID[FactionStanding]
+			else
+				local friendID = GetFriendshipReputation(FactionID) 
+				if friendID then
+					local _, friendRep, friendMaxRep, friendName, friendText, friendTexture, friendTextLevel, friendThreshold, nextFriendThreshold = GetFriendshipReputation(FactionID)
+					if ( nextFriendThreshold ) then
+						d = friendRep - friendThreshold
+						dMax = nextFriendThreshold - friendThreshold
+						dPer = min(d/dMax, 1)
+						dLv = friendTextLevel
+						dEx = 0
+						dExPer = 0
+					else
+						d = 0
+						dMax = 0
+						dPer = 1
+						dLv = friendTextLevel
+						dEx = 0
+						dExPer = 0
+					end
+				elseif (C_Reputation.IsFactionParagon(FactionID)) then
+					local currentValue, threshold, _, hasRewardPending = C_Reputation.GetFactionParagonInfo(FactionID)
+					d = currentValue % threshold
+					dMax = threshold - 0
+					dPer = min(d/dMax, 1)
+					dLv = L.FactionStandingID[9]
+					dEx = 0
+					dExPer = 0
+				else
+					d = FactionValue - FactionLvMin
+					dMax = FactionLvMax - FactionLvMin
+					if FactionStanding == MAX_REPUTATION_REACTION then
+						dPer = 1
+					else
+						dPer = min(d/dMax, 1)
+					end
+					dLv = L.FactionStandingID[FactionStanding]
+				end
+			end
+			self.Bar: SetSize(319*dPer+F.Debug,7)
+			self.Bar: SetTexCoord(0/512,319*dPer/512, 0/8,7/8)
+			self.Num: SetText(F.Hex(C.Color.W3)..BreakUpLargeNumbers(d).."|r"..F.Hex(C.Color.B1).." / "..BreakUpLargeNumbers(dMax)..format(" / %.2f", dPer*100).."%".."|r")
+			self.Txt: SetText(F.Hex(C.Color.W3)..dLv.."|r")
+		end
+		if event == "PLAYER_ENTERING_WORLD" or event == "UPDATE_FACTION" then
+			--XpBar_Update(frame)
+			local AlreadyShown = self:IsShown()
+			if frame.ShowFaction and (not AlreadyShown) then
+				self:SetHeight(frame.NormalHeight)
+				self:Show()
+			elseif (not frame.ShowFaction) and AlreadyShown then
+				self:SetHeight(F.Debug)
+				self:Hide()
+			end
+		end
+	end)
+	FactionBar: SetScript("OnEnter", function(self)
+		GameTooltip:SetOwner(self, "ANCHOR_NONE", 0,0)
+		GameTooltip:SetPoint("LEFT", self, "RIGHT", 8,2)
+		GameTooltip: SetText(self.FactionName)
+		GameTooltip:Show();
+	end)
+	FactionBar: SetScript("OnLeave", function(self)
+		GameTooltip: Hide()
+	end)
+
+	frame.FactionBar = FactionBar
+end
+
 local function Honor_Bar(frame)
 	local HonorBar =  CreateFrame("Button", nil, frame)
 	HonorBar:SetSize(319, frame.NormalHeight)
 	XpBar_Templet(HonorBar)
-	HonorBar: SetPoint("BOTTOMLEFT", frame.ExpBar, "TOPLEFT", 0,0)
+	HonorBar: SetPoint("BOTTOMLEFT", frame.FactionBar, "TOPLEFT", 0,0)
 	HonorBar.ExBar: SetAlpha(1)
 
 	HonorBar: RegisterEvent("PLAYER_ENTERING_WORLD")
-	HonorBar: RegisterEvent("HONOR_XP_UPDATE")
-	HonorBar: RegisterEvent("HONOR_LEVEL_UPDATE")
+	if not F.IsClassic then
+		HonorBar: RegisterEvent("HONOR_XP_UPDATE")
+		HonorBar: RegisterEvent("HONOR_LEVEL_UPDATE")
+	end
 	----HonorBar: RegisterEvent("HONOR_PRESTIGE_UPDATE")
 	HonorBar: RegisterEvent("CVAR_UPDATE")
 	HonorBar: SetScript("OnEvent", function(self, event, ...)
@@ -300,92 +395,13 @@ local function Honor_Bar(frame)
 	frame.HonorBar = HonorBar
 end
 
-local function Faction_Bar(frame)
-	local FactionBar =  CreateFrame("Button", nil, frame)
-	FactionBar:SetSize(319, frame.NormalHeight)
-	XpBar_Templet(FactionBar)
-	FactionBar: SetPoint("BOTTOMLEFT", frame.HonorBar, "TOPLEFT", 0,0)
 
-	FactionBar: RegisterEvent("PLAYER_ENTERING_WORLD")
-	FactionBar: RegisterEvent("UPDATE_FACTION")
-	--FactionBar: RegisterEvent("CVAR_UPDATE")
-	FactionBar: SetScript("OnEvent", function(self, event, ...)
-		local FactionName, FactionStanding, FactionLvMin, FactionLvMax, FactionValue, FactionID = GetWatchedFactionInfo()
-		frame.ShowFaction = FactionName
-		self.FactionName = FactionName
-		if frame.ShowFaction then
-			local d, dMax, dPer, dLv, dEx, dExPer = 0,0,0,0,0,0
-			local friendID = GetFriendshipReputation(FactionID) 
-			if friendID then
-				local _, friendRep, friendMaxRep, friendName, friendText, friendTexture, friendTextLevel, friendThreshold, nextFriendThreshold = GetFriendshipReputation(FactionID)
-				if ( nextFriendThreshold ) then
-					d = friendRep - friendThreshold
-					dMax = nextFriendThreshold - friendThreshold
-					dPer = min(d/dMax, 1)
-					dLv = friendTextLevel
-					dEx = 0
-					dExPer = 0
-				else
-					d = 0
-					dMax = 0
-					dPer = 1
-					dLv = friendTextLevel
-					dEx = 0
-					dExPer = 0
-				end
-			elseif (C_Reputation.IsFactionParagon(FactionID)) then
-				local currentValue, threshold, _, hasRewardPending = C_Reputation.GetFactionParagonInfo(FactionID)
-				d = currentValue % threshold
-				dMax = threshold - 0
-				dPer = min(d/dMax, 1)
-				dLv = L.FactionStandingID[9]
-				dEx = 0
-				dExPer = 0
-			else
-				d = FactionValue - FactionLvMin
-				dMax = FactionLvMax - FactionLvMin
-				if FactionStanding == MAX_REPUTATION_REACTION then
-					dPer = 1
-				else
-					dPer = min(d/dMax, 1)
-				end
-				dLv = L.FactionStandingID[FactionStanding]
-			end
-			self.Bar: SetSize(319*dPer+F.Debug,7)
-			self.Bar: SetTexCoord(0/512,319*dPer/512, 0/8,7/8)
-			self.Num: SetText(F.Hex(C.Color.W3)..BreakUpLargeNumbers(d).."|r"..F.Hex(C.Color.B1).." / "..BreakUpLargeNumbers(dMax)..format(" / %.2f", dPer*100).."%".."|r")
-			self.Txt: SetText(F.Hex(C.Color.W3)..dLv.."|r")
-		end
-		if event == "PLAYER_ENTERING_WORLD" or event == "UPDATE_FACTION" then
-			--XpBar_Update(frame)
-			local AlreadyShown = self:IsShown()
-			if frame.ShowFaction and (not AlreadyShown) then
-				self:SetHeight(frame.NormalHeight)
-				self:Show()
-			elseif (not frame.ShowFaction) and AlreadyShown then
-				self:SetHeight(F.Debug)
-				self:Hide()
-			end
-		end
-	end)
-	FactionBar: SetScript("OnEnter", function(self)
-		GameTooltip:SetOwner(self, "ANCHOR_NONE", 0,0)
-		GameTooltip:SetPoint("LEFT", self, "RIGHT", 8,2)
-		GameTooltip: SetText(self.FactionName)
-		GameTooltip:Show();
-	end)
-	FactionBar: SetScript("OnLeave", function(self)
-		GameTooltip: Hide()
-	end)
-
-	frame.FactionBar = FactionBar
-end
 
 local function Artifact_Bar(frame)
 	local ArtifactBar =  CreateFrame("Button", nil, frame)
 	ArtifactBar:SetSize(319, frame.NormalHeight)
 	XpBar_Templet(ArtifactBar)
-	ArtifactBar: SetPoint("BOTTOMLEFT", frame.FactionBar, "TOPLEFT", 0,0)
+	ArtifactBar: SetPoint("BOTTOMLEFT", frame.HonorBar, "TOPLEFT", 0,0)
 
 	ArtifactBar: RegisterEvent("PLAYER_ENTERING_WORLD")
 	ArtifactBar: RegisterEvent("ARTIFACT_UPDATE")
@@ -508,10 +524,12 @@ local function XP_Frame(f)
 	XP.NormalHeight = 50
 
 	Exp_Bar(XP)
-	Honor_Bar(XP)
 	Faction_Bar(XP)
-	Artifact_Bar(XP)
-	Azerite_Bar(XP)
+	if not F.IsClassic then
+		Honor_Bar(XP)
+		Artifact_Bar(XP)
+		Azerite_Bar(XP)
+	end
 
 	f.XP = XP
 end
@@ -1040,9 +1058,13 @@ end
 
 local function GetPlayerMapPos(mapID)
 	--local px, py = C_Map.GetPlayerMapPosition(mapID, "player"):GetXY()
-	local position = C_Map.GetPlayerMapPosition(mapID, "player")
-	if position then
-		return position.x*100, position.y*100
+	if mapID then
+		local position = C_Map.GetPlayerMapPosition(mapID, "player")
+		if position then
+			return position.x*100, position.y*100
+		else
+			return 0, 0
+		end
 	else
 		return 0, 0
 	end
@@ -1261,7 +1283,7 @@ local function CommunicationMenu_Artwork(frame)
 	DVa: SetSize(64,64)
 	DVa: SetPoint("CENTER", frame, "CENTER", 0,0)
 
-	local Bd3 = F.Create.Texture(frame, "BORDER", 1, F.Path("CommunicationMenu\\Bd4"), C.Color.W3, 0.4, {1024,1024}, nil)
+	local Bd3 = F.Create.Texture(frame, "BORDER", 1, F.Path("CommunicationMenu\\Bd4"), C.Color.W3, 0.02, {1024,1024}, nil)
 	Bd3: SetPoint("CENTER", frame, "CENTER", 0,0)
 
 	local Bd4 = F.Create.Texture(frame, "ARTWORK", 1, F.Path("CommunicationMenu\\Bd5"), C.Color.B1, 1, {1024,1024}, nil)
@@ -1330,9 +1352,11 @@ local function Load()
 	
 	Location_Frame(CommunicationMenu)
 	XP_Frame(CommunicationMenu)
-	Currency_Frame(CommunicationMenu)
-	EquipSet_Frame(CommunicationMenu)
-	Spec_Frame(CommunicationMenu)
+	if not F.IsClassic then
+		Currency_Frame(CommunicationMenu)
+		EquipSet_Frame(CommunicationMenu)
+		Spec_Frame(CommunicationMenu)
+	end
 	
 	CommunicationMenu_Artwork(CommunicationMenu)
 	Line_Create(CommunicationMenu)
@@ -1344,7 +1368,7 @@ local function Load()
 	Rude_Create(CommunicationMenu, 180)
 	AutoLoot_Create(CommunicationMenu, 225)
 	Sheath_Create(CommunicationMenu, 270)
-	--Bye_Create(f.CommunicationMenu, angle)
+	--Bye_Create(CommunicationMenu, 315)
 
 	CommunicationMenu: HookScript("OnShow", function(self)
 		PlaySoundFile(F.Path("Sound\\Show.ogg"), "Master")
@@ -1352,19 +1376,23 @@ local function Load()
 	
 	CommunicationMenu: RegisterEvent("PLAYER_ENTERING_WORLD")
 	CommunicationMenu: RegisterEvent("UPDATE_BONUS_ACTIONBAR")
-	CommunicationMenu: RegisterEvent("UPDATE_MULTI_CAST_ACTIONBAR")
-	CommunicationMenu: RegisterEvent("UNIT_ENTERED_VEHICLE")
-	CommunicationMenu: RegisterEvent("UNIT_EXITED_VEHICLE")
-	CommunicationMenu: RegisterEvent("VEHICLE_UPDATE")
-	CommunicationMenu: SetScript("OnEvent", function(self, event)
-		if ( CanExitVehicle() ) then
-			self.DVa: SetVertexColor(F.Color(C.Color.R1))
-			self.DVa: SetAlpha(0.8)
-		else
-			self.DVa: SetVertexColor(F.Color(C.Color.W4))
-			self.DVa: SetAlpha(0.4)
-		end
-	end)
+
+	if not F.IsClassic then
+		CommunicationMenu: RegisterEvent("UPDATE_MULTI_CAST_ACTIONBAR")
+		CommunicationMenu: RegisterEvent("UNIT_ENTERED_VEHICLE")
+		CommunicationMenu: RegisterEvent("UNIT_EXITED_VEHICLE")
+		CommunicationMenu: RegisterEvent("VEHICLE_UPDATE")
+	
+		CommunicationMenu: SetScript("OnEvent", function(self, event)
+			if ( CanExitVehicle() ) then
+				self.DVa: SetVertexColor(F.Color(C.Color.R1))
+				self.DVa: SetAlpha(0.8)
+			else
+				self.DVa: SetVertexColor(F.Color(C.Color.W4))
+				self.DVa: SetAlpha(0.4)
+			end
+		end)
+	end
 	
 	CommunicationMenu: SetScript("OnEnter", function(self)
 		CommunicationMenu: SetScript("OnUpdate", function(self)
@@ -1396,6 +1424,7 @@ local function Load()
 
 	CommunicationMenu: SetScript("OnLeave", function(self)
 		CommunicationMenu: SetScript("OnUpdate", nil)
+		self.Bd: Hide()
 	end)
 
 	CommunicationMenu: SetScript("OnClick", function(self, button)
@@ -1406,12 +1435,17 @@ local function Load()
 			local x, y = (x1/uiScale - x0), (y1/uiScale - y0)
 			if ((x*x+y*y) < 8000) or ((x*x+y*y) > 420000) then
 				if (x*x+y*y) < 6400 then
-					if ( UnitOnTaxi("player") ) then
-						TaxiRequestEarlyLanding()
-						--> Show that the request for landing has been received.
-						self.DVa: SetVertexColor(F.Color(C.Color.W2))
-					elseif CanExitVehicle() then
-						VehicleExit()
+					if F.IsClassic then
+						PlaySoundFile(F.Path("Sound\\D.Va_Annyeong.ogg"), "Dialog") --Master, SFX, Music, Ambience, Dialog
+					else
+						if ( UnitOnTaxi("player") ) then
+							TaxiRequestEarlyLanding()
+							--> Show that the request for landing has been received.
+							self.DVa: SetVertexColor(F.Color(C.Color.W2))
+						elseif CanExitVehicle() then
+							VehicleExit()
+							PlaySoundFile(F.Path("Sound\\D.Va_Ejecting.ogg"), "Dialog")
+						end
 					end
 				end
 				return

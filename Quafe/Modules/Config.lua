@@ -48,14 +48,14 @@ local backdrop = {
 }
 
 local function ButtonHighLight_Create(frame, color)
-	local PlusHighlight =  frame:CreateTexture(nil, "BORDER")
+	local PlusHighlight = frame:CreateTexture(nil, "BORDER")
 	PlusHighlight: SetTexture(F.Path("White"))
 	PlusHighlight: SetVertexColor(F.Color(color))
 	PlusHighlight: SetAllPoints(frame)
 	PlusHighlight: SetAlpha(0)
 
 	frame: HookScript("OnEnter", function(self)
-		PlusHighlight: SetAlpha(0.3)
+		PlusHighlight: SetAlpha(0.9)
 	end)
 	frame: HookScript("OnLeave", function(self)
 		PlusHighlight: SetAlpha(0)
@@ -78,6 +78,15 @@ local function Mover_Artwork(frame)
 		frame: Hide()
 		Quafe_Config: Show()
 	end)
+	frame: SetScript("OnHide", function(self)
+		Quafe_Config: Show()
+	end)
+
+	local LowFrame = CreateFrame("Frame", nil, frame)
+	LowFrame: SetFrameStrata("LOW")
+
+	local Gd = F.Create.Texture(LowFrame, "BACKGROUND", 1, F.Path("Grid"), C.Color.B2, 0.5, {4096,2048})
+	Gd: SetPoint("CENTER", UIParent, "CENTER", 0,0)
 
 	local Bg1 = frame: CreateTexture(nil, "BACKGROUND")
 	Bg1: SetTexture(F.Path("Config_MoverBg1"))
@@ -113,7 +122,7 @@ local function Mover_Artwork(frame)
 	
 	Loop.Tex = Loop:CreateTexture(nil, "ARTWORK")
 	Loop.Tex: SetTexture(F.Path("Config_MoverBorder2"))
-	Loop.Tex: SetVertexColor(F.Color(C.Color.B2))
+	Loop.Tex: SetVertexColor(F.Color(C.Color.R3))
 	Loop.Tex: SetAlpha(0.9)
 	Loop.Tex: SetSize(32,32)
 	Loop.Tex: SetPoint("CENTER", frame, "CENTER", 0,0)
@@ -162,6 +171,16 @@ function F.CreateJoystick(frame, sizeX,sizeY, framename)
 	})
 	Mover: SetBackdropColor(F.Color(C.Color.B2, 0.5))
 	Mover: SetBackdropBorderColor(0.09,0.09,0.09,0.9)
+	Mover: SetScript("OnShow", function(self)
+		if frame.MoverOnShow then
+			frame:MoverOnShow()
+		end
+	end)
+	Mover: SetScript("OnHide", function(self)
+		if frame.MoverOnHide then
+			frame:MoverOnHide()
+		end
+	end)
 
 	--local Bg = Mover:CreateTexture(nil, "BACKGROUND")
 	--Bg: SetTexture(F.Path("White"))
@@ -208,7 +227,7 @@ end
 ----------------------------------------------------------------
 
 local function HoldHeight_Update(frame)
-	local height = 2
+	local height = 2+button_size*10
 	local num = #frame.Bar
 	if num and num >= 1 then
 		for i = 1, #frame.Bar do
@@ -283,9 +302,46 @@ local function Create_Arrow(f, style)
 	end
 end
 
+local function SubBar_Fold(frame, DB)
+	frame.Case: Hide()
+	frame: SetHeight(button_size)
+	frame.Plus.Tex: SetTexture(F.Path("Config_Plus1"))
+end
+
+local function SubBar_Open(frame, DB)
+	frame.Case: Show()
+	frame.Plus.Tex: SetTexture(F.Path("Config_Plus2"))
+	--frame: SetHeight(button_size+(button_size+button_gap)* #DB)
+	frame: SetHeight(frame.Height)
+	if frame.Dropdown and frame.Dropdown:IsShown() then
+		frame.Dropdown:Hide()
+	end
+end
+
 ---------------------------------------------------------------
 --> Dropdown
 ---------------------------------------------------------------
+
+local function ConfigSubBar_Refresh(frame, scroll, configframe, DB)
+	frame.Height = button_size
+	local last = 0
+	for k,v in ipairs(DB) do
+		if (v.State == frame.Config.SubState) or (v.State == "ALL") then
+			frame.SubBar[k]: Show()
+			if last == 0 then
+				frame.SubBar[k]: ClearAllPoints()
+				frame.SubBar[k]: SetPoint("TOP", frame, "TOP", 0, -button_size-button_gap)
+			else
+				frame.SubBar[k]: ClearAllPoints()
+				frame.SubBar[k]: SetPoint("TOP", frame.SubBar[last], "BOTTOM", 0, -button_gap)
+			end
+			last = k
+			frame.Height = frame.Height + (button_size+button_gap)
+		else
+			frame.SubBar[k]: Hide()
+		end
+	end
+end
 
 local function Dropdown_Create(frame, scroll, configframe)
 	local Dropdown = CreateFrame("Frame", nil, frame)
@@ -350,7 +406,7 @@ local function Dropdown_Menu_Artwork(frame, fontsize)
 	frame.Text = Text
 end
 
-local function Dropdown_Menu_Create(frame, bar, DB)
+local function Dropdown_Menu_Create(frame, bar, DB, scroll, configframe)
 	local MenuNum = 0
 	for k, v in ipairs(DB) do
 		if v then
@@ -377,10 +433,19 @@ local function Dropdown_Menu_Create(frame, bar, DB)
 			if v.Text then
 				frame.Menu[k].Text: SetText(v.Text)
 			end
+			if v.State then
+				frame.Menu[k].State = v.State
+			end
 			if v.Click then
 				frame.Menu[k]: SetScript("OnClick", function(self, button)
 					v.Click(self, button)
 					bar.Button.Text: SetText(v.Text)
+					if bar.Config and bar.Config.SubRefresh then
+						bar.Config.SubState = frame.Menu[k].State
+						ConfigSubBar_Refresh(bar, scroll, configframe, bar.Config.SubRefresh)
+						HoldHeight_Update(scroll)
+						SubBar_Fold(bar)
+					end
 					frame: Hide()
 				end)
 			end
@@ -415,6 +480,7 @@ local function Slider_Create(frame)
 	Slider: SetValue(1)
 
 	Slider: SetScript("OnValueChanged", function(self, value)
+		value = floor(value*100+0.5)/100
 		self.Text:SetText(value)
 	end)
 
@@ -501,7 +567,7 @@ local Button_Artwork = function(frame, style, hasbutton)
 	frame.Plus.Tex = PlusTex
 
 	frame.Plus: SetScript("OnEnter", function(self)
-		PlusHighlight: SetAlpha(0.3)
+		PlusHighlight: SetAlpha(0.9)
 	end)
 	frame.Plus: SetScript("OnLeave", function(self)
 		PlusHighlight: SetAlpha(0)
@@ -600,27 +666,13 @@ end
 --> Bar
 ---------------------------------------------------------------
 
-local function SubBar_Fold(frame, DB)
-	frame.Case: Hide()
-	frame: SetHeight(button_size)
-	frame.Plus.Tex: SetTexture(F.Path("Config_Plus1"))
-end
-
-local function SubBar_Open(frame, DB)
-	frame.Case: Show()
-	frame.Plus.Tex: SetTexture(F.Path("Config_Plus2"))
-	frame: SetHeight(button_size+(button_size+button_gap)* #DB)
-	if frame.Dropdown and frame.Dropdown:IsShown() then
-		frame.Dropdown:Hide()
-	end
-end
-
-local function ConfigSubBar_Refresh(frame, scroll, configframe, DB)
+local function ConfigSubBar_Create(frame, scroll, configframe, DB)
 	local SubBarNum = #DB
+	frame.Height = button_size+(button_size+button_gap)* #DB
 	for i = 1, SubBarNum do
 		frame.SubBar[i] = CreateFrame("Frame", nil, frame.Case)
 		frame.SubBar[i]: SetSize(620, button_size)
-
+		
 		if DB[i].Type == "Switch" then
 			SubBar_Artwork(frame.SubBar[i], DB[i].Type, true)
 		elseif DB[i].Type == "Trigger" then
@@ -684,12 +736,12 @@ local function ConfigSubBar_Refresh(frame, scroll, configframe, DB)
 	end)
 end
 
-local function ConfigSubBar_Create(frame, scroll, configframe, DB)
+local function ConfigSubBar_Load(frame, scroll, configframe, DB)
 	frame.Case = CreateFrame("Frame", nil, frame)
 	frame.Case: Hide()
 	frame.SubBar = {}
 
-	ConfigSubBar_Refresh(frame, scroll, configframe, DB)
+	ConfigSubBar_Create(frame, scroll, configframe, DB)
 end
 
 -->
@@ -732,7 +784,7 @@ local function ConfigBar_Create(frame, scroll, configframe)
 		frame.Button: SetScript("OnClick", function(self)
 			Dropdown_Toggle(frame)
 		end)
-		Dropdown_Menu_Create(frame.Dropdown, frame, Info.DropMenu)
+		Dropdown_Menu_Create(frame.Dropdown, frame, Info.DropMenu, scroll, configframe)
 	elseif (frame.Button) and Info.Click then
 		frame.Button: SetScript("OnClick", Info.Click)
 	end
@@ -745,7 +797,11 @@ local function ConfigBar_Create(frame, scroll, configframe)
 		end)
 	end
 	if Info.Sub then
-		ConfigSubBar_Create(frame, scroll, configframe, Info.Sub)
+		ConfigSubBar_Load(frame, scroll, configframe, Info.Sub)
+	end
+	if Info.SubRefresh then
+		ConfigSubBar_Load(frame, scroll, configframe, Info.SubRefresh)
+		ConfigSubBar_Refresh(frame, scroll, configframe, Info.SubRefresh)
 	end
 end
 
@@ -817,7 +873,6 @@ local function Button_Scale(frame, configframe)
 	frame.Bar[frame.Num] = Bar1_Template(frame)
 	frame.Bar[frame.Num].Config = {
 		Name = L['SCALE'],
-		Text = L["ON"],
 		Type = "Switch",
 		Click = function(self, button)
 
@@ -866,7 +921,7 @@ local function Button_Mouse(frame, configframe)
 					self: RegisterEvent("PLAYER_ENTERING_WORLD")
 					self: RegisterEvent("CVAR_UPDATE")
 					self: SetScript("OnEvent", function(s, event, ...)
-						if tostring(GetCVar("rawMouseEnable")) == "1" then
+						if tostring(GetCVar("rawMouseEnable") or 0) == "1" then
 							self.Button.Text:SetText(L["ON"])
 						else
 							self.Button.Text:SetText(L["OFF"])
@@ -888,7 +943,7 @@ local function Button_Mouse(frame, configframe)
 					self: RegisterEvent("PLAYER_ENTERING_WORLD")
 					self: RegisterEvent("CVAR_UPDATE")
 					self: SetScript("OnEvent", function(s, event, ...)
-						self.Slider: SetValue(GetCVar("rawMouseRate"))
+						self.Slider: SetValue(GetCVar("rawMouseRate") or 0)
 					end)
 				end,
 				Show = nil,
@@ -905,7 +960,7 @@ local function Button_Mouse(frame, configframe)
 					self: RegisterEvent("PLAYER_ENTERING_WORLD")
 					self: RegisterEvent("CVAR_UPDATE")
 					self: SetScript("OnEvent", function(s, event, ...)
-						self.Slider: SetValue(GetCVar("rawMouseResolution"))
+						self.Slider: SetValue(GetCVar("rawMouseResolution") or 0)
 					end)
 				end,
 				Show = nil,
@@ -926,7 +981,7 @@ end
 
 local function SortList(frame, scroll, direction)
 	local classFileName = select(2, UnitClass("player"))
-	local specID = GetSpecialization() or 0
+	local specID = (F.IsClassic and 1) or GetSpecialization() or 0
 	if direction == "Up" then
 		if frame.ID > 1 then
 			Quafe_DB.Global.AuraWatch[classFileName][specID][frame.ID], Quafe_DB.Global.AuraWatch[classFileName][specID][frame.ID-1] = 
@@ -948,10 +1003,10 @@ local function Aurawatch_Bar_Artwork(frame, scroll)
 	Sn: SetBackdrop(backdrop)
 	Sn: SetBackdropColor(F.Color(C.Color.W2, 1))
 	Sn: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
-	ButtonHighLight_Create(Sn, C.Color.B1)
+	ButtonHighLight_Create(Sn, C.Color.B2)
 	Sn: SetScript("OnClick", function(self)
 		local classFileName = select(2, UnitClass("player"))
-		local specID = GetSpecialization() or 0
+		local specID = (F.IsClassic and 1) or GetSpecialization() or 0
 		if Quafe_DB.Global.AuraWatch[classFileName][specID][frame.ID].Show then
 			Quafe_DB.Global.AuraWatch[classFileName][specID][frame.ID].Show = false
 			self: SetBackdropColor(F.Color(C.Color.W2, 1))
@@ -976,7 +1031,7 @@ local function Aurawatch_Bar_Artwork(frame, scroll)
 	SnUp: SetBackdrop(backdrop)
 	SnUp: SetBackdropColor(F.Color(C.Color.W2, 1))
 	SnUp: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
-	ButtonHighLight_Create(SnUp, C.Color.B1)
+	ButtonHighLight_Create(SnUp, C.Color.B2)
 	SnUp: SetScript("OnClick", function(self)
 		SortList(frame, scroll, "Up")
 	end)
@@ -995,7 +1050,7 @@ local function Aurawatch_Bar_Artwork(frame, scroll)
 	SnDown: SetBackdrop(backdrop)
 	SnDown: SetBackdropColor(F.Color(C.Color.W2, 1))
 	SnDown: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
-	ButtonHighLight_Create(SnDown, C.Color.B1)
+	ButtonHighLight_Create(SnDown, C.Color.B2)
 	SnDown: SetScript("OnClick", function(self)
 		SortList(frame, scroll, "Down")
 	end)
@@ -1009,7 +1064,7 @@ local function Aurawatch_Bar_Artwork(frame, scroll)
 	ArrowD: SetAlpha(1)
 
 	local StyleButton = CreateFrame("Button", nil, frame)
-	StyleButton: SetSize((720-button_size*3-20)/3, button_size)
+	StyleButton: SetSize((720-button_size*4-24)/3, button_size)
 	StyleButton: SetPoint("TOPLEFT", SnUp, "TOPRIGHT", 4,0)
 	StyleButton: SetBackdrop(backdrop)
 	StyleButton: SetBackdropColor(F.Color(C.Color.W2, 1))
@@ -1023,9 +1078,19 @@ local function Aurawatch_Bar_Artwork(frame, scroll)
 	StyleText: SetPoint("CENTER", StyleButton, "CENTER", 0, 0)
 	StyleText: SetText("Style")
 
+	local IconButton = CreateFrame("Button", nil, frame)
+	IconButton: SetSize(button_size, button_size)
+	IconButton: SetPoint("TOPLEFT", StyleButton, "TOPRIGHT", 4,0)
+	IconButton: SetBackdrop(backdrop)
+	IconButton: SetBackdropColor(F.Color(C.Color.W2, 1))
+	IconButton: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
+
+	local IconTexture = F.Create.Texture(IconButton, "ARTWORK", 1, nil, C.Color.W3, 1, {button_size, button_size}, nil)
+	IconTexture: SetPoint("CENTER", IconButton, "CENTER")
+
 	local AuraButton = CreateFrame("Button", nil, frame)
-	AuraButton: SetSize((720-button_size*3-20)/3-12, button_size)
-	AuraButton: SetPoint("TOPLEFT", StyleButton, "TOPRIGHT", 4+12,0)
+	AuraButton: SetSize((720-button_size*4-24)/3-12, button_size)
+	AuraButton: SetPoint("TOPLEFT", IconButton, "TOPRIGHT", 4+12,0)
 	AuraButton: SetBackdrop(backdrop)
 	AuraButton: SetBackdropColor(F.Color(C.Color.W2, 1))
 	AuraButton: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
@@ -1046,7 +1111,7 @@ local function Aurawatch_Bar_Artwork(frame, scroll)
 	AuraIndicator: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
 
 	local SpellButton = CreateFrame("Button", nil, frame)
-	SpellButton: SetSize((720-button_size*3-20)/3-12, button_size)
+	SpellButton: SetSize((720-button_size*4-24)/3-12, button_size)
 	SpellButton: SetPoint("TOPLEFT", AuraButton, "TOPRIGHT", 4+12,0)
 	SpellButton: SetBackdrop(backdrop)
 	SpellButton: SetBackdropColor(F.Color(C.Color.W2, 1))
@@ -1073,7 +1138,7 @@ local function Aurawatch_Bar_Artwork(frame, scroll)
 	MenuButton: SetBackdrop(backdrop)
 	MenuButton: SetBackdropColor(F.Color(C.Color.B1, 0.7))
 	MenuButton: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
-	ButtonHighLight_Create(MenuButton, C.Color.B1)
+	ButtonHighLight_Create(MenuButton, C.Color.B2)
 
 	MenuButton.Tex = MenuButton:CreateTexture(nil, "ARTWORK")
 	MenuButton.Tex: SetTexture(F.Path("Config_Plus3"))
@@ -1082,6 +1147,26 @@ local function Aurawatch_Bar_Artwork(frame, scroll)
 	MenuButton.Tex: SetPoint("CENTER", MenuButton, "CENTER", 0,0)
 	MenuButton.Tex: SetAlpha(1)
 
+	Sn: HookScript("OnEnter", function(self)
+		GameTooltip: SetOwner(self, "ANCHOR_NONE", 0,0)
+		GameTooltip: SetPoint("TOPRIGHT", self, "TOPLEFT", -4,0)
+		GameTooltip: SetText(L['SHOW'].."/"..L['HIDE'], 1.0, 1.0, 1.0);
+		GameTooltip: Show()
+	end)
+	Sn: HookScript("OnLeave", function(self)
+		GameTooltip: Hide()
+	end)
+	
+	MenuButton: HookScript("OnEnter", function(self)
+		GameTooltip: SetOwner(self, "ANCHOR_NONE", 0,0)
+		GameTooltip: SetPoint("TOPLEFT", self, "TOPRIGHT", 4,0)
+		GameTooltip: SetText(L['EDIT'], 1.0, 1.0, 1.0);
+		GameTooltip: Show()
+	end)
+	MenuButton: HookScript("OnLeave", function(self)
+		GameTooltip: Hide()
+	end)
+
 	frame.Sn = Sn
 	frame.SnText = SnText
 	frame.AuraText = AuraText
@@ -1089,6 +1174,7 @@ local function Aurawatch_Bar_Artwork(frame, scroll)
 	frame.SpellText = SpellText
 	frame.SpellIndicator = SpellIndicator
 	frame.StyleText = StyleText
+	frame.IconTexture = IconTexture
 	frame.MenuButton = MenuButton
 end
 
@@ -1130,7 +1216,7 @@ local function Aurawatch_Title_Template(frame)
 	StyleText: SetShadowColor(0,0,0,0)
 	StyleText: SetShadowOffset(1,-1)
 	StyleText: SetTextColor(F.Color(C.Color.W3))
-	StyleText: SetPoint("CENTER", Bar, "LEFT", (720-button_size*3-20)/6+button_size*2+8, 0)
+	StyleText: SetPoint("CENTER", Bar, "LEFT", (720-button_size*4-24)/6+button_size*2+8, 0)
 	StyleText: SetText(L["STYLE"])
 
 	local AuraText = Bar:CreateFontString(nil, "ARTWORK")
@@ -1138,7 +1224,7 @@ local function Aurawatch_Title_Template(frame)
 	AuraText: SetShadowColor(0,0,0,0)
 	AuraText: SetShadowOffset(1,-1)
 	AuraText: SetTextColor(F.Color(C.Color.W3))
-	AuraText: SetPoint("CENTER", StyleText, "CENTER", (720-button_size*3-20)/3+4, 0)
+	AuraText: SetPoint("CENTER", StyleText, "CENTER", (720-button_size*4-24)/3+8+button_size+4, 0)
 	AuraText: SetText(L["AURA"])
 
 	local SpellText = Bar:CreateFontString(nil, "ARTWORK")
@@ -1146,7 +1232,7 @@ local function Aurawatch_Title_Template(frame)
 	SpellText: SetShadowColor(0,0,0,0)
 	SpellText: SetShadowOffset(1,-1)
 	SpellText: SetTextColor(F.Color(C.Color.W3))
-	SpellText: SetPoint("CENTER", AuraText, "CENTER", (720-button_size*3-20)/3+4, 0)
+	SpellText: SetPoint("CENTER", AuraText, "CENTER", (720-button_size*4-24)/3+8, 0)
 	SpellText: SetText(L["SPELL"])
 
 	Bar.Plus = CreateFrame("Button", nil, Bar)
@@ -1155,6 +1241,7 @@ local function Aurawatch_Title_Template(frame)
 	Bar.Plus: SetBackdrop(backdrop)
 	Bar.Plus: SetBackdropColor(F.Color(C.Color.B1, 0.7))
 	Bar.Plus: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
+	ButtonHighLight_Create(Bar.Plus, C.Color.B2)
 	
 	Bar.Plus.Tex = Bar.Plus:CreateTexture(nil, "ARTWORK", 2)
 	Bar.Plus.Tex: SetTexture(F.Path("Config_Plus0"))
@@ -1163,19 +1250,16 @@ local function Aurawatch_Title_Template(frame)
 	Bar.Plus.Tex: SetPoint("CENTER", Bar.Plus, "CENTER", 0,0)
 	Bar.Plus.Tex: SetAlpha(1)
 
-	local PlusHighlight =  Bar.Plus:CreateTexture(nil, "BORDER")
-	PlusHighlight: SetTexture(F.Path("White"))
-	PlusHighlight: SetVertexColor(F.Color(C.Color.B2))
-	PlusHighlight: SetAllPoints(Bar.Plus)
-	PlusHighlight: SetAlpha(0)
-
-	Bar.Plus: SetScript("OnEnter", function(self)
-		PlusHighlight: SetAlpha(0.3)
+	Bar.Plus: HookScript("OnEnter", function(self)
+		GameTooltip: SetOwner(self, "ANCHOR_NONE", 0,0)
+		GameTooltip: SetPoint("TOPLEFT", self, "TOPRIGHT", 4,0)
+		GameTooltip: SetText(L['NEW'], 1.0, 1.0, 1.0);
+		GameTooltip: Show()
 	end)
-	Bar.Plus: SetScript("OnLeave", function(self)
-		PlusHighlight: SetAlpha(0)
+	Bar.Plus: HookScript("OnLeave", function(self)
+		GameTooltip: Hide()
 	end)
-
+	
 	return Bar
 end
 
@@ -1203,11 +1287,17 @@ local function Aurawatch_Create(frame, scroll, sn)
 		frame.StyleText: SetText("")
 	end
 
+	if Info.Icon then
+		frame.IconTexture: SetTexture(F.Path("Watcher\\"..Info.Icon))
+	else
+		frame.IconTexture: SetTexture("")
+	end
+
 	if Info.Aura then
 		if type(Info.Aura) == "table" then
-			frame.AuraText: SetText(GetSpellInfo(Info.Aura[1]))
+			frame.AuraText: SetText(GetSpellInfo(Info.Aura[1]) or Info.Aura[1])
 		else
-			frame.AuraText: SetText(GetSpellInfo(Info.Aura))
+			frame.AuraText: SetText(GetSpellInfo(Info.Aura) or Info.Aura)
 		end
 	else
 		frame.AuraText: SetText("")
@@ -1232,7 +1322,7 @@ end
 
 local function AurawatchScrollBar_Load(frame)
 	local classFileName = select(2, UnitClass("player"))
-	local specID = GetSpecialization() or 0
+	local specID = (F.IsClassic and 1) or GetSpecialization() or 0
 	local WatchNum,FrameNum = 0,0
 	if Quafe_DB.Global.AuraWatch[classFileName] and Quafe_DB.Global.AuraWatch[classFileName][specID] then
 		for k,v in ipairs(Quafe_DB.Global.AuraWatch[classFileName][specID]) do
@@ -1269,8 +1359,11 @@ local function AurawatchList_Update(frame)
 end
 
 local function Aurawatcher_OnEvent(frame, configframe)
-	frame: RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
-	frame: RegisterEvent("PLAYER_TALENT_UPDATE")
+	if F.IsClassic then
+	else
+		frame: RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
+		frame: RegisterEvent("PLAYER_TALENT_UPDATE")
+	end
 	frame: SetScript("OnEvent", function(self, event)
 		AurawatchList_Update(self, configframe)
 	end)
@@ -1493,7 +1586,7 @@ local function IconButton_Frame(frame, pos)
 		IconMatrix[k]: SetBackdrop(backdrop)
 		IconMatrix[k]: SetBackdropColor(F.Color(C.Color.B1, 0))
 		IconMatrix[k]: SetBackdropBorderColor(F.Color(C.Color.W2, 0.75))
-		ButtonHighLight_Create(IconMatrix[k], C.Color.B1)
+		ButtonHighLight_Create(IconMatrix[k], C.Color.B2)
 
 		if k == 1 then
 			IconMatrix[k]: SetPoint("TOPLEFT", IconHold, "TOPLEFT", 2,-2)
@@ -1582,7 +1675,7 @@ local function Caster_Dropdown_Menu_Create(frame)
 		[1] = {
 			Text = L['ALL_UNIT'],
 			Click = function(self, button)
-				frame.ID = ""
+				frame.ID = "ALL_UNIT"
 			end,
 		},
 		[2] = {
@@ -1628,7 +1721,8 @@ local function Color_Dropdown_Menu_Create(frame)
 		{r =   8, g = 108, b = 128,},
 		C.Color.Bar["6131FF"],
 	}
-	AddNew_Dropdown_Color_Create(frame.Dropdown, frame, DB)
+	--AddNew_Dropdown_Color_Create(frame.Dropdown, frame, DB)
+	AddNew_Dropdown_Color_Create(frame.Dropdown, frame, C.Color.Matrix)
 end
 
 local function Aurawatch_AddNew_Buttons_GapTemplate(frame)
@@ -1679,7 +1773,7 @@ local function Aurawatch_AddNew_Buttons(frame)
 	TypeButton: SetBackdropColor(F.Color(C.Color.B1, 0.7))
 	TypeButton: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
 	TypeButton.ID = nil
-	ButtonHighLight_Create(TypeButton, C.Color.B1)
+	ButtonHighLight_Create(TypeButton, C.Color.B2)
 	Aurawatch_AddNew_Dropdown_Create(TypeButton)
 	Style_Dropdown_Menu_Create(TypeButton)
 
@@ -1690,14 +1784,14 @@ local function Aurawatch_AddNew_Buttons(frame)
 	IconButton: SetBackdropColor(F.Color(C.Color.B1, 0.7))
 	IconButton: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
 	IconButton.ID = nil
-	ButtonHighLight_Create(IconButton, C.Color.B1)
+	ButtonHighLight_Create(IconButton, C.Color.B2)
 	IconButton_Frame(IconButton, ButtonHold)
 
 	local AuraButton = Aurawatch_AddNew_EidtBox_Template(frame)
 	AuraButton: SetSize(BUTTON_WIDTH, button_size-4)
 	AuraButton: SetPoint("LEFT", ButtonHold, "LEFT", (BUTTON_WIDTH+20)+10+40,10)
 	AuraButton.ID = nil
-	ButtonHighLight_Create(AuraButton, C.Color.B1)
+	ButtonHighLight_Create(AuraButton, C.Color.B2)
 
 	local AuraColor = CreateFrame("Button", nil, frame)
 	AuraColor: SetSize(BUTTON_WIDTH, button_size-4)
@@ -1706,7 +1800,7 @@ local function Aurawatch_AddNew_Buttons(frame)
 	AuraColor: SetBackdropColor(F.Color(C.Color.B1, 0.7))
 	AuraColor: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
 	AuraColor.ID = nil
-	ButtonHighLight_Create(AuraColor, C.Color.B1)
+	ButtonHighLight_Create(AuraColor, C.Color.B2)
 	Aurawatch_AddNew_Dropdown_Create(AuraColor)
 	Color_Dropdown_Menu_Create(AuraColor)
 
@@ -1717,7 +1811,7 @@ local function Aurawatch_AddNew_Buttons(frame)
 	AuraUnit: SetBackdropColor(F.Color(C.Color.B1, 0.7))
 	AuraUnit: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
 	AuraUnit.ID = nil
-	ButtonHighLight_Create(AuraUnit, C.Color.B1)
+	ButtonHighLight_Create(AuraUnit, C.Color.B2)
 	Aurawatch_AddNew_Dropdown_Create(AuraUnit)
 	Unit_Dropdown_Menu_Create(AuraUnit)
 
@@ -1728,7 +1822,7 @@ local function Aurawatch_AddNew_Buttons(frame)
 	AuraCaster: SetBackdropColor(F.Color(C.Color.B1, 0.7))
 	AuraCaster: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
 	AuraCaster.ID = nil
-	ButtonHighLight_Create(AuraCaster, C.Color.B1)
+	ButtonHighLight_Create(AuraCaster, C.Color.B2)
 	Aurawatch_AddNew_Dropdown_Create(AuraCaster)
 	Caster_Dropdown_Menu_Create(AuraCaster)
 
@@ -1736,7 +1830,7 @@ local function Aurawatch_AddNew_Buttons(frame)
 	SpellButton: SetSize(BUTTON_WIDTH, button_size-4)
 	SpellButton: SetPoint("LEFT", ButtonHold, "LEFT",(BUTTON_WIDTH+20)*3+10+40,10)
 	SpellButton.ID = nil
-	ButtonHighLight_Create(SpellButton, C.Color.B1)
+	ButtonHighLight_Create(SpellButton, C.Color.B2)
 
 	local SpellColor = CreateFrame("Button", nil, frame)
 	SpellColor: SetSize(BUTTON_WIDTH, button_size-4)
@@ -1745,7 +1839,7 @@ local function Aurawatch_AddNew_Buttons(frame)
 	SpellColor: SetBackdropColor(F.Color(C.Color.B1, 0.7))
 	SpellColor: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
 	SpellColor.ID = nil
-	ButtonHighLight_Create(SpellColor, C.Color.B1)
+	ButtonHighLight_Create(SpellColor, C.Color.B2)
 	Aurawatch_AddNew_Dropdown_Create(SpellColor)
 	Color_Dropdown_Menu_Create(SpellColor)
 	
@@ -1795,7 +1889,7 @@ local function Aurawatch_AddNew_OnClick(self, button, frame, NUM)
 	frame.Spell.ID = StringFix(frame.Spell:GetText())
 
 	local classFileName = select(2, UnitClass("player"))
-	local specID = GetSpecialization() or 0
+	local specID = (F.IsClassic and 1) or GetSpecialization() or 0
 	if not Quafe_DB.Global.AuraWatch[classFileName] then
 		Quafe_DB.Global.AuraWatch[classFileName] = {}
 	end
@@ -1921,7 +2015,7 @@ local function Aurawatch_AddNew_Artwork(frame, scroll, configframe)
 	frame.Button1: SetPoint("TOPLEFT", frame.ButtonHold, "RIGHT", 40, -4)
 	frame.Button1.Bg: SetVertexColor(F.Color(C.Color.B1, 0.7))
 	frame.Button1.Txt: SetText(L['CANCEL'])
-	ButtonHighLight_Create(frame.Button1, C.Color.B1)
+	ButtonHighLight_Create(frame.Button1, C.Color.B2)
 	frame.Button1: SetScript("OnClick", function(self, button)
 		frame:Hide()
 	end)
@@ -1942,7 +2036,7 @@ local function Aurawatch_AddNew_Artwork(frame, scroll, configframe)
 	ButtonHighLight_Create(frame.Button3, C.Color.R3)
 	frame.Button3: SetScript("OnClick", function(self, button)
 		local classFileName = select(2, UnitClass("player"))
-		local specID = GetSpecialization() or 0
+		local specID = (F.IsClassic and 1) or GetSpecialization() or 0
 		tremove(Quafe_DB.Global.AuraWatch[classFileName][specID], frame.ID)
 		scroll.Update()
 		frame: Hide()
@@ -1954,7 +2048,7 @@ end
 
 local function Aurawatch_AddNew_OnShow(frame)
 	local classFileName = select(2, UnitClass("player"))
-	local specID = GetSpecialization() or 0
+	local specID = (F.IsClassic and 1) or GetSpecialization() or 0
 	if frame.ID then
 		local Info = Quafe_DB.Global.AuraWatch[classFileName][specID][frame.ID]
 		frame.Style.ID = Info.Style
@@ -2056,6 +2150,154 @@ local function Aurawatch_AddNew(frame, configframe)
 	frame.NewWatcher = NewWatcher
 end
 
+--- ------------------------------------------------------------
+--> Color Pick Frame
+--- ------------------------------------------------------------
+
+local function UDF_ColorPick_Buttons(frame)
+	local BUTTON_WIDTH = 160
+	local ButtonHold = CreateFrame("Frame", nil, frame)
+	ButtonHold: SetSize(80+BUTTON_WIDTH*4,180)
+	ButtonHold: SetPoint("CENTER", frame, "CENTER", 0)
+
+	local Color1 = CreateFrame("Button", nil, frame)
+	Color1: SetSize(BUTTON_WIDTH, button_size-4)
+	Color1: SetPoint("LEFT", ButtonHold, "LEFT", 10,10)
+	Color1: SetBackdrop(backdrop)
+	Color1: SetBackdropColor(F.Color(C.Color.B1, 0.7))
+	Color1: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
+	Color1.ID = nil
+	ButtonHighLight_Create(Color1, C.Color.B2)
+	Aurawatch_AddNew_Dropdown_Create(Color1)
+	Color_Dropdown_Menu_Create(Color1)
+
+	local Color2 = CreateFrame("Button", nil, frame)
+	Color2: SetSize(BUTTON_WIDTH, button_size-4)
+	Color2: SetPoint("LEFT", ButtonHold, "LEFT", (BUTTON_WIDTH+20)+10,10)
+	Color2: SetBackdrop(backdrop)
+	Color2: SetBackdropColor(F.Color(C.Color.B1, 0.7))
+	Color2: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
+	Color2.ID = nil
+	ButtonHighLight_Create(Color2, C.Color.B2)
+	Aurawatch_AddNew_Dropdown_Create(Color2)
+	Color_Dropdown_Menu_Create(Color2)
+
+	local Color3 = CreateFrame("Button", nil, frame)
+	Color3: SetSize(BUTTON_WIDTH, button_size-4)
+	Color3: SetPoint("LEFT", ButtonHold, "LEFT", (BUTTON_WIDTH+20)*2+10,10)
+	Color3: SetBackdrop(backdrop)
+	Color3: SetBackdropColor(F.Color(C.Color.B1, 0.7))
+	Color3: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
+	Color3.ID = nil
+	ButtonHighLight_Create(Color3, C.Color.B2)
+	Aurawatch_AddNew_Dropdown_Create(Color3)
+	Color_Dropdown_Menu_Create(Color3)
+
+	local Color4 = CreateFrame("Button", nil, frame)
+	Color4: SetSize(BUTTON_WIDTH, button_size-4)
+	Color4: SetPoint("LEFT", ButtonHold, "LEFT", (BUTTON_WIDTH+20)*3+10,10)
+	Color4: SetBackdrop(backdrop)
+	Color4: SetBackdropColor(F.Color(C.Color.B1, 0.7))
+	Color4: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
+	Color4.ID = nil
+	ButtonHighLight_Create(Color4, C.Color.B2)
+	Aurawatch_AddNew_Dropdown_Create(Color4)
+	Color_Dropdown_Menu_Create(Color4)
+
+	for i = 1,2 do
+		local Button = CreateFrame("Button", nil, frame)
+		Button: SetSize(104,42)
+
+		local ButtonBg = Button:CreateTexture(nil, "BACKGROUND")
+		ButtonBg: SetTexture(F.Path("White"))
+		ButtonBg: SetVertexColor(F.Color(C.Color.B1))
+		ButtonBg: SetAllPoints(Button)
+
+		local ButtonTxt = Button: CreateFontString(nil, "ARTWORK")
+		ButtonTxt: SetFont(C.Font.Txt, 18, nil)
+		ButtonTxt: SetShadowColor(0,0,0,0)
+		ButtonTxt: SetShadowOffset(1,-1)
+		ButtonTxt: SetTextColor(F.Color(C.Color.W3))
+		ButtonTxt: SetPoint("CENTER", Button, "CENTER", 0, 0)
+
+		Button.Bg = ButtonBg
+		Button.Txt = ButtonTxt
+		frame["Button"..i] = Button
+	end
+
+	frame.Button1: SetPoint("BOTTOMRIGHT", frame, "BOTTOM", -12, 12)
+	frame.Button1.Bg: SetVertexColor(F.Color(C.Color.B1, 0.7))
+	frame.Button1.Txt: SetText(L['CANCEL'])
+	frame.Button1: SetScript("OnClick", function(self)
+		frame: Hide()
+		--Quafe_Config: Show()
+	end)
+
+	frame.Button2: SetPoint("BOTTOMLEFT", frame, "BOTTOM", -8, 12)
+	frame.Button2: SetWidth(128)
+	frame.Button2.Bg: SetVertexColor(F.Color(C.Color.Y1, 0.9))
+	frame.Button2.Txt: SetText(L['CONFIRM'])
+	frame.Button2: SetScript("OnClick", function(self)
+		frame: Hide()
+		--Quafe_Config: Show()
+		Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Color.Main1 = Color1.ID
+		Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Color.Main2 = Color2.ID
+		Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Color.Main3 = Color3.ID
+		Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Color.Warn1 = Color4.ID
+		Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Color.State = "UD"
+		Quafe_NoticeReload()
+	end)
+
+	frame: SetScript("OnShow", function(self)
+		Color1.ID = Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Color.Main1
+		Color2.ID = Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Color.Main2
+		Color3.ID = Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Color.Main3
+		Color4.ID = Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Color.Warn1
+		Color1.Icon: SetBackdropColor(F.Color(Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Color.Main1))
+		Color2.Icon: SetBackdropColor(F.Color(Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Color.Main2))
+		Color3.Icon: SetBackdropColor(F.Color(Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Color.Main3))
+		Color4.Icon: SetBackdropColor(F.Color(Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Color.Warn1))
+	end)
+end
+
+local function UDF_ColorPick_Artwork(frame)
+	local Bg = frame: CreateTexture(nil, "BACKGROUND")
+	Bg: SetTexture(F.Path("White"))
+	Bg: SetVertexColor(F.Color(C.Color.W1))
+	Bg: SetAlpha(0.95)
+	Bg: SetAllPoints(frame)
+	
+	local TopBorder = frame: CreateTexture(nil, "BORDER")
+	TopBorder: SetTexture(F.Path("White"))
+	TopBorder: SetVertexColor(F.Color(C.Color.B1))
+	TopBorder: SetAlpha(0.75)
+	TopBorder: SetHeight(2)
+	TopBorder: SetPoint("TOPLEFT", frame, "TOPLEFT", 0,-1)
+	TopBorder: SetPoint("TOPRIGHT", frame, "TOPRIGHT", 0,-1)
+
+	local BottomBorder = frame: CreateTexture(nil, "BORDER")
+	BottomBorder: SetTexture(F.Path("White"))
+	BottomBorder: SetVertexColor(F.Color(C.Color.B1))
+	BottomBorder: SetAlpha(0.75)
+	BottomBorder: SetHeight(2)
+	BottomBorder: SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT", 0,1)
+	BottomBorder: SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0,1)
+end
+
+local function UDF_ColorPick_Create(frame)
+	local ColorPick = CreateFrame("Frame", "Quafe_UDF_ColorPick", frame)
+	ColorPick: SetFrameStrata("FULLSCREEN" )
+	ColorPick: SetHeight(200)
+	ColorPick: SetPoint("LEFT", UIParent, "LEFT", 0,0)
+	ColorPick: SetPoint("RIGHT", UIParent, "RIGHT", 0,0)
+	ColorPick: Hide()
+	ColorPick.ID = nil
+	tinsert(UISpecialFrames, "Quafe_UDF_ColorPick")
+
+	UDF_ColorPick_Artwork(ColorPick)
+	UDF_ColorPick_Buttons(ColorPick)
+end
+
 ----------------------------------------------------------------
 --> Hotkey Button
 ----------------------------------------------------------------
@@ -2070,6 +2312,14 @@ local function Hotkey_Template(frame)
 	end
 
 	return Bar
+end
+
+local function HotKey_SaveBindings()
+	if F.IsClassic then
+		return AttemptToSaveBindings(GetCurrentBindingSet())
+	else
+		return SaveBindings(GetCurrentBindingSet())
+	end
 end
 
 local function Hotkey_Button(frame)
@@ -2110,10 +2360,10 @@ local function Hotkey_Button(frame)
 			local key1, key2 = GetBindingKey("QUAFE_COMMUNICATIONMENU")
 			if self.ID == 1 then
 				SetBinding(key1)
-				SaveBindings(GetCurrentBindingSet())
+				HotKey_SaveBindings()
 			elseif self.ID == 2 then
 				SetBinding(key2)
-				SaveBindings(GetCurrentBindingSet())
+				HotKey_SaveBindings()
 			end
 		end
 	end)
@@ -2133,7 +2383,7 @@ local function Hotkey_Button(frame)
 					self.Key = key
 				end
 				SetBinding(self.Key, "QUAFE_COMMUNICATIONMENU", self.ID)
-				SaveBindings(GetCurrentBindingSet())
+				HotKey_SaveBindings()
 			end
 			self.Binding = false
 			--self: EnableMouse(false)
@@ -2165,7 +2415,7 @@ local function Hotkey_Button(frame)
 			self: EnableKeyboard(false)
 			self: SetBackdropBorderColor(F.Color(C.Color.W3, 0))
 			SetBinding(self.Key, "QUAFE_COMMUNICATIONMENU", self.ID)
-			SaveBindings(GetCurrentBindingSet())
+			HotKey_SaveBindings()
 			--self.Text: SetText(self.Key)
 		end
 	end)
@@ -2200,7 +2450,7 @@ local function Hotkey_Create(frame, scroll, configframe)
 	Primary: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
 	Primary.ID = 1
 	Hotkey_Button(Primary)
-	ButtonHighLight_Create(Primary, C.Color.B1)
+	ButtonHighLight_Create(Primary, C.Color.B2)
 	frame.Primary = Primary
 
 	local Alternate = CreateFrame("Button", nil, frame)
@@ -2211,7 +2461,7 @@ local function Hotkey_Create(frame, scroll, configframe)
 	Alternate: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
 	Alternate.ID = 2
 	Hotkey_Button(Alternate)
-	ButtonHighLight_Create(Alternate, C.Color.B1)
+	ButtonHighLight_Create(Alternate, C.Color.B2)
 	frame.Alternate = Alternate
 
 	if Info.Show then
@@ -2241,7 +2491,399 @@ local function Hotkey_CommunicationMenu(frame, configframe)
 end
 
 ----------------------------------------------------------------
---> 
+--> Profile
+----------------------------------------------------------------
+
+local function Profile_NameFix(text)
+	if text then
+		if (text == "") then
+			text = nil
+		end
+	end
+	return text
+end
+
+local function Profile_Copy(index)
+	if not Quafe_DB.Profile[index] then return end
+	local newprofile = {}
+	for k,v in pairs(Quafe_DB.Profile[index]) do
+		if k == "Name" then
+			newprofile[k] = v.."-Copy"
+		else
+			newprofile[k] = v
+		end
+	end
+	if not newprofile.Name then
+		newprofile.Name = "Default-Copy"
+	end
+	if index == "Default" then
+		index = 0
+	end
+	insert(Quafe_DB.Profile, index+1, newprofile)
+end
+
+local function Profile_Delete(index)
+	if not Quafe_DB.Profile[index] then return end
+	remove(Quafe_DB.Profile, index)
+end
+
+local function Profile_New()
+	local index = #Quafe_DB.Profile or 0
+	index = index + 1
+	local newprofile = {}
+	for k,v in pairs(E.Database.Profile.Default) do
+		if k == "Name" then
+			newprofile[k] = "New Profile"
+		else
+			newprofile[k] = v
+		end
+	end
+	if not newprofile.Name then
+		newprofile.Name = "New Profile"
+	end
+	insert(Quafe_DB.Profile, index, newprofile)
+	return index + 2
+end
+
+local function Profile_Title_Template(frame)
+	local Bar = CreateFrame("Frame", nil, frame.Hold)
+	Bar: SetSize(720, button_size)
+	if frame.Num == 1 then
+		Bar: SetPoint("TOP", frame.Hold, "TOP", 0,-2)
+	else
+		Bar: SetPoint("TOP", frame.Bar[frame.Num-1], "BOTTOM", 0,-button_gap)
+	end
+
+	local Bg = F.Create.Texture(Bar, "BACKGROUND", 1, F.Path("White"), C.Color.B1, 0.7, {720-button_size-4, 4})
+	Bg: SetPoint("TOPLEFT", Bar, "TOPLEFT", 0,4-button_size)
+
+	local Name = F.Create.Font(Bar, "ARTWORK", C.Font.Txt, 14, nil, C.Color.W3)
+	Name: SetPoint("LEFT", Bar, "LEFT", button_size+20+4, 0)
+	Name: SetText(L['PROFILE_NAME'])
+
+	local Plus = CreateFrame("Button", nil, Bar)
+	Plus: SetSize(button_size,button_size)
+	Plus: SetPoint("TOPRIGHT", Bar, "TOPRIGHT", 0,0)
+	Plus: SetBackdrop(backdrop)
+	Plus: SetBackdropColor(F.Color(C.Color.B1, 0.7))
+	Plus: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
+	ButtonHighLight_Create(Plus, C.Color.B2)
+
+	local PlusTex = F.Create.Texture(Plus, "ARTWORK", 2, F.Path("Config_Plus1"), C.Color.W3, 1, {32,32})
+	PlusTex: SetPoint("CENTER", Plus, "CENTER")
+	
+	Plus: HookScript("OnEnter", function(self)
+		GameTooltip: SetOwner(self, "ANCHOR_NONE", 0,0)
+		GameTooltip: SetPoint("TOPLEFT", self, "TOPRIGHT", 4,0)
+		GameTooltip: SetText(L['NEW_PROFILE'], 1.0, 1.0, 1.0);
+		GameTooltip: Show()
+	end)
+	Plus: HookScript("OnLeave", function(self)
+		GameTooltip: Hide()
+	end)
+
+	Bar.Plus = Plus
+	Bar.Plus.Tex = PlusTex
+
+	return Bar
+end
+
+local function ProfileBar_Template(frame)
+	local Bar = CreateFrame("Frame", nil, frame.Hold)
+	Bar: SetSize(720, button_size)
+	if frame.Num == 1 then
+		Bar: SetPoint("TOP", frame.Hold, "TOP", 0,-2)
+	else
+		Bar: SetPoint("TOP", frame.Bar[frame.Num-1], "BOTTOM", 0,-button_gap)
+	end
+
+	local TickButton = CreateFrame("Button", nil, Bar)
+	TickButton: SetSize(button_size, button_size)
+	TickButton: SetPoint("TOPLEFT", Bar, "TOPLEFT", 0,0)
+	TickButton: SetBackdrop(backdrop)
+	TickButton: SetBackdropColor(F.Color(C.Color.W2, 1))
+	TickButton: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
+	ButtonHighLight_Create(TickButton, C.Color.B2)
+
+	local MenuButton = CreateFrame("Button", nil, Bar)
+	MenuButton: SetSize(button_size, button_size)
+	MenuButton: SetPoint("TOPRIGHT", Bar, "TOPRIGHT", 0,0)
+	MenuButton: SetBackdrop(backdrop)
+	MenuButton: SetBackdropColor(F.Color(C.Color.B1, 0.7))
+	MenuButton: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
+	ButtonHighLight_Create(MenuButton, C.Color.B2)
+
+	local NameHold = CreateFrame("Button", nil, Bar)
+	NameHold: SetPoint("BOTTOMLEFT", TickButton, "BOTTOMRIGHT", 4,0)
+	NameHold: SetPoint("TOPRIGHT", MenuButton, "TOPLEFT", -4,0)
+	NameHold: SetBackdrop(backdrop)
+	NameHold: SetBackdropColor(F.Color(C.Color.W2, 1))
+	NameHold: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
+
+	local Check = F.Create.Texture(TickButton, "ARTWORK", 1, F.Path("Config_Tick"), C.Color.W3, 1, {20,20})
+	Check: SetPoint("CENTER", TickButton, "CENTER")
+
+	local Menu = F.Create.Texture(MenuButton, "ARTWORK", 1, F.Path("Config_Plus3"), C.Color.W3, 1, {32,32})
+	Menu: SetPoint("CENTER", MenuButton, "CENTER")
+
+	local Name = F.Create.Font(NameHold, "ARTWORK", C.Font.Txt, 14, nil, C.Color.W3)
+	Name: SetPoint("LEFT", NameHold, "LEFT", 20,0)
+
+	local EditHold = CreateFrame("Frame", nil, Bar)
+	EditHold: SetPoint("BOTTOMLEFT", TickButton, "BOTTOMRIGHT", 4,0)
+	EditHold: SetPoint("TOPRIGHT", MenuButton, "TOPLEFT", -4,0)
+	EditHold: Hide()
+
+	local DeleteButton = CreateFrame("Button", nil, EditHold)
+	DeleteButton: SetSize(button_size*4, button_size)
+	DeleteButton: SetPoint("TOPRIGHT", Bar, "TOPRIGHT", -button_size-4,0)
+	DeleteButton: SetBackdrop(backdrop)
+	DeleteButton: SetBackdropColor(F.Color(C.Color.R3, 0.7))
+	DeleteButton: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
+	ButtonHighLight_Create(DeleteButton, C.Color.R3)
+	
+	local DeleteText = F.Create.Font(DeleteButton, "ARTWORK", C.Font.Txt, 14, nil, C.Color.W3)
+	DeleteText: SetPoint("CENTER", DeleteButton, "CENTER", 0,0)
+	DeleteText: SetText(L['DELETE'])
+
+	local CopyButton = CreateFrame("Button", nil, EditHold)
+	CopyButton: SetSize(button_size*4, button_size)
+	CopyButton: SetPoint("TOPRIGHT", DeleteButton, "TOPLEFT", -4,0)
+	CopyButton: SetBackdrop(backdrop)
+	CopyButton: SetBackdropColor(F.Color(C.Color.Y1, 0.7))
+	CopyButton: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
+	ButtonHighLight_Create(CopyButton, C.Color.Y1)
+
+	local CopyText = F.Create.Font(CopyButton, "ARTWORK", C.Font.Txt, 14, nil, C.Color.W3)
+	CopyText: SetPoint("CENTER", CopyButton, "CENTER", 0,0)
+	CopyText: SetText(L['COPY'])
+
+	local ReNameButton = CreateFrame("Button", nil, EditHold)
+	ReNameButton: SetSize(button_size*4, button_size)
+	ReNameButton: SetPoint("TOPRIGHT", CopyButton, "TOPLEFT", -4,0)
+	ReNameButton: SetBackdrop(backdrop)
+	ReNameButton: SetBackdropColor(F.Color(C.Color.B1, 0.7))
+	ReNameButton: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
+	ButtonHighLight_Create(ReNameButton, C.Color.B2)
+
+	local ReNameText = F.Create.Font(ReNameButton, "ARTWORK", C.Font.Txt, 14, nil, C.Color.W3)
+	ReNameText: SetPoint("CENTER", ReNameButton, "CENTER", 0,0)
+	ReNameText: SetText(L['RENAME'])
+
+	local ReNameHold = CreateFrame("Frame", nil, Bar)
+	ReNameHold: SetPoint("BOTTOMLEFT", TickButton, "BOTTOMRIGHT", 4,0)
+	ReNameHold: SetPoint("TOPRIGHT", MenuButton, "TOPLEFT", -4,0)
+	ReNameHold: Hide()
+
+	local CancelButton = CreateFrame("Button", nil, ReNameHold)
+	CancelButton: SetSize(button_size*4, button_size)
+	CancelButton: SetPoint("TOPRIGHT", ReNameHold, "TOPRIGHT", 0,0)
+	CancelButton: SetBackdrop(backdrop)
+	CancelButton: SetBackdropColor(F.Color(C.Color.B1, 0.7))
+	CancelButton: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
+	ButtonHighLight_Create(CancelButton, C.Color.B2)
+
+	local CancelText = F.Create.Font(CancelButton, "ARTWORK", C.Font.Txt, 14, nil, C.Color.W3)
+	CancelText: SetPoint("CENTER", CancelButton, "CENTER", 0,0)
+	CancelText: SetText(L['CANCEL'])
+
+	local ConfirmButton = CreateFrame("Button", nil, ReNameHold)
+	ConfirmButton: SetSize(button_size*4, button_size)
+	ConfirmButton: SetPoint("TOPRIGHT", CancelButton, "TOPLEFT", -4,0)
+	ConfirmButton: SetBackdrop(backdrop)
+	ConfirmButton: SetBackdropColor(F.Color(C.Color.Y1, 0.7))
+	ConfirmButton: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
+	ButtonHighLight_Create(ConfirmButton, C.Color.Y1)
+
+	local ConfirmText = F.Create.Font(ConfirmButton, "ARTWORK", C.Font.Txt, 14, nil, C.Color.W3)
+	ConfirmText: SetPoint("CENTER", ConfirmButton, "CENTER", 0,0)
+	ConfirmText: SetText(L['CONFIRM'])
+
+	local ReNameBox = CreateFrame("EditBox", nil, ReNameHold)
+	ReNameBox: SetAutoFocus(true)
+	ReNameBox: SetFont(C.Font.Txt, 14, nil)
+	ReNameBox: SetJustifyH("LEFT")
+	ReNameBox: SetTextInsets(20, 20, 0, 0)
+	ReNameBox: SetBackdrop(backdrop)
+	ReNameBox: SetBackdropColor(F.Color(C.Color.B1, 0.7))
+	ReNameBox: SetBackdropBorderColor(F.Color(C.Color.B1, 0))
+	ReNameBox: SetPoint("BOTTOMLEFT", ReNameHold, "BOTTOMLEFT", 0,0)
+	ReNameBox: SetPoint("TOPRIGHT", ConfirmButton, "TOPLEFT", -4,0)
+	ReNameBox: SetScript("OnEscapePressed", function(self)
+		self: ClearFocus() 
+	end)
+	ReNameBox: SetScript("OnShow", function(self)
+		self: SetText(Quafe_DB.Profile[Bar.ID].Name or frame.ID)
+	end)
+
+	TickButton: SetScript("OnClick", function(self, mousebutton)
+		if Bar.ID then
+			Quafe_DBP.Profile = Bar.ID
+			frame: Refresh()
+			Quafe_NoticeReload()
+		end
+	end)
+
+	MenuButton: HookScript("OnEnter", function(self)
+		GameTooltip: SetOwner(self, "ANCHOR_NONE", 0,0)
+		GameTooltip: SetPoint("TOPLEFT", self, "TOPRIGHT", 4,0)
+		GameTooltip: SetText(L['EDIT'], 1.0, 1.0, 1.0);
+		GameTooltip: Show()
+	end)
+	MenuButton: HookScript("OnLeave", function(self)
+		GameTooltip: Hide()
+	end)
+	MenuButton: SetScript("OnClick", function(self, button)
+		if NameHold: IsShown() then
+			NameHold: Hide()
+			EditHold: Show()
+		else
+			NameHold: Show()
+			EditHold: Hide()
+		end
+	end)
+
+	DeleteButton: SetScript("OnClick", function(self, mousebutton)
+		if Bar.ID == "Default" then
+		else
+			if Quafe_DBP.Profile == Bar.ID then
+				Quafe_DBP.Profile = "Default"
+				Quafe_NoticeReload()
+			end
+			Profile_Delete(Bar.ID)
+			NameHold: Show()
+			EditHold: Hide()
+			frame:Update()
+		end
+	end)
+
+	CopyButton: SetScript("OnClick", function(self, mousebutton)
+		Profile_Copy(Bar.ID)
+		NameHold: Show()
+		EditHold: Hide()
+		frame:Update()
+	end)
+
+	ReNameButton: SetScript("OnClick", function(self, mousebutton)
+		if Bar.ID == "Default" then
+		else
+			EditHold: Hide()
+			ReNameHold: Show()
+		end
+	end)
+
+	ConfirmButton: SetScript("OnClick", function(self, mousebutton)
+		local newname = Profile_NameFix(ReNameBox:GetText())
+		if newname then
+			Quafe_DB.Profile[Bar.ID].Name = newname
+			NameHold: Show()
+			ReNameHold: Hide()
+			frame:Update()
+		end
+	end)
+	CancelButton: SetScript("OnClick", function(self, mousebutton)
+		NameHold: Show()
+		ReNameHold: Hide()
+	end)
+
+	Bar.Check = Check
+	Bar.Name = Name
+	Bar.TickButton = TickButton
+	Bar.MenuButton = MenuButton
+	Bar.ReNameButton = ReNameButton
+	Bar.CopyButton = CopyButton
+	Bar.DeleteButton = DeleteButton
+	Bar.ReNameBox = ReNameBox
+	Bar.NameHold = NameHold
+	Bar.EditHold = EditHold
+	Bar.ReNameHold = ReNameHold
+
+	return Bar
+end
+
+local function ProfileBar_Refresh(frame)
+	for i = 2, frame.Num do 
+		if frame.Bar[i].ID == Quafe_DBP.Profile then
+			frame.Bar[i].TickButton: SetBackdropColor(F.Color(C.Color.B1, 0.7))
+			frame.Bar[i].Check: Show()
+		else
+			frame.Bar[i].TickButton: SetBackdropColor(F.Color(C.Color.W2, 1))
+			frame.Bar[i].Check: Hide()
+		end
+	end
+end
+
+local function Profile_Title(frame, configframe)
+	frame.Num = frame.Num + 1
+	frame.Bar[frame.Num] = Profile_Title_Template(frame)
+end
+
+local function Profile_Create(frame, scroll, v)
+	if frame.ID == "Default" then
+		frame.Name: SetText(L['DEFAULT'] or frame.ID)
+	else
+		frame.Name: SetText(Quafe_DB.Profile[frame.ID].Name or frame.ID)
+	end
+end
+
+local function ProfileScrollBar_Load(frame, configframe)
+	local ProfileNum,FrameNum = 0,0
+	if Quafe_DB.Profile then
+		frame.Num = frame.Num + 1
+		if not frame.Bar[frame.Num] then
+			frame.Bar[frame.Num] = ProfileBar_Template(frame)
+		end
+		frame.Bar[frame.Num].ID = "Default"
+		frame.Bar[frame.Num]:Show()
+		Profile_Create(frame.Bar[frame.Num], frame, v)
+
+		for k,v in ipairs(Quafe_DB.Profile) do
+			frame.Num = frame.Num + 1
+			if not frame.Bar[frame.Num] then
+				frame.Bar[frame.Num] = ProfileBar_Template(frame)
+			end
+			frame.Bar[frame.Num].ID = k
+			frame.Bar[frame.Num]:Show()
+			Profile_Create(frame.Bar[frame.Num], frame, v)
+		end
+		ProfileNum = #Quafe_DB.Profile + 2
+		FrameNum = #frame.Bar
+		if FrameNum > ProfileNum then
+			for i = (ProfileNum+1), FrameNum do
+				if i ~= 1 then
+					frame.Bar[i]:Hide()
+				end
+			end
+		end
+		ProfileBar_Refresh(frame)
+		HoldHeight_Update(frame)
+	end
+end
+
+local function ProfileList_Update(frame)
+	frame.Num = 1
+	ProfileScrollBar_Load(frame)
+end
+
+local function Profile_OnEvent(frame, configframe)
+	function frame:Update()
+		ProfileList_Update(self)
+	end
+	function frame:Refresh()
+		ProfileBar_Refresh(self)
+	end
+	frame.Bar[1].Plus.Tex: SetTexture(F.Path("Config_Plus1"))
+	frame.Bar[1].Plus: SetScript("OnClick", function(self)
+		local index = Profile_New()
+		frame:Update()
+		frame.Bar[index].NameHold: Hide()
+		frame.Bar[index].ReNameHold: Show()
+		frame.Bar[index].ReNameBox: HighlightText()
+	end)
+end
+
+----------------------------------------------------------------
+--> Scrolls
 ----------------------------------------------------------------
 
 local function Create_Bars(frame)
@@ -2252,9 +2894,10 @@ local function Create_Bars(frame)
 
 	--> ConfigScroll
 	Button_Mover(frame.ConfigScroll, frame)
-	Button_Scale(frame.ConfigScroll, frame)
+	--Button_Scale(frame.ConfigScroll, frame)
 	Button_Mouse(frame.ConfigScroll, frame)
 	ConfigScrollBar_Load(frame.ConfigScroll, frame)
+	UDF_ColorPick_Create(frame.ConfigScroll, frame)
 	
 	--> AurawatchScroll
 	Aurawatch_Title(frame.AurawatchScroll, frame)
@@ -2266,6 +2909,9 @@ local function Create_Bars(frame)
 	Hotkey_CommunicationMenu(frame.ControlsScroll, frame)
 
 	--> ProfileScroll
+	Profile_Title(frame.ProfileScroll, frame)
+	ProfileScrollBar_Load(frame.ProfileScroll, frame)
+	Profile_OnEvent(frame.ProfileScroll, frame)
 
 	--> Update Hold
 	HoldHeight_Update(frame.ConfigScroll)
@@ -2283,8 +2929,8 @@ local function Tab_OnClick(frame)
 	local parent = tabframe:GetParent()
 	if parent.Info.Tab ~= frame.ID then
 		parent.Info.Tab = frame.ID
-		FramesVisible_Update(parent.Info.Tab, {parent.ConfigScroll, parent.AurawatchScroll, parent.ControlsScroll})
-		FramesVisible_Update(parent.Info.Tab, {tabframe.Config.Bg, tabframe.Aurawatch.Bg, tabframe.Controls.Bg})
+		FramesVisible_Update(parent.Info.Tab, {parent.ConfigScroll, parent.AurawatchScroll, parent.ControlsScroll, parent.ProfileScroll})
+		FramesVisible_Update(parent.Info.Tab, {tabframe.Config.Bg, tabframe.Aurawatch.Bg, tabframe.Controls.Bg, tabframe.Profile.Bg})
 	end
 end
 
@@ -2775,7 +3421,7 @@ local function Quafe_Config_Load()
 	end)
 end
 Quafe_Config.Load = Quafe_Config_Load
-tinsert(E.Module, Quafe_Config)
+insert(E.Module, Quafe_Config)
 
 
 

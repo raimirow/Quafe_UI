@@ -45,8 +45,14 @@ local function CastBar_OnEvent(frame, event, ...)
 	local unit = frame.Unit;
 
 	if ( event == "PLAYER_ENTERING_WORLD" or event == "PLAYER_TARGET_CHANGED" or event == "PLAYER_FOCUS_CHANGED" ) then
-		local nameChannel = UnitChannelInfo(unit);
-		local nameSpell = UnitCastingInfo(unit);
+		local nameSpell, nameChannel
+		if F.IsClassic then
+			nameChannel = ChannelInfo(unit);
+			nameSpell = CastingInfo(unit);
+		else
+			nameChannel = UnitChannelInfo(unit);
+			nameSpell = UnitCastingInfo(unit);
+		end
 		if ( nameChannel ) then
 			event = "UNIT_SPELLCAST_CHANNEL_START";
 			arg1 = unit;
@@ -63,7 +69,12 @@ local function CastBar_OnEvent(frame, event, ...)
 	end
 
 	if ( event == "UNIT_SPELLCAST_START" ) then
-		local name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo(unit);
+		local name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible
+		if F.IsClassic then
+			name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = CastingInfo(unit);
+		else
+			name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo(unit);
+		end
 		if ( not name or (not frame.ShowTradeSkills and isTradeSkill)) then
 			frame:Hide();
 			return;
@@ -125,7 +136,12 @@ local function CastBar_OnEvent(frame, event, ...)
 		end
 	elseif ( event == "UNIT_SPELLCAST_DELAYED" ) then
 		if ( frame:IsShown() ) then
-			local name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo(unit);
+			local name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible
+			if F.IsClassic then
+				name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = CastingInfo(unit);
+			else
+				name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo(unit);
+			end
 			if ( not name or (not frame.showTradeSkills and isTradeSkill)) then
 				-- if there is no name, there is no bar
 				frame:Hide();
@@ -143,7 +159,12 @@ local function CastBar_OnEvent(frame, event, ...)
 			end
 		end
 	elseif ( event == "UNIT_SPELLCAST_CHANNEL_START" ) then
-		local name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID = UnitChannelInfo(unit);
+		local name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID
+		if F.IsClassic then
+			name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID = ChannelInfo(unit);
+		else
+			name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID = UnitChannelInfo(unit);
+		end
 		if ( not name or (not frame.showTradeSkills and isTradeSkill)) then
 			-- if there is no name, there is no bar
 			frame:Hide();
@@ -169,7 +190,12 @@ local function CastBar_OnEvent(frame, event, ...)
 		end
 	elseif ( event == "UNIT_SPELLCAST_CHANNEL_UPDATE" ) then
 		if ( frame:IsShown() ) then
-			local name, text, texture, startTime, endTime, isTradeSkill = UnitChannelInfo(unit);
+			local name, text, texture, startTime, endTime, isTradeSkill
+			if F.IsClassic then
+				name, text, texture, startTime, endTime, isTradeSkill = ChannelInfo(unit);
+			else
+				name, text, texture, startTime, endTime, isTradeSkill = UnitChannelInfo(unit);
+			end
 			if ( not name or (not frame.showTradeSkills and isTradeSkill)) then
 				-- if there is no name, there is no bar
 				frame:Hide();
@@ -219,13 +245,22 @@ end
 
 local function CastBar_OnShow(frame)
 	if ( frame.Unit ) then
+		local name, text, texture, startTime, endTime
 		if ( frame.Casting ) then
-			local _, _, _, startTime = UnitCastingInfo(frame.Unit);
+			if F.IsClassic then
+				name, text, texture, startTime, endTime = CastingInfo(frame.Unit);
+			else
+				name, text, texture, startTime, endTime = UnitCastingInfo(frame.Unit);
+			end
 			if ( startTime ) then
 				frame.Value = (GetTime() - (startTime / 1000));
 			end
 		else
-			local _, _, _, _, endTime = UnitChannelInfo(frame.Unit);
+			if F.IsClassic then
+				name, text, texture, startTime, endTime = ChannelInfo(frame.Unit);
+			else
+				name, text, texture, startTime, endTime = UnitChannelInfo(frame.Unit);
+			end
 			if ( endTime ) then
 				frame.Value = ((endTime / 1000) - GetTime());
 			end
@@ -245,8 +280,10 @@ local function CastBar_SetUnit(frame)
 		frame: RegisterEvent("UNIT_SPELLCAST_CHANNEL_START");
 		frame: RegisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE");
 		frame: RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP");
-		frame: RegisterEvent("UNIT_SPELLCAST_INTERRUPTIBLE");
-		frame: RegisterEvent("UNIT_SPELLCAST_NOT_INTERRUPTIBLE");
+		if not F.IsClassic then
+			frame: RegisterEvent("UNIT_SPELLCAST_INTERRUPTIBLE");
+			frame: RegisterEvent("UNIT_SPELLCAST_NOT_INTERRUPTIBLE");
+		end
 		frame: RegisterEvent("PLAYER_ENTERING_WORLD");
 		frame: RegisterUnitEvent("UNIT_SPELLCAST_START", frame.Unit);
 		frame: RegisterUnitEvent("UNIT_SPELLCAST_STOP", frame.Unit);
@@ -257,8 +294,10 @@ local function CastBar_SetUnit(frame)
 		frame: UnregisterEvent("UNIT_SPELLCAST_CHANNEL_START");
 		frame: UnregisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE");
 		frame: UnregisterEvent("UNIT_SPELLCAST_CHANNEL_STOP");
-		frame: UnregisterEvent("UNIT_SPELLCAST_INTERRUPTIBLE");
-		frame: UnregisterEvent("UNIT_SPELLCAST_NOT_INTERRUPTIBLE");
+		if not F.IsClassic then
+			frame: UnregisterEvent("UNIT_SPELLCAST_INTERRUPTIBLE");
+			frame: UnregisterEvent("UNIT_SPELLCAST_NOT_INTERRUPTIBLE");
+		end
 		frame: UnregisterEvent("PLAYER_ENTERING_WORLD");
 		frame: UnregisterEvent("UNIT_SPELLCAST_START");
 		frame: UnregisterEvent("UNIT_SPELLCAST_STOP");

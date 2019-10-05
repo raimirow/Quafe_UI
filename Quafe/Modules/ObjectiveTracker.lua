@@ -19,6 +19,7 @@ local modf = math.modf
 
 local insert = table.insert
 
+if F.IsClassic then return end
 --- ------------------------------------------------------------
 --> 
 --- ------------------------------------------------------------
@@ -121,7 +122,7 @@ local function Quafe_ObjectiveTracker_Toggle(arg)
 	elseif arg == "OFF" then
 		Quafe_ObjectiveTracker: Hide()
 		Quafe_ObjectiveTracker.Mover: Hide()
-		Quafe_Config.NoticeReload()
+		Quafe_NoticeReload()
 	end
 end
 

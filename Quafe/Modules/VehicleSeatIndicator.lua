@@ -85,4 +85,6 @@ Quafe_VehicleSeat_Config = {
 
 Quafe_VehicleSeat.Load = Quafe_VehicleSeat_Load
 Quafe_VehicleSeat.Config = Quafe_VehicleSeat_Config
-tinsert(E.Module, Quafe_VehicleSeat)
+if not F.IsClassic then
+	tinsert(E.Module, Quafe_VehicleSeat)
+end

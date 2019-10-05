@@ -1,15 +1,15 @@
-## Interface: 80100
-## Version: 8.1.0.1
+## Interface: 80205
+## Version: 8.2.5.46
 ## Author: Voidiver
 ## Title: Quafe
 ## Notes: Quafe
-## Notes-zhCN: Quafe
+## Notes-zhCN: Quafe 核心
 
 ## SavedVariables: Quafe_DB
 ## SavedVariablesPerCharacter: Quafe_DBP
 ## X-oUF: oUF_Quafe
 
-## OptionalDeps: Details, Skada, MeetingStone, WIM
+## OptionalDeps: Quafe_Libs_Classic, Quafe_Libs, Details, Skada, MeetingStone, WIM, Clique
 
 Quafe.xml
 Quafe.lua

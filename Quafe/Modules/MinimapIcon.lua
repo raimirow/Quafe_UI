@@ -80,6 +80,9 @@ local function MinimapIcon_Update(self)
     local scale = Minimap:GetEffectiveScale()
     px, py = px / scale, py / scale
     self.minimapPos = math.deg(math.atan2(py - my, px - mx)) % 360
+    if Quafe_DB.Profile[Quafe_DBP.Profile] then
+        Quafe_DB.Profile[Quafe_DBP.Profile].MinimapIconPos = self.minimapPos
+    end
     MinimapIcon_UpdatePosition(self)
 end
 
@@ -101,16 +104,20 @@ local function Create_MinimapButton(button)
     button: SetHighlightTexture("Interface\\Minimap\\UI-Minimap-ZoomButton-Highlight")
 
     local overlay = button:CreateTexture(nil, "OVERLAY")
-    overlay: SetSize(32,32)
+    overlay: SetTexture(136430) --"Interface\\Minimap\\MiniMap-TrackingBorder"
+    overlay: SetSize(30, 30)
+    overlay: SetTexCoord(1/64,37/64, 0/64,36/64)
+	overlay: SetPoint("CENTER")
 
     local background = button:CreateTexture(nil, "BACKGROUND")
     background: SetTexture(F.Path("Minimap\\MinimapButton_Bg"))
-    background: SetSize(32,32)
+    background: SetSize(24,24)
     background: SetPoint("CENTER")
+    background: SetVertexColor(0.02,0.02,0.02)
     
     local icon = button:CreateTexture(nil, "ARTWORK")
     icon: SetTexture(F.Path("Minimap\\MinimapButton_Icon"))
-    icon: SetSize(20,20)
+    icon: SetSize(16,16)
     icon: SetPoint("CENTER")
     icon: SetVertexColor(F.Color(C.Color.R1))
    
@@ -118,7 +125,7 @@ local function Create_MinimapButton(button)
     button.isMouseDown = false
 
     icon.UpdateCoord = MinimapIcon_UpdateCoord
-    icon: UpdateCoord()
+    icon:UpdateCoord()
 
     MinimapIcon_UpdatePosition(button)
     
@@ -147,7 +154,7 @@ local function Create_MinimapButton(button)
     button: SetScript("OnDragStart", function(self)
         self:LockHighlight()
 		self.isMouseDown = true
-        self.icon:UpdateCoord()
+        icon:UpdateCoord()
         self:SetScript("OnUpdate", MinimapIcon_Update)
 		self.isMoving = true
         GameTooltip:Hide()
@@ -155,14 +162,15 @@ local function Create_MinimapButton(button)
     button: SetScript("OnDragStop", function(self)
         self:SetScript("OnUpdate", nil)
         self.isMouseDown = false
-        self.icon:UpdateCoord()
+        icon:UpdateCoord()
         self:UnlockHighlight()
         self.isMoving = nil
     end)
 end
 
 local function OnTooltipShow(tooltip)
-    tooltip: SetText(E.Name)
+    tooltip: SetText("|cff00E8C6Q|r|cff00E8C6uafe|r |cffE0F2F1UI|r")
+    tooltip: AddLine("|cffE0F2F1"..L['MINIMAPICON_LEFT_CLICK'].."|r")
 end
 
 local Quafe_MinimapIcon = CreateFrame("Button", "Quafe_MinimapIcon", Minimap)
@@ -172,6 +180,11 @@ local function Load()
     Quafe_MinimapIcon.dataObject.OnTooltipShow = OnTooltipShow
 
     Create_MinimapButton(Quafe_MinimapIcon)
+
+    if Quafe_DB.Profile[Quafe_DBP.Profile] and Quafe_DB.Profile[Quafe_DBP.Profile].MinimapIconPos then
+        Quafe_MinimapIcon.minimapPos = Quafe_DB.Profile[Quafe_DBP.Profile].MinimapIconPos
+    end
+    MinimapIcon_UpdatePosition(Quafe_MinimapIcon)
 end
 Quafe_MinimapIcon.Load = Load
 insert(E.Module, Quafe_MinimapIcon)

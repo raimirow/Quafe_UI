@@ -57,12 +57,14 @@ local function DisableAllScripts(frame, ignore)
 end
 
 local HideMainMenuBar = function()
-	hiddenFrame:RegisterEvent("CURRENCY_DISPLAY_UPDATE")
-	hiddenFrame:SetScript("OnEvent", function(self, event)
-		TokenFrame_LoadUI()
-		TokenFrame_Update()
-		BackpackTokenFrame_Update()
-	end)
+	if not F.IsClassic then
+		hiddenFrame:RegisterEvent("CURRENCY_DISPLAY_UPDATE")
+		hiddenFrame:SetScript("OnEvent", function(self, event)
+			TokenFrame_LoadUI()
+			TokenFrame_Update()
+			BackpackTokenFrame_Update()
+		end)
+	end
 	for i, frame in next, framesToDisable do
 		frame:UnregisterAllEvents()
 		DisableAllScripts(frame)
@@ -1037,25 +1039,42 @@ end
 --- ------------------------------------------------------------
 
 local Quafe_ActionBar = CreateFrame("Frame", nil, E)
+Quafe_ActionBar.Init = false
 
-local function ActionBar_Load()
+local function Quafe_ActionBar_Load()
+	if F.IsAddonEnabled("EuiScript") then return end
+	if Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_ActionBar"].Enable then
+		HideMainMenuBar()
+		MainBar_Frame(Quafe_ActionBar)
+		
+		MainBar_PosType1(Quafe_ActionBar)
+		--MainBar_PosType2(Quafe_ActionBar)
+		--MainBar_Pos_Ring1(Quafe_ActionBar)
+		
+		RightBar_Frame(Quafe_ActionBar)
+		if not F.IsClassic then
+			ExtraBar_Frame(Quafe_ActionBar)
+			ZoneAbility_Frame(Quafe_ActionBar)
+			VehicleExit_Frame(Quafe_ActionBar)
+		end
+		PetBar_Frame(Quafe_ActionBar)
+		StanceBar_Frame(Quafe_ActionBar)
 
-	HideMainMenuBar()
-	MainBar_Frame(Quafe_ActionBar)
-	
-	MainBar_PosType1(Quafe_ActionBar)
-	--MainBar_PosType2(Quafe_ActionBar)
-	--MainBar_Pos_Ring1(Quafe_ActionBar)
-	
-	RightBar_Frame(Quafe_ActionBar)
-	ExtraBar_Frame(Quafe_ActionBar)
-	--VehicleExit_Frame(Quafe_ActionBar)
-	PetBar_Frame(Quafe_ActionBar)
-	StanceBar_Frame(Quafe_ActionBar)
-	ZoneAbility_Frame(Quafe_ActionBar)
+		--MultiActionBar_Update()
+		Quafe_ActionBar.Init = true
+	end
+end
 
-	--MultiActionBar_Update()
-	
+local function Quafe_ActionBar_Toggle(arg)
+	if arg == "ON" then
+		if not Quafe_ActionBar.Init then
+			Quafe_ActionBar_Load()
+		end
+		Quafe_ActionBar: Show()
+	elseif arg == "OFF" then
+		Quafe_ActionBar: Hide()
+		Quafe_NoticeReload()
+	end
 end
 
 local Quafe_ActionBar_Config = {
@@ -1070,7 +1089,16 @@ local Quafe_ActionBar_Config = {
 		Name = "Quafe "..L['ACTION_BAR'],
 		Type = "Switch",
 		Click = function(self, button)
-
+			if InCombatLockdown() then return end
+			if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_ActionBar.Enable then
+				Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_ActionBar.Enable = false
+				self.Text:SetText(L["OFF"])
+				Quafe_ActionBar_Toggle("OFF")
+			else
+				Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_ActionBar.Enable = true
+				self.Text:SetText(L["ON"])
+				Quafe_ActionBar_Toggle("ON")
+			end
 		end,
 		Show = function(self)
 			if Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_ActionBar"].Enable then
@@ -1107,7 +1135,7 @@ local Quafe_ActionBar_Config = {
 	},
 }
 
-Quafe_ActionBar.Load = ActionBar_Load
+Quafe_ActionBar.Load = Quafe_ActionBar_Load
 Quafe_ActionBar.Config = Quafe_ActionBar_Config
 tinsert(E.Module, Quafe_ActionBar)
 

@@ -13,6 +13,21 @@ local sin = math.sin
 local cos = math.cos
 local rad = math.rad
 
+if F.IsClassic then
+	local LibClassicDurations = LibStub("LibClassicDurations")
+    LibClassicDurations:Register("Quafe")
+
+	F.UnitAura = function(unit, index, filter)
+		if unit ~= "player" and (filter and filter == "HARMFUL") then
+			return LibClassicDurations:UnitAura(unit, index, filter)
+		else
+			return UnitAura(unit, index, filter)
+		end
+	end
+else
+	F.UnitAura = UnitAura
+end
+
 --- ------------------------------------------------------------
 --> 
 --- ------------------------------------------------------------
@@ -90,7 +105,8 @@ local OnLeave = function(self)
 end
 
 local event_Aura = function(f, unit, index, filter)
-	local name, icon, count, dispelType, duration, expires, caster, isStealable,  nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, isCastByPlayer, nameplateShowAll, timeMod, value1, value2, value3  = UnitAura(unit, index , filter)
+	if not unit then return end
+	local name, icon, count, dispelType, duration, expires, caster, isStealable,  nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, isCastByPlayer, nameplateShowAll, timeMod, value1, value2, value3  = F.UnitAura(unit, index , filter)
 	if name then
 		f:SetID(index)
 		f.name = name
@@ -181,6 +197,9 @@ local Aura_Event = function(f)
 	if not f.Aura then
 		f.Aura = {}
 	end
+	if f.debufflimit and f.bufflimit then
+		f.limit = f.debufflimit + f.bufflimit
+	end
 	local i,index, turn = 1, 1, 1
 	while (i < f.limit) do
 		if not f.Aura[i] then
@@ -212,7 +231,7 @@ local Aura_Event = function(f)
 			f.Aura[i].CD: SetShadowColor(0,0,0,0.9)
 			f.Aura[i].CD: SetShadowOffset(0,0)
 			f.Aura[i].CD: SetJustifyH("CENTER")
-			f.Aura[i].CD: SetPoint("BOTTOM", f.Aura[i], "BOTTOM", 0,-2)
+			f.Aura[i].CD: SetPoint("BOTTOM", f.Aura[i], "BOTTOM", 1,0)
 			f.Aura[i].CD: SetText(formatTime(54))
 			
 			f.Aura[i].Ct = f.Aura[i]:CreateFontString(nil, "OVERLAY")
@@ -220,7 +239,7 @@ local Aura_Event = function(f)
 			f.Aura[i].Ct: SetShadowColor(0,0,0,0.9)
 			f.Aura[i].Ct: SetShadowOffset(0,0)
 			f.Aura[i].Ct: SetJustifyH("CENTER")
-			f.Aura[i].Ct: SetPoint("TOPRIGHT", f.Aura[i], "TOPRIGHT", 1,2)
+			f.Aura[i].Ct: SetPoint("TOPRIGHT", f.Aura[i], "TOPRIGHT", 1,0)
 			
 			f.Aura[i].Overlay = f.Aura[i]:CreateTexture(nil, "ARTWORK")
 			
@@ -232,7 +251,7 @@ local Aura_Event = function(f)
 			if index then
 				if turn == 1 then
 					event_Aura(f.Aura[i], f.unit, index, "HARMFUL")
-					if f.Aura[i].name then
+					if f.Aura[i].name and (i <= f.debufflimit) then
 						index = index + 1
 						Aura_Pos(f, i)
 						i = i + 1
@@ -246,7 +265,7 @@ local Aura_Event = function(f)
 					end
 				else
 					event_Aura(f.Aura[i], f.unit, index, "HELPFUL")
-					if f.Aura[i].name then
+					if f.Aura[i].name and (i <= f.bufflimit) then
 						index = index + 1
 						Aura_Pos(f, i)
 						i = i + 1
@@ -313,7 +332,7 @@ end
 local Aura_Update = function(f, elapsed)
 	if f:IsVisible() then
 		for i = 1, f.limit do
-			if f.Aura[i] and f.Aura[i].name then
+			if f.Aura and f.Aura[i] and f.Aura[i].name then
 				f.Aura[i].remain = max(f.Aura[i].remain - elapsed, 0)
 				if f.Aura[i].remain > 0 then
 					f.Aura[i].CD: SetText(formatTime(f.Aura[i].remain))
@@ -340,22 +359,37 @@ function F.Aura_Create(frame)
 		f.fontsize
 		f.gap
 		f.limit
+		f.bufflimit
+		f.debufflimit
 		f.perline
 		f.unit
+		f.type "Boss,Aura,Steal"
 		f.filter "HARMFUL|HELPFUL|PLAYER|RAID"
 		f.special
 		f.growthH --横
 		f.growthV --竖
 	]]--
-	
+	local displayedUnit
+	if frame.unit == "player" then
+		displayedUnit = "vehicle"
+	elseif frame.unit == "target" then
+		frame: RegisterEvent("PLAYER_TARGET_CHANGED")
+	elseif frame.unit == "focus" then
+		frame: RegisterEvent("PLAYER_FOCUS_CHANGED")
+	end
 	frame: RegisterEvent("PLAYER_ENTERING_WORLD")
-	frame: RegisterEvent("PLAYER_TARGET_CHANGED")
-	frame: RegisterEvent("PLAYER_FOCUS_CHANGED")
-	frame: RegisterEvent("UNIT_AURA")
+	frame: RegisterUnitEvent("UNIT_AURA", frame.unit, displayedUnit)
 	frame: SetScript("OnEvent", function(self,event)
 		Aura_Event(frame)
 	end)
 	
+	frame: SetScript("OnUpdate", function(self, elapsed)
+		Aura_Update(frame, elapsed)
+	end)
+end
+
+function F.Aura_Template(frame)
+	frame.AuraOnEvent = Aura_Event
 	frame: SetScript("OnUpdate", function(self, elapsed)
 		Aura_Update(frame, elapsed)
 	end)
@@ -425,7 +459,11 @@ end
 local function AL_OnEvent(frame)
 	frame: RegisterEvent("PLAYER_ENTERING_WORLD")
 	frame: RegisterEvent("PLAYER_TARGET_CHANGED")
-	frame: RegisterEvent("PLAYER_FOCUS_CHANGED")
+	if F.IsClassic then
+		
+	else
+		frame: RegisterEvent("PLAYER_FOCUS_CHANGED")
+	end
 	frame: RegisterUnitEvent("UNIT_PET", "player")
 	frame: RegisterEvent("UNIT_AURA")
 	frame: SetScript("OnEvent", function(self,event)

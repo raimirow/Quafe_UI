@@ -207,6 +207,57 @@
 			</OnEvent>
 		</Scripts>
 	</ItemButton>
+	<CheckButton name="Quafe_BackpackButtonClassicTemplate" inherits="ItemButtonTemplate" virtual="true">
+		<Scripts>
+			<OnLoad>
+				ItemAnim_OnLoad(self)
+				self:RegisterForClicks("LeftButtonUp", "RightButtonUp");
+				local slotName = self:GetName();
+				local texture = _G[slotName.."IconTexture"];
+				texture:SetTexture("Interface\\Buttons\\Button-Backpack-Up");
+			</OnLoad>
+			<OnClick>
+				if ( IsModifiedClick() ) then
+					BagSlotButton_OnModifiedClick(self, button);
+				else
+					local id = self:GetID();
+					local translatedID = id - CharacterBag0Slot:GetID() + 1
+					local hadItem = PutItemInBag(id);
+					if ( not hadItem ) then
+						if button == "LeftButton" then
+							BagSlotButton_OnDrag(self, button)
+						else
+							ToggleBag(translatedID);
+						end
+					end
+				end
+			</OnClick>
+			<OnDragStart>
+				BagSlotButton_OnDrag(self, button);
+			</OnDragStart>
+			<OnReceiveDrag>
+				local id = self:GetID();
+				local translatedID = id - CharacterBag0Slot:GetID() + 1
+				local hadItem = PutItemInBag(id);
+				if ( not hadItem ) then
+					if button == "LeftButton" then
+						BagSlotButton_OnDrag(self, button)
+					else
+						ToggleBag(translatedID);
+					end
+				end
+			</OnReceiveDrag>
+			<OnEnter>
+				GameTooltip:SetOwner(self, "ANCHOR_LEFT");
+				GameTooltip:SetText(BACKPACK_TOOLTIP, 1.0, 1.0, 1.0);
+				GameTooltip:Show();
+			</OnEnter>
+			<OnLeave>
+				GameTooltip:Hide();
+				ResetCursor();
+			</OnLeave>
+		</Scripts>
+	</CheckButton>
 	<ItemButton name="Quafe_BagSlotButtonTemplate" inherits="BagSlotButtonTemplate" virtual="true">
 		<Scripts>
 			<OnClick>
@@ -249,6 +300,48 @@
 			</OnLeave>
 		</Scripts>
 	</ItemButton>
+	<CheckButton name="Quafe_BagSlotButtonClassicTemplate" inherits="BagSlotButtonTemplate" virtual="true">
+		<Scripts>
+			<OnClick>
+				if ( IsModifiedClick() ) then
+					BagSlotButton_OnModifiedClick(self, button);
+				else
+					local id = self:GetID();
+					local translatedID = id - CharacterBag0Slot:GetID() + 1
+					local hadItem = PutItemInBag(id);
+					if ( not hadItem ) then
+						if button == "LeftButton" then
+							BagSlotButton_OnDrag(self, button)
+						else
+							ToggleBag(translatedID);
+						end
+					end
+				end
+			</OnClick>
+			<OnDragStart>
+				BagSlotButton_OnDrag(self, button);
+			</OnDragStart>
+			<OnReceiveDrag>
+				local id = self:GetID();
+				local translatedID = id - CharacterBag0Slot:GetID() + 1
+				local hadItem = PutItemInBag(id);
+				if ( not hadItem ) then
+					if button == "LeftButton" then
+						BagSlotButton_OnDrag(self, button)
+					else
+						ToggleBag(translatedID);
+					end
+				end
+			</OnReceiveDrag>
+			<OnEnter>
+				BagSlotButton_OnEnter(self, motion);
+			</OnEnter>
+			<OnLeave>
+				GameTooltip:Hide();
+				ResetCursor();
+			</OnLeave>
+		</Scripts>
+	</CheckButton>
 	<ItemButton name="Quafe_BankSlotButtonTemplate" inherits="BankItemButtonBagTemplate" virtual="true">
 		<Scripts>
 			<OnClick>
@@ -281,4 +374,36 @@
 			</OnReceiveDrag>
 		</Scripts>
 	</ItemButton>
+	<CheckButton name="Quafe_BankSlotButtonClassicTemplate" inherits="BankItemButtonBagTemplate" virtual="true">
+		<Scripts>
+			<OnClick>
+				if ( IsModifiedClick() ) then
+					BankFrameItemButtonBag_Pickup(self);
+				else
+					local inventoryID = self:GetInventorySlot();
+					local hadItem = PutItemInBag(inventoryID);
+					local id = self:GetID();
+					if ( not hadItem ) then
+						if button == "LeftButton" then
+							BankFrameItemButtonBag_Pickup(self, button)
+						else
+							ToggleBag(id+NUM_BAG_SLOTS)
+						end
+					end
+				end
+			</OnClick>
+			<OnReceiveDrag>
+				local inventoryID = self:GetInventorySlot();
+				local hadItem = PutItemInBag(inventoryID);
+				local id = self:GetID();
+				if ( not hadItem ) then
+					if button == "LeftButton" then
+						BankFrameItemButtonBag_Pickup(self, button)
+					else
+						ToggleBag(id+NUM_BAG_SLOTS)
+					end
+				end
+			</OnReceiveDrag>
+		</Scripts>
+	</CheckButton>
 </Ui>
