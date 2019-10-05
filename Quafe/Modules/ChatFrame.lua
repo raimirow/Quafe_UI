@@ -25,6 +25,8 @@ local insert = table.insert
 local remove = table.remove
 local wipe = table.wipe
 
+local match = string.match
+
 ----------------------------------------------------------------
 --> Init
 ----------------------------------------------------------------
@@ -82,7 +84,8 @@ local function MenuButton_Template(frame)
     Icon: SetPoint("CENTER")
     Icon: SetVertexColor(F.Color(C.Color.White))
 
-	MenuButton: SetScript("OnClick", function(self, button)
+	MenuButton: SetScript("OnEnter", function(self, button)
+		Icon: SetVertexColor(F.Color(C.Color.Y3))
 		if QuafeChatMenu then
 			if QuafeChatMenu: IsShown() then
 				QuafeChatMenu: Hide()
@@ -92,6 +95,10 @@ local function MenuButton_Template(frame)
 				QuafeChatMenu: Show()
 			end
 		end
+	end)
+
+	MenuButton: SetScript("OnLeave", function(self, button)
+		Icon: SetVertexColor(F.Color(C.Color.White))
 	end)
 
 	MenuButton: SetScript("OnMouseDown", function(self, button)
@@ -375,86 +382,30 @@ end
 ----------------------------------------------------------------
 --> EditBox ChatMenu
 ----------------------------------------------------------------
---[[
-local CHAT_CHANNEL = {
-	--RAID_WARNING,
-	{Text = SAY, Type = "SAY"},
-	{Text = YELL, Type = "YELL"},
-	{Text = EMOTE, Type = "EMOTE"},
-	{Text = PARTY, Type = "PARTY"},
-	{Text = RAID, Type = "RAID"},
-	{Text = INSTANCE, Type = "INSTANCE_CHAT"},
-	{Text = GUILD, Type = "GUILD"},
-	{Text = OFFICER, Type = "OFFICER"},
-}
-
-local function Quafe_ChatFrame_ChannelToggle(f)
-	f.ChatSwitch = CreateFrame("Frame", "ChatChannelSwitch", f)
-	f.ChatSwitch: SetSize(48,22)
-	--f.ChatSwitch: SetPoint("BOTTOMLEFT", ChatFrame1EditBox, "TOPLEFT", 0,0)
-	f.ChatSwitch: Hide()
-	
-	f.ChatSwitch.Channel = {}
-	for i,v in ipairs(CHAT_CHANNEL) do
-		f.ChatSwitch.Channel[i] = CreateFrame("Button", nil,f.ChatSwitch)
-		f.ChatSwitch.Channel[i]: SetSize(48, 22)
-		if i == 1 then
-			f.ChatSwitch.Channel[i]: SetPoint("BOTTOM", f.ChatSwitch, "BOTTOM", 0,0)
-		else
-			f.ChatSwitch.Channel[i]: SetPoint("BOTTOM", f.ChatSwitch.Channel[i-1], "TOP", 0,2)
-		end
-		
-		f.ChatSwitch.Channel[i]: SetBackdrop(backdrop)
-		f.ChatSwitch.Channel[i]: SetBackdropColor(F.Color(C.Color.Black, 0.95))
-		
-		f.ChatSwitch.Channel[i].Text = F.create_Font(f.ChatSwitch.Channel[i], C.Font.Txt, 14, nil, 0)
-		f.ChatSwitch.Channel[i].Text: SetPoint("CENTER")
-		f.ChatSwitch.Channel[i].Text: SetText(v.Text)
-		
-		f.ChatSwitch.Channel[i]: RegisterForClicks("AnyUp")
-		f.ChatSwitch.Channel[i]: SetScript("OnClick", function(self, button)
-			for _, frameName in pairs(CHAT_FRAMES) do
-				if _G[frameName.."EditBox"]:HasFocus() then
-					_G[frameName.."EditBox"]:SetAttribute("chatType", v.Type)
-					ChatEdit_UpdateHeader(_G[frameName.."EditBox"])
-				end
-			end
-			f.ChatSwitch: Hide()
-		end)
-	end
-end
---]]
 
 local function ChatMenu_GetEditbox()
+	return ChatFrame_OpenChat("")
+	--[[
 	for _, frameName in pairs(CHAT_FRAMES) do
 		if _G[frameName.."EditBox"]:HasFocus() then
 			return _G[frameName.."EditBox"]
 		end
 	end
 	return _G[DEFAULT_CHAT_FRAME.."EditBox"]
+	--]]
 end
 
 local CHAT_CHANNEL = {
-	--RAID_WARNING,
 	{Text = SAY_MESSAGE, Type = "SAY"},
-	{Text = YELL, Type = "YELL"},
+	{Text = YELL_MESSAGE, Type = "YELL"},
 	{Text = WHISPER_MESSAGE, Type = "WHISPER"},
-	{Text = EMOTE, Type = "EMOTE"},
-	{Text = PARTY, Type = "PARTY"},
-	{Text = RAID, Type = "RAID"},
+	{Text = EMOTE_MESSAGE, Type = "EMOTE"},
+	{Text = PARTY_MESSAGE, Type = "PARTY"},
+	{Text = RAID_MESSAGE, Type = "RAID"},
+	{Text = RAID_WARNING, Type = "RAID_WARNING"},
 	{Text = INSTANCE, Type = "INSTANCE_CHAT"},
 	{Text = GUILD, Type = "GUILD"},
 	{Text = OFFICER, Type = "OFFICER"},
-	{Text = 1, Type = "CHANNEL1"},
-	{Text = 2, Type = "CHANNEL2"},
-	{Text = 3, Type = "CHANNEL3"},
-	{Text = 4, Type = "CHANNEL4"},
-	{Text = 5, Type = "CHANNEL5"},
-	{Text = 6, Type = "CHANNEL6"},
-	{Text = 7, Type = "CHANNEL7"},
-	{Text = 8, Type = "CHANNEL8"},
-	{Text = 9, Type = "CHANNEL9"},
-	{Text = 10, Type = "CHANNEL10"},
 }
 
 local function ChatMenu_GetChannelName(index)
@@ -468,32 +419,44 @@ local function ChatMenu_GetChannelName(index)
 	end
 end
 
-local function ChatMenu_ChannelFrame_ChannelClick(frame, button, chattype, target)
+local function ChatMenu_ChannelOnClick(frame, button, chattype, index)
 	if chattype == "WHISPER" then
-		local EditBox = ChatFrame_OpenChat(SLASH_SMART_WHISPER1.." ");
-		EditBox:SetText(SLASH_SMART_WHISPER1.." "..editBox:GetText());
+		EditBox = ChatFrame_OpenChat(SLASH_SMART_WHISPER1.." ");
+		EditBox: SetText(SLASH_SMART_WHISPER1.." "..editBox:GetText());
+	elseif chattype == "CHANNEL" then
+		local EditBox = ChatMenu_GetEditbox()
+		EditBox: SetAttribute("channelTarget", index)
+		EditBox: SetAttribute("chatType", chattype)
+		ChatEdit_UpdateHeader(EditBox)
+	else
+		local EditBox = ChatMenu_GetEditbox()
+		EditBox: SetAttribute("chatType", chattype)
+		ChatEdit_UpdateHeader(EditBox)
 	end
+	frame.ChatMenuChatFrame: Hide()
+	frame.ChatMenuChannelFrame: Hide()
+	frame.ChatMenuFrame: Hide()
 end
 
-local function ChatMenu_ChannelFrame_Tamplate(frame)
-	local ChannelFrame = CreateFrame("Frame", nil, frame)
-	ChannelFrame: SetSize(100,120)
-	ChannelFrame: SetBackdrop({
+local function ChatMenu_ChatFrame(frame)
+	local ChatFrame = CreateFrame("Frame", nil, frame)
+	ChatFrame: SetSize(100,10+22*10)
+	ChatFrame: SetBackdrop({
 		bgFile = F.Path("White"),
 		edgeFile = F.Path("White"),
 		tile = true, tileSize = 16, edgeSize = 2,
 		insets = {left = -2, right = -2, top = -2, bottom = -2}
 	})
-	ChannelFrame: SetBackdropColor(F.Color(C.Color.Main0, 0.9))
-	ChannelFrame: SetBackdropBorderColor(F.Color(C.Color.White, 0.4))
-	ChannelFrame: Hide()
+	ChatFrame: SetBackdropColor(F.Color(C.Color.Main0, 0.9))
+	ChatFrame: SetBackdropBorderColor(F.Color(C.Color.White, 0.4))
+	ChatFrame: Hide()
 
 	local Channels = {}
 	for k,v in ipairs(CHAT_CHANNEL) do
-		Channels[k] = CreateFrame("Button", nil, ChannelFrame)
+		Channels[k] = CreateFrame("Button", nil, ChatFrame)
 		Channels[k]: SetSize(88, 20)
 		if k == 1 then
-			Channels[k]: SetPoint("BOTTOM", ChannelFrame, "BOTTOM", 0,6)
+			Channels[k]: SetPoint("BOTTOM", ChatFrame, "BOTTOM", 0,6)
 		else
 			Channels[k]: SetPoint("BOTTOM", Channels[k-1], "TOP", 0,2)
 		end
@@ -506,7 +469,9 @@ local function ChatMenu_ChannelFrame_Tamplate(frame)
 		Label: SetText(ChatMenu_GetChannelName(v.Text))
 
 		Channels[k]: RegisterForClicks("LeftButtonDown", "RightButtonDown")
-		Channels[k]: SetScript("OnClick", v.Click)
+		Channels[k]: SetScript("OnClick", function(self, button)
+			ChatMenu_ChannelOnClick(frame, button, v.Type, v.Text)
+		end)
 		Channels[k]: SetScript("OnEnter", function(self)
 			self: SetBackdropColor(F.Color(C.Color.White2, 0.4))
 		end)
@@ -514,9 +479,71 @@ local function ChatMenu_ChannelFrame_Tamplate(frame)
 			self: SetBackdropColor(F.Color(C.Color.White2, 0))
 		end)
 	end
+
+	frame.ChatMenuChatFrame = ChatFrame
+	frame.ChatMenuFrame: HookScript("OnHide", function(self)
+		frame.ChatMenuChatFrame: Hide()
+	end)
 end
 
-local function ChatMenu_ReplyClick(self, button)
+local function ChatMenu_ChannelFrame(frame)
+	local ChannelFrame = CreateFrame("Frame", nil, frame)
+	ChannelFrame: SetSize(200,10+22*10)
+	ChannelFrame: SetBackdrop({
+		bgFile = F.Path("White"),
+		edgeFile = F.Path("White"),
+		tile = true, tileSize = 16, edgeSize = 2,
+		insets = {left = -2, right = -2, top = -2, bottom = -2}
+	})
+	ChannelFrame: SetBackdropColor(F.Color(C.Color.Main0, 0.9))
+	ChannelFrame: SetBackdropBorderColor(F.Color(C.Color.White, 0.4))
+	ChannelFrame: Hide()
+
+	local Channels = {}
+	for k = 1,10 do
+		Channels[k] = CreateFrame("Button", nil, ChannelFrame)
+		Channels[k]: SetSize(188, 20)
+		if k == 1 then
+			Channels[k]: SetPoint("BOTTOM", ChannelFrame, "BOTTOM", 0,6)
+		else
+			Channels[k]: SetPoint("BOTTOM", Channels[k-1], "TOP", 0,2)
+		end
+		Channels[k]: SetBackdrop(backdrop)
+		Channels[k]: SetBackdropColor(F.Color(C.Color.White2, 0))
+
+		local Label = F.Create.Font(Channels[k], "ARTWORK", C.Font.Txt, 14, nil, nil, nil, nil, "LEFT", "CENTER")
+		Label: SetPoint("TOPLEFT", Channels[k], "TOPLEFT", 4,-2)
+		Label: SetPoint("BOTTOMRIGHT", Channels[k], "BOTTOMRIGHT", -4,2)
+		Label: SetText(ChatMenu_GetChannelName(k))
+
+		Channels[k]: RegisterForClicks("LeftButtonDown", "RightButtonDown")
+		Channels[k]: SetScript("OnClick", function(self, button)
+			ChatMenu_ChannelOnClick(frame, button, "CHANNEL", k)
+		end)
+		Channels[k]: SetScript("OnEnter", function(self)
+			self: SetBackdropColor(F.Color(C.Color.White2, 0.4))
+		end)
+		Channels[k]: SetScript("OnLeave", function(self)
+			self: SetBackdropColor(F.Color(C.Color.White2, 0))
+		end)
+	end
+
+	frame.ChatMenuChannelFrame = ChannelFrame
+	frame.ChatMenuFrame: HookScript("OnHide", function(self)
+		frame.ChatMenuChannelFrame: Hide()
+	end)
+end
+
+local function ChatMenu_LanguageFrame(frame)
+	local LanguageFrame = CreateFrame("Frame", nil, frame)
+end
+
+local function ChatMenu_HideMenus(frame)
+	frame.ChatMenuChatFrame: Hide()
+	frame.ChatMenuChannelFrame: Hide()
+end
+
+local function ChatMenu_ReplyClick(frame, self, button)
 	local editBox = ChatMenu_GetEditbox()
 	local lastTold, lastToldType = ChatEdit_GetLastToldTarget();
 	if ( lastTold ) then
@@ -530,22 +557,31 @@ local function ChatMenu_ReplyClick(self, button)
 	else
 		-- Error message
 	end
+	frame.ChatMenuFrame: Hide()
 end
 
-local function ChatMenu_ChannelClick(self, button)
+local function ChatMenu_ChatClick(frame, self, button)
+	--frame.ChatMenuChatFrame: SetShown(not frame.ChatMenuChatFrame:IsShown())
+	frame.ChatMenuChatFrame: Show()
+	frame.ChatMenuChatFrame: SetPoint("BOTTOMLEFT", self, "BOTTOMRIGHT", 12,0)
+end
+
+local function ChatMenu_ChannelClick(frame, self, button)
+	--frame.ChatMenuChannelFrame: SetShown(not frame.ChatMenuChannelFrame:IsShown())
+	frame.ChatMenuChannelFrame: Show()
+	frame.ChatMenuChannelFrame: SetPoint("BOTTOMLEFT", self, "BOTTOMRIGHT", 12,0)
+end
+
+local function ChatMenu_VoiceMacroClick(frame, self, button)
 
 end
 
-local function ChatMenu_VoiceMacroClick(self, button)
+local function ChatMenu_EmoteClick(frame, self, button)
 
 end
 
-local function ChatMenu_EmoteClick(self, button)
-
-end
-
-local function ChatMenu_LanguageClick(self, button)
-
+local function ChatMenu_LanguageClick(frame, self, button)
+	
 end
 
 local CHATMENU_LIST = {
@@ -553,27 +589,31 @@ local CHATMENU_LIST = {
 		Text = REPLY_MESSAGE,
 		Click = ChatMenu_ReplyClick,
 	},
+	{	--聊天
+		Text = CHAT,
+		Enter = ChatMenu_ChatClick,
+	},
 	{	--频道
 		Text = CHANNEL,
-		Click = ChatMenu_ChannelClick,
+		Enter = ChatMenu_ChannelClick,
 	},
 	{	--谈话
 		Text = VOICEMACRO_LABEL,
-		Click = ChatMenu_VoiceMacroClick,
+		Enter = ChatMenu_VoiceMacroClick,
 	},
 	{	--表情
 		Text = EMOTE_MESSAGE,
-		Click = ChatMenu_EmoteClick,
+		Enter = ChatMenu_EmoteClick,
 	},
 	{	--语言
 		Text = LANGUAGE,
-		Click = ChatMenu_LanguageClick,
+		Enter = ChatMenu_LanguageClick,
 	},
 }
 
 local function Quafe_ChatMenu(frame)
 	local ChatMenuFrame = CreateFrame("Frame", "QuafeChatMenu", frame)
-	ChatMenuFrame: SetSize(100,120)
+	ChatMenuFrame: SetSize(100,142)
 	ChatMenuFrame: SetBackdrop({
 		bgFile = F.Path("White"),
 		edgeFile = F.Path("White"),
@@ -602,9 +642,17 @@ local function Quafe_ChatMenu(frame)
 		Label: SetText(v.Text)
 
 		Menus[k]: RegisterForClicks("LeftButtonDown", "RightButtonDown")
-		Menus[k]: SetScript("OnClick", v.Click)
+		if v.Click then
+			Menus[k]: SetScript("OnClick", function(self, button)
+				v.Click(frame, self, button)
+			end)
+		end
 		Menus[k]: SetScript("OnEnter", function(self)
 			self: SetBackdropColor(F.Color(C.Color.White2, 0.4))
+			ChatMenu_HideMenus(frame)
+			if v.Enter then
+				v.Enter(frame, self, button)
+			end
 		end)
 		Menus[k]: SetScript("OnLeave", function(self)
 			self: SetBackdropColor(F.Color(C.Color.White2, 0))
@@ -614,6 +662,8 @@ local function Quafe_ChatMenu(frame)
 	ChatMenuFrame: SetScript("OnShow", function(self)
 		
 	end)
+
+	frame.ChatMenuFrame = ChatMenuFrame
 end
 
 --[[
@@ -622,6 +672,7 @@ end
 表情
 谈话
 频道
+聊天
 回复
 --]]
 
@@ -704,8 +755,10 @@ local function Quafe_ChatFrame_Load()
 	if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_ChatFrame.Enable then
 		Quafe_ChatFrame_Init(Quafe_ChatFrame)
 		Quafe_ChatFrame_Skin(Quafe_ChatFrame)
-		--Quafe_ChatFrame_ChannelToggle(Quafe_ChatFrame)
 		Quafe_ChatMenu(Quafe_ChatFrame)
+		ChatMenu_ChatFrame(Quafe_ChatFrame)
+		ChatMenu_ChannelFrame(Quafe_ChatFrame)
+		ChatMenu_LanguageFrame(Quafe_ChatFrame)
 		Quafe_ChatFrame_History(Quafe_ChatFrame)
 		Quafe_ChatFrame.Init = true
 	end
