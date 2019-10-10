@@ -344,22 +344,6 @@ local function Quafe_ChatFrame_Skin_Event(f, event)
 	end
 end
 
-local function Skin_OnEnteringWorld()
-	CombatLogQuickButtonFrame_CustomTexture: SetAlpha(0)
-
-	--ChatAlertFrame
-	ChatFrameChannelButton: ClearAllPoints();
-	ChatFrameChannelButton: SetPoint("BOTTOMRIGHT", ChatFrame1, "TOPLEFT", -3, 3);
-	if F.IsClassic then
-	else
-		ChatFrameToggleVoiceDeafenButton: ClearAllPoints();
-		ChatFrameToggleVoiceDeafenButton: SetPoint("BOTTOM", ChatFrameChannelButton, "TOP", 0, 2);
-		ChatFrameToggleVoiceMuteButton: ClearAllPoints();
-		ChatFrameToggleVoiceMuteButton: SetPoint("BOTTOM", ChatFrameToggleVoiceDeafenButton, "TOP", 0, 2);
-	end
-	--VoiceActivityManager
-end
-
 local function Quafe_ChatFrame_Skin(frame)
 	local Skin = CreateFrame("Frame", nil, frame)
 	Skin: RegisterEvent("UPDATE_CHAT_WINDOWS")
@@ -368,11 +352,10 @@ local function Quafe_ChatFrame_Skin(frame)
 	else
 		Skin: RegisterEvent("PET_BATTLE_CLOSE")
 	end
-	Skin: RegisterEvent("PLAYER_ENTERING_WORLD")
+	
 	Skin: SetScript("OnEvent", function(self, event, ...)
 		if event == "PLAYER_ENTERING_WORLD" then
 			self:UnregisterEvent("PLAYER_ENTERING_WORLD")
-			Skin_OnEnteringWorld()
 		else
 			Quafe_ChatFrame_Skin_Event(self, event)
 		end
@@ -422,7 +405,7 @@ end
 local function ChatMenu_ChannelOnClick(frame, button, chattype, index)
 	if chattype == "WHISPER" then
 		EditBox = ChatFrame_OpenChat(SLASH_SMART_WHISPER1.." ");
-		EditBox: SetText(SLASH_SMART_WHISPER1.." "..editBox:GetText());
+		EditBox: SetText(SLASH_SMART_WHISPER1.." "..EditBox:GetText());
 	elseif chattype == "CHANNEL" then
 		local EditBox = ChatMenu_GetEditbox()
 		EditBox: SetAttribute("channelTarget", index)
@@ -433,14 +416,12 @@ local function ChatMenu_ChannelOnClick(frame, button, chattype, index)
 		EditBox: SetAttribute("chatType", chattype)
 		ChatEdit_UpdateHeader(EditBox)
 	end
-	frame.ChatMenuChatFrame: Hide()
-	frame.ChatMenuChannelFrame: Hide()
 	frame.ChatMenuFrame: Hide()
 end
 
 local function ChatMenu_ChatFrame(frame)
 	local ChatFrame = CreateFrame("Frame", nil, frame)
-	ChatFrame: SetSize(100,10+22*10)
+	ChatFrame: SetSize(150,10+22*10)
 	ChatFrame: SetBackdrop({
 		bgFile = F.Path("White"),
 		edgeFile = F.Path("White"),
@@ -454,7 +435,7 @@ local function ChatMenu_ChatFrame(frame)
 	local Channels = {}
 	for k,v in ipairs(CHAT_CHANNEL) do
 		Channels[k] = CreateFrame("Button", nil, ChatFrame)
-		Channels[k]: SetSize(88, 20)
+		Channels[k]: SetSize(138, 20)
 		if k == 1 then
 			Channels[k]: SetPoint("BOTTOM", ChatFrame, "BOTTOM", 0,6)
 		else
@@ -526,7 +507,30 @@ local function ChatMenu_ChannelFrame(frame)
 		Channels[k]: SetScript("OnLeave", function(self)
 			self: SetBackdropColor(F.Color(C.Color.White2, 0))
 		end)
+
+		Channels[k].Label = Label
 	end
+
+	ChannelFrame: SetScript("OnShow", function(self)
+		local num = 0
+		for k = 1,10 do
+			local name = ChatMenu_GetChannelName(k)
+			if name then
+				Channels[k]: Show()
+				if k ~= 1 then
+					Channels[k]: SetPoint("BOTTOM", Channels[k-1], "TOP", 0,2)
+				end
+				Channels[k].Label: SetText(ChatMenu_GetChannelName(k))
+				num = num + 1
+			else
+				Channels[k]: Hide()
+				if k ~= 1 then
+					Channels[k]: SetPoint("BOTTOM", Channels[k-1], "TOP", 0,-20)
+				end
+			end
+		end
+		self: SetHeight(10+22*num)
+	end)
 
 	frame.ChatMenuChannelFrame = ChannelFrame
 	frame.ChatMenuFrame: HookScript("OnHide", function(self)
@@ -536,11 +540,80 @@ end
 
 local function ChatMenu_LanguageFrame(frame)
 	local LanguageFrame = CreateFrame("Frame", nil, frame)
+	LanguageFrame: SetSize(150,10+22*2)
+	LanguageFrame: SetBackdrop({
+		bgFile = F.Path("White"),
+		edgeFile = F.Path("White"),
+		tile = true, tileSize = 16, edgeSize = 2,
+		insets = {left = -2, right = -2, top = -2, bottom = -2}
+	})
+	LanguageFrame: SetBackdropColor(F.Color(C.Color.Main0, 0.9))
+	LanguageFrame: SetBackdropBorderColor(F.Color(C.Color.White, 0.4))
+	LanguageFrame: Hide()
+
+	local Languages = {}
+	for k = 1,2 do
+		Languages[k] = CreateFrame("Button", nil, LanguageFrame)
+		Languages[k]: SetSize(138, 20)
+		if k == 1 then
+			Languages[k]: SetPoint("BOTTOM", LanguageFrame, "BOTTOM", 0,6)
+		else
+			Languages[k]: SetPoint("BOTTOM", Languages[k-1], "TOP", 0,2)
+		end
+		Languages[k]: SetBackdrop(backdrop)
+		Languages[k]: SetBackdropColor(F.Color(C.Color.White2, 0))
+
+		local Label = F.Create.Font(Languages[k], "ARTWORK", C.Font.Txt, 14, nil, nil, nil, nil, "LEFT", "CENTER")
+		Label: SetPoint("TOPLEFT", Languages[k], "TOPLEFT", 4,-2)
+		Label: SetPoint("BOTTOMRIGHT", Languages[k], "BOTTOMRIGHT", -4,2)
+
+		Languages[k]: RegisterForClicks("LeftButtonDown", "RightButtonDown")
+		Languages[k]: SetScript("OnClick", function(self, button)
+			local EditBox = ChatMenu_GetEditbox()
+			EditBox.language, EditBox.languageID = GetLanguageByIndex(k)
+			frame.ChatMenuFrame: Hide()
+		end)
+		Languages[k]: SetScript("OnEnter", function(self)
+			self: SetBackdropColor(F.Color(C.Color.White2, 0.4))
+		end)
+		Languages[k]: SetScript("OnLeave", function(self)
+			self: SetBackdropColor(F.Color(C.Color.White2, 0))
+		end)
+
+		Languages[k].Label = Label
+	end
+
+	LanguageFrame: SetScript("OnShow", function(self)
+		local num = 0
+		for k = 1,2 do
+			local name, languageID = GetLanguageByIndex(k)
+			if name then
+				Languages[k]: Show()
+				if k ~= 1 then
+					Languages[k]: SetPoint("BOTTOM", Languages[k-1], "TOP", 0,2)
+				end
+				Languages[k].Label: SetText(name)
+				num = num + 1
+			else
+				Languages[k]: Hide()
+				if k ~= 1 then
+					Languages[k]: SetPoint("BOTTOM", Languages[k-1], "TOP", 0,-20)
+				end
+			end
+		end
+		self: SetHeight(10+22*num)
+	end)
+
+	frame.ChatMenuLanguageFrame = LanguageFrame
+	frame.ChatMenuFrame: HookScript("OnHide", function(self)
+		frame.ChatMenuLanguageFrame: Hide()
+	end)
 end
 
 local function ChatMenu_HideMenus(frame)
 	frame.ChatMenuChatFrame: Hide()
 	frame.ChatMenuChannelFrame: Hide()
+	frame.ChatMenuLanguageFrame: Hide()
 end
 
 local function ChatMenu_ReplyClick(frame, self, button)
@@ -581,7 +654,8 @@ local function ChatMenu_EmoteClick(frame, self, button)
 end
 
 local function ChatMenu_LanguageClick(frame, self, button)
-	
+	frame.ChatMenuLanguageFrame: Show()
+	frame.ChatMenuLanguageFrame: SetPoint("BOTTOMLEFT", self, "BOTTOMRIGHT", 12,0)
 end
 
 local CHATMENU_LIST = {
@@ -597,6 +671,7 @@ local CHATMENU_LIST = {
 		Text = CHANNEL,
 		Enter = ChatMenu_ChannelClick,
 	},
+	--[[
 	{	--谈话
 		Text = VOICEMACRO_LABEL,
 		Enter = ChatMenu_VoiceMacroClick,
@@ -605,6 +680,7 @@ local CHATMENU_LIST = {
 		Text = EMOTE_MESSAGE,
 		Enter = ChatMenu_EmoteClick,
 	},
+	--]]
 	{	--语言
 		Text = LANGUAGE,
 		Enter = ChatMenu_LanguageClick,
@@ -613,7 +689,7 @@ local CHATMENU_LIST = {
 
 local function Quafe_ChatMenu(frame)
 	local ChatMenuFrame = CreateFrame("Frame", "QuafeChatMenu", frame)
-	ChatMenuFrame: SetSize(100,142)
+	ChatMenuFrame: SetSize(100,10+22*4)
 	ChatMenuFrame: SetBackdrop({
 		bgFile = F.Path("White"),
 		edgeFile = F.Path("White"),
@@ -675,6 +751,67 @@ end
 聊天
 回复
 --]]
+
+----------------------------------------------------------------
+--> Voice Menu
+----------------------------------------------------------------
+
+local function ChatFrame_VoiceMenu_Event(frame)
+	CombatLogQuickButtonFrame_CustomTexture: SetAlpha(0)
+
+	--ChatAlertFrame
+	ChatFrameChannelButton: SetParent(frame)
+	ChatFrameChannelButton: ClearAllPoints()
+	ChatFrameChannelButton: SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT")
+	if F.IsClassic then
+	else
+		ChatFrameToggleVoiceDeafenButton: SetParent(frame)
+		ChatFrameToggleVoiceDeafenButton: ClearAllPoints();
+		ChatFrameToggleVoiceDeafenButton: SetPoint("BOTTOM", ChatFrameChannelButton, "TOP", 0, 2);
+
+		ChatFrameToggleVoiceMuteButton: SetParent(frame)
+		ChatFrameToggleVoiceMuteButton: ClearAllPoints();
+		ChatFrameToggleVoiceMuteButton: SetPoint("BOTTOM", ChatFrameToggleVoiceDeafenButton, "TOP", 0, 2);
+	end
+	--VoiceActivityManager: ClearAllPoints()
+	--VoiceActivityManager: SetPoint("BOTTOMLEFT", frame, "BOTTOMLEFT")
+end
+
+local function Quafe_ChatFrame_VoiceMenuFrame(frame)
+	local VoiceMenuButton = CreateFrame("Frame", nil, frame)
+	VoiceMenuButton: SetSize(28,28)
+	VoiceMenuButton: SetPoint("BOTTOMRIGHT", ChatFrame1, "TOPLEFT", -4, 4)
+
+	local Icon = VoiceMenuButton: CreateTexture(nil, "ARTWORK")
+    Icon: SetTexture(F.Path("Config_ArrowUp"))
+    Icon: SetSize(28,28)
+    Icon: SetPoint("CENTER", VoiceMenuButton, "CENTER", 0,-4)
+    Icon: SetVertexColor(F.Color(C.Color.White))
+	Icon: SetAlpha(0.4)
+
+	local VoiceMenuHold = CreateFrame("Frame", nil, frame)
+	VoiceMenuHold: SetSize(32,32)
+	VoiceMenuHold: SetPoint("BOTTOMLEFT", VoiceMenuButton, "BOTTOMLEFT")
+	VoiceMenuHold: Hide()
+
+	VoiceMenuButton: SetScript("OnEnter", function(self, button)
+		C_Timer.After(5, function()
+			VoiceMenuButton: Show()
+			VoiceMenuHold: Hide()
+		end)
+		VoiceMenuHold: Show()
+		VoiceMenuButton: Hide()
+	end)
+
+	VoiceMenuHold: RegisterEvent("PLAYER_ENTERING_WORLD")
+	VoiceMenuHold: SetScript("OnEvent", function(self, event, ...)
+		ChatFrame_VoiceMenu_Event(self)
+	end)
+
+	VoiceMenuHold: SetScript("OnShow", function(self)
+
+	end)
+end
 
 ----------------------------------------------------------------
 --> Chat History
@@ -759,6 +896,7 @@ local function Quafe_ChatFrame_Load()
 		ChatMenu_ChatFrame(Quafe_ChatFrame)
 		ChatMenu_ChannelFrame(Quafe_ChatFrame)
 		ChatMenu_LanguageFrame(Quafe_ChatFrame)
+		Quafe_ChatFrame_VoiceMenuFrame(Quafe_ChatFrame)
 		Quafe_ChatFrame_History(Quafe_ChatFrame)
 		Quafe_ChatFrame.Init = true
 	end

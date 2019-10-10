@@ -1,5 +1,5 @@
 ## Interface: 80205
-## Version: 8.2.5.46
+## Version: 8.2.5.47
 ## Author: Voidiver
 ## Title: Quafe
 ## Notes: Quafe
@@ -9,7 +9,7 @@
 ## SavedVariablesPerCharacter: Quafe_DBP
 ## X-oUF: oUF_Quafe
 
-## OptionalDeps: Quafe_Libs_Classic, Quafe_Libs, Details, Skada, MeetingStone, WIM, Clique
+## OptionalDeps: Quafe_Libs_Classic, Quafe_Libs, Details, Skada, MeetingStone, WIM, Clique, RealMobHealth
 
 Quafe.xml
 Quafe.lua
