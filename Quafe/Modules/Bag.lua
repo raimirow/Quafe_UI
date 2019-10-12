@@ -162,9 +162,13 @@ local sortingCache = {
 
 local Bag = {}
 local BagFree = {}
+local BagSpecical = {}
+local BagSpecicalFree = {}
 local BagNew = {}
 local Bank = {}
 local BankFree = {}
+local BankSpecical = {}
+local BankSpecicalFree = {}
 local Reagent = {}
 local ReagentFree = {}
 
@@ -392,7 +396,7 @@ end
 
 local function Sell_Junk()
 	local JUNK_NUM = 0
-	for k,v in ipairs(Bag) do
+	for k,v in ipairs(Bag[0]) do
 		if v.itemType then
 			if v.itemType == "Sale" then
 				if JUNK_NUM < 12 then
@@ -670,123 +674,110 @@ local function Create_BagItemButton(f, bagID, slotID)
 	return button
 end
 
-local function Sort_BagItem(ItemTable)
-	local function SortFunc(v1, v2)
-		if (not v1.itemType) and (not v2.itemType) then
-			if v1.bagID ~= v2.bagID then
-				return v1.bagID < v2.bagID
-			else
-				return v1.slotID < v2.slotID
-			end
-		elseif not v1.itemType then
-			return false
-		elseif not v2.itemType then
-			return true
-		elseif ITEMCLASS[v1.itemType].L ~= ITEMCLASS[v2.itemType].L then
-			return ITEMCLASS[v1.itemType].L < ITEMCLASS[v2.itemType].L
-		elseif v1.itemType == "Hearthstone" then
-			if v1.itemID ~= v2.itemID then
-				return ITEMCLASS.Hearthstone.itemID[v1.itemID].L < ITEMCLASS.Hearthstone.itemID[v2.itemID].L
-			end
-		elseif v1.itemSubType and v2.itemSubType and (v1.itemSubType ~= v2.itemSubType) then
-			if ITEMCLASS[v1.itemType].SubClass and ITEMCLASS[v2.itemType].SubClass then
-				return ITEMCLASS[v1.itemType].SubClass[v1.itemSubType].L < ITEMCLASS[v2.itemType].SubClass[v2.itemSubType].L
-			elseif ITEMCLASS[v1.itemType].SubClass then
-				return true
-			elseif ITEMCLASS[v2.itemType].SubClass then
-				return false
-			else
-				return v1.itemSubType < v2.itemSubType
-			end
+local function SortFunc(v1, v2)
+	if (not v1.itemType) and (not v2.itemType) then
+		if v1.bagID ~= v2.bagID then
+			return v1.bagID < v2.bagID
 		else
-			if v1.itemType == "Food" then
-				if v1.itemLevel ~= v2.itemLevel then
-					return v1.itemLevel > v2.itemLevel
-				elseif v1.itemID ~= v2.itemID then
+			return v1.slotID < v2.slotID
+		end
+	elseif not v1.itemType then
+		return false
+	elseif not v2.itemType then
+		return true
+	elseif ITEMCLASS[v1.itemType].L ~= ITEMCLASS[v2.itemType].L then
+		return ITEMCLASS[v1.itemType].L < ITEMCLASS[v2.itemType].L
+	elseif v1.itemType == "Hearthstone" then
+		if v1.itemID ~= v2.itemID then
+			return ITEMCLASS.Hearthstone.itemID[v1.itemID].L < ITEMCLASS.Hearthstone.itemID[v2.itemID].L
+		end
+	elseif v1.itemSubType and v2.itemSubType and (v1.itemSubType ~= v2.itemSubType) then
+		if ITEMCLASS[v1.itemType].SubClass and ITEMCLASS[v2.itemType].SubClass then
+			return ITEMCLASS[v1.itemType].SubClass[v1.itemSubType].L < ITEMCLASS[v2.itemType].SubClass[v2.itemSubType].L
+		elseif ITEMCLASS[v1.itemType].SubClass then
+			return true
+		elseif ITEMCLASS[v2.itemType].SubClass then
+			return false
+		else
+			return v1.itemSubType < v2.itemSubType
+		end
+	else
+		if v1.itemType == "Food" then
+			if v1.itemLevel ~= v2.itemLevel then
+				return v1.itemLevel > v2.itemLevel
+			elseif v1.itemID ~= v2.itemID then
+				return v1.itemID > v2.itemID
+			else
+				return v1.itemCount > v2.itemCount
+			end
+		elseif v1.itemType == ITEMCLASS_Consumable then
+			if v1.itemLevel ~= v2.itemLevel then
+				return v1.itemLevel > v2.itemLevel
+			elseif v1.itemID ~= v2.itemID then
+				if v1.itemID and v2.itemID then
 					return v1.itemID > v2.itemID
 				else
-					return v1.itemCount > v2.itemCount
-				end
-			elseif v1.itemType == ITEMCLASS_Consumable then
-				if v1.itemLevel ~= v2.itemLevel then
-					return v1.itemLevel > v2.itemLevel
-				elseif v1.itemID ~= v2.itemID then
-					if v1.itemID and v2.itemID then
-						return v1.itemID > v2.itemID
-					--elseif v1.itemID then
-					--	return true
-					--elseif v2.itemID then
-					--	return false
-					else
-						return v1.itemName < v2.itemName
-					end
-				else
-					return v1.itemCount > v2.itemCount
-				end
-			elseif v1.itemType == ITEMCLASS_Weapon then
-				if v1.itemSubType and v2.itemSubType and (v1.itemSubType ~= v2.itemSubType) then
-					return v1.itemSubType < v2.itemSubType
-				elseif v1.itemLevel ~= v2.itemLevel then
-					return v1.itemLevel > v2.itemLevel
-				elseif v1.itemQuality ~= v2.itemQuality then
-					return v1.itemQuality > v2.itemQuality
-				elseif v1.itemID ~= v2.itemID then
-					if v1.itemID and v2.itemID then
-						return v1.itemID > v2.itemID
-					--elseif v1.itemID then
-					--	return true
-					--elseif v2.itemID then
-					--	return false
-					else
-						return v1.itemName < v2.itemName
-					end
-				else
-					return v1.itemCount > v2.itemCount
-				end
-			elseif v1.itemType == ITEMCLASS_Armor then
-				if (v1.itemSubType and v2.itemSubType) and (v1.itemSubType ~= v2.itemSubType) then
-					return v1.itemSubType < v2.itemSubType
-				elseif (v1.itemEquipLoc and v2.itemEquipLoc) and (v1.itemEquipLoc ~= v2.itemEquipLoc) then
-					return v1.itemEquipLoc < v2.itemEquipLoc
-				elseif v1.itemLevel ~= v2.itemLevel then
-					return v1.itemLevel > v2.itemLevel
-				elseif v1.itemQuality ~= v2.itemQuality then
-					return v1.itemQuality > v2.itemQuality
-				elseif v1.itemID ~= v2.itemID then
-					if v1.itemID and v2.itemID then
-						return v1.itemID > v2.itemID
-					--elseif v1.itemID then
-					--	return true
-					--elseif v2.itemID then
-					--	return false
-					else
-						return v1.itemName < v2.itemName
-					end
-				else
-					return v1.itemCount > v2.itemCount
+					return v1.itemName < v2.itemName
 				end
 			else
-				if v1.itemSubType and v2.itemSubType and (v1.itemSubType ~= v2.itemSubType) then
-					return v1.itemSubType < v2.itemSubType
-				elseif (v1.itemLevel and v2.itemLevel and (v1.itemLevel ~= v2.itemLevel)) then
-					return v1.itemLevel > v2.itemLevel
-				elseif v1.itemID ~= v2.itemID then
-					if v1.itemID and v2.itemID then
-						return v1.itemID > v2.itemID
-					--elseif v1.itemID then
-					--	return true
-					--elseif v2.itemID then
-					--	return false
-					else
-						return v1.itemName < v2.itemName
-					end
+				return v1.itemCount > v2.itemCount
+			end
+		elseif v1.itemType == ITEMCLASS_Weapon then
+			if v1.itemSubType and v2.itemSubType and (v1.itemSubType ~= v2.itemSubType) then
+				return v1.itemSubType < v2.itemSubType
+			elseif v1.itemLevel ~= v2.itemLevel then
+				return v1.itemLevel > v2.itemLevel
+			elseif v1.itemQuality ~= v2.itemQuality then
+				return v1.itemQuality > v2.itemQuality
+			elseif v1.itemID ~= v2.itemID then
+				if v1.itemID and v2.itemID then
+					return v1.itemID > v2.itemID
 				else
-					return v1.itemCount > v2.itemCount
+					return v1.itemName < v2.itemName
 				end
+			else
+				return v1.itemCount > v2.itemCount
+			end
+		elseif v1.itemType == ITEMCLASS_Armor then
+			if (v1.itemSubType and v2.itemSubType) and (v1.itemSubType ~= v2.itemSubType) then
+				return v1.itemSubType < v2.itemSubType
+			elseif (v1.itemEquipLoc and v2.itemEquipLoc) and (v1.itemEquipLoc ~= v2.itemEquipLoc) then
+				return v1.itemEquipLoc < v2.itemEquipLoc
+			elseif v1.itemLevel ~= v2.itemLevel then
+				return v1.itemLevel > v2.itemLevel
+			elseif v1.itemQuality ~= v2.itemQuality then
+				return v1.itemQuality > v2.itemQuality
+			elseif v1.itemID ~= v2.itemID then
+				if v1.itemID and v2.itemID then
+					return v1.itemID > v2.itemID
+				else
+					return v1.itemName < v2.itemName
+				end
+			else
+				return v1.itemCount > v2.itemCount
+			end
+		else
+			if v1.itemSubType and v2.itemSubType and (v1.itemSubType ~= v2.itemSubType) then
+				return v1.itemSubType < v2.itemSubType
+			elseif (v1.itemLevel and v2.itemLevel and (v1.itemLevel ~= v2.itemLevel)) then
+				return v1.itemLevel > v2.itemLevel
+			elseif v1.itemID ~= v2.itemID then
+				if v1.itemID and v2.itemID then
+					return v1.itemID > v2.itemID
+				else
+					return v1.itemName < v2.itemName
+				end
+			else
+				return v1.itemCount > v2.itemCount
 			end
 		end
 	end
-	table.sort(ItemTable, SortFunc)
+end
+
+local function Sort_BagItem(ItemTable)
+	for BagType, Slots in pairs(ItemTable) do
+		table.sort(Slots, SortFunc)
+	end
 end
 
 --[[
@@ -854,284 +845,230 @@ local function Update_SlotItem(slot, v)
 	--Update_CIMI(slot)
 end
 
-local function Update_BagItem(f)
-	for k,v in ipairs(Bag) do
-		Update_SlotItem(f["Bag"..v.bagID]["Slot"..v.slotID], v)
-	end
-	for k,v in ipairs(BagFree) do
-		Update_SlotItem(f["Bag"..v.bagID]["Slot"..v.slotID], v)
+local function Update_BagItem(frame)
+	for BagType, Slots in pairs(Bag) do
+		for k,v in ipairs(Slots) do
+			Update_SlotItem(frame["Bag"..v.bagID]["Slot"..v.slotID], v)
+		end
+		for k,v in ipairs(BagFree[BagType]) do
+			Update_SlotItem(frame["Bag"..v.bagID]["Slot"..v.slotID], v)
+		end
 	end
 end
 
-local function Pos_BagItem(f, pos)
+local function Pos_BagItem(frame, pos)
 	local x,y
 	local z = 0
+	local e = 0
+	local et = 0
 	local it = ""
-	BagGap_Reset(f, ITEMCLASS)
-	for k,v in ipairs(Bag) do
+	BagGap_Reset(frame, ITEMCLASS)
+	for k,v in ipairs(Bag[0]) do
 		z = z + 1
-		if it ~= v.itemType then
+		if v.itemType and it ~= v.itemType then
 			it = v.itemType
 			y = floor((z+config.perLine-1)/config.perLine) - 1
 			x = z - y * config.perLine - 1
-			f["BagIcon"..it]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
-			f["BagIcon"..it]: Show()
+			frame["BagIcon"..it]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
+			frame["BagIcon"..it]: Show()
 			z = z + 1
 		end
 		y = floor((z+config.perLine-1)/config.perLine) - 1
 		x = z - y * config.perLine - 1
-		f["Bag"..v.bagID]["Slot"..v.slotID]: ClearAllPoints()
-		f["Bag"..v.bagID]["Slot"..v.slotID]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
-		f["Bag"..v.bagID]["Slot"..v.slotID]: SetAlpha(1)
+		frame["Bag"..v.bagID]["Slot"..v.slotID]: ClearAllPoints()
+		frame["Bag"..v.bagID]["Slot"..v.slotID]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
+		frame["Bag"..v.bagID]["Slot"..v.slotID]: SetAlpha(1)
 	end
 	
 	local newgap = false
 	local freegap = false
-	for k,v in ipairs(BagFree) do
+	for k,v in ipairs(BagFree[0]) do
 		z = z + 1
 		if (not newgap) and v.itemType then
 			y = floor((z+config.perLine-1)/config.perLine) - 1
 			x = z- y * config.perLine - 1
-			f["BagIconNew"]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
-			f["BagIconNew"]: Show()
+			frame["BagIconNew"]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
+			frame["BagIconNew"]: Show()
 			z = z + 1
 			newgap = true
 		end
 		if (not freegap) and (not v.itemType) then
 			y = floor((z+config.perLine-1)/config.perLine) - 1
 			x = z- y * config.perLine - 1
-			f["BagIconFree"]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
-			f["BagIconFreeText"]: SetText(SlotNum.Free)
-			f["BagIconFree"]: Show()
+			frame["BagIconFree"]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
+			frame["BagIconFreeText"]: SetText(SlotNum.Free)
+			frame["BagIconFree"]: Show()
 			z = z + 1
 			freegap = true
 		end
 		y = floor((z+config.perLine-1)/config.perLine) - 1
 		x = z- y * config.perLine - 1
-		f["Bag"..v.bagID]["Slot"..v.slotID]: ClearAllPoints()
-		f["Bag"..v.bagID]["Slot"..v.slotID]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
-		f["Bag"..v.bagID]["Slot"..v.slotID]: SetAlpha(1)
+		frame["Bag"..v.bagID]["Slot"..v.slotID]: ClearAllPoints()
+		frame["Bag"..v.bagID]["Slot"..v.slotID]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
+		frame["Bag"..v.bagID]["Slot"..v.slotID]: SetAlpha(1)
 	end
 
-	f.Bags: SetHeight((config.buttonSize+config.buttonGap*2)*ceil(z/config.perLine)+config.border*2)
-	f: SetHeight((config.buttonSize+config.buttonGap*2)*ceil(z/config.perLine)+config.border*2+ 48+2)
+	for t,s in pairs(Bag) do
+		if t ~= 0 then
+			et = et + 1
+			e = ceil(e/config.perLine)*config.perLine
+			for k,v in ipairs(s) do
+				e = e + 1
+				y = floor((z+config.perLine-1)/config.perLine)+floor((e+config.perLine-1)/config.perLine) - 1
+				x = e - (floor((e+config.perLine-1)/config.perLine)-1) * config.perLine - 1
+				frame["Bag"..v.bagID]["Slot"..v.slotID]: ClearAllPoints()
+				frame["Bag"..v.bagID]["Slot"..v.slotID]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border*(et+1)-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
+				frame["Bag"..v.bagID]["Slot"..v.slotID]: SetAlpha(1)
+			end
+			for k,v in ipairs(BagFree[t]) do
+				e = e + 1
+				y = floor((z+config.perLine-1)/config.perLine)+floor((e+config.perLine-1)/config.perLine) - 1
+				x = e - (floor((e+config.perLine-1)/config.perLine)-1) * config.perLine - 1
+				frame["Bag"..v.bagID]["Slot"..v.slotID]: ClearAllPoints()
+				frame["Bag"..v.bagID]["Slot"..v.slotID]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border*(et+1)-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
+				frame["Bag"..v.bagID]["Slot"..v.slotID]: SetAlpha(1)
+			end
+		end
+	end
+
+	y = (config.buttonSize+config.buttonGap*2)*(ceil(z/config.perLine)+ceil(e/config.perLine))+config.border*(2+et)
+	frame.Bags: SetHeight(y)
+	frame: SetHeight(y+48+2)
+end
+
+local function GetItemInfoFromBS(BagID, SlotID)
+	local texture, itemCount, locked, quality, readable, lootable, itemLink, isFiltered = GetContainerItemInfo(BagID, SlotID)
+	if texture then
+		local _, itemID = strsplit(":", itemLink)
+		local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemLink)
+		--local itemID, itemType, itemSubType, itemEquipLoc, itemTexture, itemClassID, itemSubClassID = GetItemInfoInstant(itemLink) 
+		if (itemType == ITEMCLASS_Weapon) or (itemType == ITEMCLASS_Armor) then
+			--local itemRealLevel = LibItemUpgradeInfo:GetUpgradedItemLevel(itemLink)
+			--local itemRealLevel = select(2, LibItemInfo:GetItemInfo(itemLink))
+			local itemRealLevel = select(2, LibItemInfo:GetContainerItemLevel(BagID, SlotID))
+			itemLevel = itemRealLevel or itemLevel
+		end
+		itemType = itemType or "Other"
+		if not ITEMCLASS[itemType] then
+			itemType = "Other"
+		end
+		if quality == 0 then
+			itemType = "Sale"
+		end
+		if itemType == ITEMCLASS_Consumable then
+			if ITEMCLASS.Elixir.SubClass[itemSubType] then
+				itemType = "Elixir"
+			end
+			if ITEMCLASS.Food.SubClass[itemSubType] then
+				itemType = "Food"
+			end
+		end
+		if ITEMCLASS.Hearthstone.itemID[itemID] then
+			itemType = "Hearthstone"
+		end
+
+		return itemName,itemID,texture,itemCount,itemType,itemSubType,itemEquipLoc,quality,itemLevel,lockde
+	else
+		return nil,nil,texture,nil,nil,nil,quality,nil,lockde
+	end
+end
+
+local function GetItemTable(bagID, slotID, itemName,itemID,texture,itemCount,itemType,itemSubType,itemEquipLoc,quality,itemLevel,locked)
+	local table = {
+		bagID = bagID, slotID = slotID, 
+		itemName = itemName, itemID = itemID, 
+		itemTexture = texture, itemCount = itemCount, 
+		itemType = itemType, itemSubType = itemSubType, itemEquipLoc = itemEquipLoc,
+		itemQuality = quality, itemLevel = itemLevel,
+		itemLocked = locked
+	}
+	return table
+end
+
+local function RefreshItemTable(table, bagID, slotID, itemName,itemID,texture,itemCount,itemType,itemSubType,itemEquipLoc,quality,itemLevel,locked)
+	table.bagID = bagID
+	table.slotID = slotID
+	table.itemName = itemName
+	table.itemID = itemID
+	table.itemTexture = texture
+	table.itemCount = itemCount
+	table.itemType = itemType
+	table.itemSubType = itemSubType
+	table.itemEquipLoc = itemEquipLoc
+	table.itemQuality = quality
+	table.itemLevel = itemLevel
+	table.itemLocked = locked
 end
 
 local function Insert_BagItem(f)
 	wipe(Bag)
 	wipe(BagFree)
 	for b = 0, NUM_BAG_SLOTS do
+		local BagType = select(2,GetContainerNumFreeSlots(b)) or 0
 		if not f["Bag"..b] then
 			f["Bag"..b] = Create_BagFrame(f, b)
+		end
+		if not Bag[BagType] then
+			Bag[BagType] = {}
+		end
+		if not BagFree[BagType] then
+			BagFree[BagType] = {}
 		end
 		for s = 1, ContainerFrame_GetContainerNumSlots(b) do
 			if not f["Bag"..b]["Slot"..s] then
 				f["Bag"..b]["Slot"..s] = Create_BagItemButton(f["Bag"..b], b, s)
 			end
-			local texture, itemCount, locked, quality, readable, lootable, itemLink, isFiltered = GetContainerItemInfo(b, s)
+			local itemName,itemID,texture,itemCount,itemType,itemSubType,itemEquipLoc,quality,itemLevel,lockde = GetItemInfoFromBS(b, s)
 			if texture then
-				local _, itemID = strsplit(":", itemLink)
-				local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemLink)
-				--local itemID, itemType, itemSubType, itemEquipLoc, itemTexture, itemClassID, itemSubClassID = GetItemInfoInstant(itemLink) 
-				if (itemType == ITEMCLASS_Weapon) or (itemType == ITEMCLASS_Armor) then
-					--local itemRealLevel = LibItemUpgradeInfo:GetUpgradedItemLevel(itemLink)
-					--local itemRealLevel = select(2, LibItemInfo:GetItemInfo(itemLink))
-					local itemRealLevel = select(2, LibItemInfo:GetContainerItemLevel(b, s))
-					itemLevel = itemRealLevel or itemLevel
-				end
-				itemType = itemType or "Other"
-				if not ITEMCLASS[itemType] then
-					itemType = "Other"
-				end
-				if quality == 0 then
-					itemType = "Sale"
-				end
-				if itemType == ITEMCLASS_Consumable then
-					if ITEMCLASS.Elixir.SubClass[itemSubType] then
-						itemType = "Elixir"
-					end
-					if ITEMCLASS.Food.SubClass[itemSubType] then
-						itemType = "Food"
-					end
-				end
-				if ITEMCLASS.Hearthstone.itemID[itemID] then
-					itemType = "Hearthstone"
-				end
-				insert(Bag, {
-					bagID = b, slotID = s, 
-					itemName = itemName, itemID = itemID, 
-					itemTexture = texture, itemCount = itemCount, 
-					itemType = itemType, itemSubType = itemSubType, itemEquipLoc = itemEquipLoc,
-					itemQuality = quality, itemLevel = itemLevel,
-					itemLocked = locked,
-				})
+				insert(Bag[BagType], GetItemTable(b, s, itemName,itemID,texture,itemCount,itemType,itemSubType,itemEquipLoc,quality,itemLevel,locked))
 			else
-				insert(BagFree, {
-					bagID = b, slotID = s, 
-					itemName = nil, itemID = nil,
-					itemTexture = nil, itemCount = 0, 
-					itemType = nil, itemSubType = nil, 
-					itemQuality = nil, itemLevel = nil,
-					itemLocked = nil,
-				})
+				insert(BagFree[BagType], GetItemTable(b, s, nil,nil,nil,nil,nil,nil,nil,nil,nil,nil))
 			end
 		end
 	end
-	SlotNum.Free = #BagFree
-	SlotNum.Total = SlotNum.Free + #Bag
+	SlotNum.Free = #BagFree[0]
+	SlotNum.Total = SlotNum.Free + #Bag[0]
+end
+
+local function Refresh_SlotNumFree(frame)
+	SlotNum.Free = 0
+	for BagID = 0, NUM_BAG_SLOTS do
+		local FreeSlots,BagType = GetContainerNumFreeSlots(BagID)
+		if BagType == 0 then
+			SlotNum.Free = SlotNum.Free + FreeSlots or 0
+		end
+	end
+	--frame["BagIconFreeText"]: SetText(SlotNum.Free)
+end
+
+local function Refresh_BagItemInfo(frame)
+	for BagType, Slots in pairs(Bag) do
+		for k,v in ipairs(Bag[BagType]) do
+			local itemName,itemID,texture,itemCount,itemType,itemSubType,itemEquipLoc,quality,itemLevel,lockde = GetItemInfoFromBS(v.bagID, v.slotID)
+			if texture then
+				RefreshItemTable(v, v.bagID, v.slotID, itemName,itemID,texture,itemCount,itemType,itemSubType,itemEquipLoc,quality,itemLevel,locked)
+			else
+				RefreshItemTable(v, v.bagID, v.slotID, nil,nil,nil,nil,nil,nil,nil,nil,nil,nil)
+			end
+		end
+		for k,v in ipairs(BagFree[BagType]) do
+			local itemName,itemID,texture,itemCount,itemType,itemSubType,itemEquipLoc,quality,itemLevel,lockde = GetItemInfoFromBS(v.bagID, v.slotID)
+			if texture then
+				RefreshItemTable(v, v.bagID, v.slotID, itemName,itemID,texture,itemCount,itemType,itemSubType,itemEquipLoc,quality,itemLevel,locked)
+			else
+				RefreshItemTable(v, v.bagID, v.slotID, nil,nil,nil,nil,nil,nil,nil,nil,nil,nil)
+			end
+		end
+	end
 end
 
 local function Remove_BagItem(frame)
-	for i, v in ipairs(Bag) do
-		local texture, itemCount, locked, quality, readable, lootable, itemLink, isFiltered = GetContainerItemInfo(v.bagID, v.slotID)
-		if texture then
-			local _, itemID = strsplit(":", itemLink)
-			local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemLink)
-			if (itemType == ITEMCLASS_Weapon) or (itemType == ITEMCLASS_Armor) then
-				--local itemRealLevel = LibItemUpgradeInfo:GetUpgradedItemLevel(itemLink)
-				--local itemRealLevel = select(2, LibItemInfo:GetItemInfo(itemLink))
-				local itemRealLevel = select(2, LibItemInfo:GetContainerItemLevel(v.bagID, v.slotID))
-				itemLevel = itemRealLevel or itemLevel
-			end
-			itemType = itemType or "Other"
-			if not ITEMCLASS[itemType] then
-				itemType = "Other"
-			end
-			if quality == 0 then
-				itemType = "Sale"
-			end
-			if itemType == ITEMCLASS_Consumable then
-				if ITEMCLASS.Elixir.SubClass[itemSubType] then
-					itemType = "Elixir"
-				end
-				if ITEMCLASS.Food.SubClass[itemSubType] then
-					itemType = "Food"
-				end
-			end
-			if ITEMCLASS.Hearthstone.itemID[itemID] then
-				itemType = "Hearthstone"
-			end
-			v.itemName = itemName
-			v.itemID = itemID
-			v.itemTexture = texture
-			v.itemCount = itemCount
-			v.itemType = itemType
-			v.itemSubType = itemSubType
-			v.itemEquipLoc = itemEquipLoc
-			v.itemQuality = quality
-			v.itemLevel = itemLevel
-			v.itemLocked = locked
-		else
-			tremove(Bag, i)
-			tinsert(BagFree, {
-				bagID = v.bagID, slotID = v.slotID, 
-				itemName = nil, itemID = nil,
-				itemTexture = nil, itemCount = 0, 
-				itemType = nil, itemSubType = nil, 
-				itemQuality = nil, itemLevel = nil,
-				itemLocked = nil,
-			})
+	for i, v in ipairs(Bag[0]) do
+		if not v.itemTexture then
+			tinsert(BagFree[0], v)
+			tremove(Bag[0], i)
 		end
 	end
-	SlotNum.Free = #BagFree
-	for i, v in ipairs(BagFree) do
-		local texture, itemCount, locked, quality, readable, lootable, itemLink, isFiltered = GetContainerItemInfo(v.bagID, v.slotID)
-		if texture then
-			local _, itemID = strsplit(":", itemLink)
-			local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemLink)
-			if (itemType == ITEMCLASS_Weapon) or (itemType == ITEMCLASS_Armor) then
-				--local itemRealLevel = LibItemUpgradeInfo:GetUpgradedItemLevel(itemLink)
-				--local itemRealLevel = select(2, LibItemInfo:GetItemInfo(itemLink))
-				local itemRealLevel = select(2, LibItemInfo:GetContainerItemLevel(v.bagID, v.slotID))
-				itemLevel = itemRealLevel or itemLevel
-			end
-			itemType = itemType or "Other"
-			if not ITEMCLASS[itemType] then
-				itemType = "Other"
-			end
-			if quality == 0 then
-				itemType = "Sale"
-			end
-			if itemType == ITEMCLASS_Consumable then
-				if ITEMCLASS.Elixir.SubClass[itemSubType] then
-					itemType = "Elixir"
-				end
-				if ITEMCLASS.Food.SubClass[itemSubType] then
-					itemType = "Food"
-				end
-			end
-			if ITEMCLASS.Hearthstone.itemID[itemID] then
-				itemType = "Hearthstone"
-			end
-			v.itemName = itemName
-			v.itemID = itemID
-			v.itemTexture = texture
-			v.itemCount = itemCount
-			v.itemType = itemType
-			v.itemSubType = itemSubType
-			v.itemEquipLoc = itemEquipLoc
-			v.itemQuality = quality
-			v.itemLevel = itemLevel
-			v.itemLocked = locked
-			SlotNum.Free = SlotNum.Free - 1
-		else
-			v.itemName = nil
-			v.itemID = nil
-			v.itemTexture = nil
-			v.itemCount = nil
-			v.itemType = nil
-			v.itemSubType = nil
-			v.itemEquipLoc = nil
-			v.itemQuality = nil
-			v.itemLevel = nil
-			v.itemLocked = nil
-		end
-	end
-end
-
-local function Remove_BagFreeItem(frame)
-	for i, v in ipairs(BagFree) do
-		local texture, itemCount, locked, quality, readable, lootable, itemLink, isFiltered = GetContainerItemInfo(v.bagID, v.slotID)
-		if texture then
-			local _, itemID = strsplit(":", itemLink)
-			local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemLink)
-			if (itemType == ITEMCLASS_Weapon) or (itemType == ITEMCLASS_Armor) then
-				--local itemRealLevel = LibItemUpgradeInfo:GetUpgradedItemLevel(itemLink)
-				--local itemRealLevel = select(2, LibItemInfo:GetItemInfo(itemLink))
-				local itemRealLevel = select(2, LibItemInfo:GetContainerItemLevel(v.bagID, v.slotID))
-				itemLevel = itemRealLevel or itemLevel
-			end
-			itemType = itemType or "Other"
-			if not ITEMCLASS[itemType] then
-				itemType = "Other"
-			end
-			if quality == 0 then
-				itemType = "Sale"
-			end
-			if itemType == ITEMCLASS_Consumable then
-				if ITEMCLASS.Elixir.SubClass[itemSubType] then
-					itemType = "Elixir"
-				end
-				if ITEMCLASS.Food.SubClass[itemSubType] then
-					itemType = "Food"
-				end
-			end
-			if ITEMCLASS.Hearthstone.itemID[itemID] then
-				itemType = "Hearthstone"
-			end
-			v.itemName = itemName
-			v.itemID = itemID
-			v.itemTexture = texture
-			v.itemCount = itemCount
-			v.itemType = itemType
-			v.itemSubType = itemSubType
-			v.itemEquipLoc = itemEquipLoc
-			v.itemQuality = quality
-			v.itemLevel = itemLevel
-			v.itemLocked = locked
-		end
-	end
-	SlotNum.Free = #BagFree
 end
 
 local function FullUpdate_BagItem(frame)
@@ -1142,16 +1079,10 @@ local function FullUpdate_BagItem(frame)
 end
 
 local function LimitedUpdate_BagItem(frame)
+	Refresh_BagItemInfo()
 	Remove_BagItem(frame)
-	Sort_BagItem(Bag)
 	Sort_BagItem(BagFree)
-	Update_BagItem(frame)
-	Pos_BagItem(frame, frame.Bags)
-end
-
-local function ManualUpdate_BagItem(frame)
-	Remove_BagFreeItem(frame)
-	Sort_BagItem(Bag)
+	Refresh_SlotNumFree(frame)
 	Update_BagItem(frame)
 	Pos_BagItem(frame, frame.Bags)
 end
@@ -1245,9 +1176,9 @@ local function Search_BagItem(frame, ...)
 	end
 end
 
---- ------------------------------------------------------------
+----------------------------------------------------------------
 --> Currency
---- ------------------------------------------------------------
+----------------------------------------------------------------
 
 local function Currency_Frame(f)
 	local currency = CreateFrame("Frame", nil, f)
