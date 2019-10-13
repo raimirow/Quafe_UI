@@ -162,8 +162,6 @@ local sortingCache = {
 
 local Bag = {}
 local BagFree = {}
-local BagSpecical = {}
-local BagSpecicalFree = {}
 local BagNew = {}
 local Bank = {}
 local BankFree = {}
@@ -249,7 +247,7 @@ local function Init_ItemClass()
 			[GetItemClassInfo(13)] = 	{L = 13, C = C.Color.Y1, T = "Bag_Key",				D = GetItemClassInfo(13)},				--钥匙
 			[ITEMCLASS_Miscellaneous] =	{L = 14, C = C.Color.Y1, T = "Bag_Goods",			D = ITEMCLASS_Miscellaneous},			--杂项
 			["Other"] = 				{L = 15, C = C.Color.Y1, T = "Bag_Other",			D = OTHER},								--其它
-			["Hearthstone"] =			{L = 16, C = C.Color.Y1, T = "Bag_Hearthstone"},	--炉石
+			["Hearthstone"] =			{L = 16, C = C.Color.Y1, T = "Bag_Hearthstone",		D = GetItemInfo(6948)},					--炉石
 			["Sale"] =					{L = 17, C = C.Color.Y1, T = "Bag_Junk"},			--垃圾
 		}
 		ITEMCLASS.Elixir.SubClass = {
@@ -413,7 +411,7 @@ local function Sell_Junk()
 	DEFAULT_CHAT_FRAME:AddMessage("Sell:"..JUNK_NUM)
 end
 
-local function Init_BagGap(f, classtable, p)
+local function Init_BagGap(f, classtable, p, bank)
 	local parent
 	if p then
 		parent = p
@@ -504,16 +502,18 @@ local function Init_BagGap(f, classtable, p)
 			Sell_Junk()
 		end
 	end)
-	f["BagIconSale"]: SetScript("OnEnter", function(self)
-		GameTooltip: SetOwner(self, "ANCHOR_NONE", 0,0)
-		GameTooltip: SetPoint("BOTTOMLEFT", self, "TOPRIGHT", 0,4)
-		GameTooltip: SetText(L['SELL_JUNK'])
-		GameTooltip: Show()
-	end)
-	f["BagIconSale"]: SetScript("OnLeave", function(self)
-		GameTooltip: Hide()
-	end)
-	ButtonHighLight_Create(f["BagIconSale"], C.Color.Y1)
+	if not bank then
+		f["BagIconSale"]: SetScript("OnEnter", function(self)
+			GameTooltip: SetOwner(self, "ANCHOR_NONE", 0,0)
+			GameTooltip: SetPoint("BOTTOMLEFT", self, "TOPRIGHT", 0,4)
+			GameTooltip: SetText(L['SELL_JUNK'])
+			GameTooltip: Show()
+		end)
+		f["BagIconSale"]: SetScript("OnLeave", function(self)
+			GameTooltip: Hide()
+		end)
+		ButtonHighLight_Create(f["BagIconSale"], C.Color.Y1)
+	end
 end
 
 local function BagGap_Reset(f, classtable)
@@ -847,7 +847,7 @@ end
 
 local function Update_BagItem(frame)
 	for BagType, Slots in pairs(Bag) do
-		for k,v in ipairs(Slots) do
+		for k,v in ipairs(Bag[BagType]) do
 			Update_SlotItem(frame["Bag"..v.bagID]["Slot"..v.slotID], v)
 		end
 		for k,v in ipairs(BagFree[BagType]) do
@@ -1000,6 +1000,26 @@ local function RefreshItemTable(table, bagID, slotID, itemName,itemID,texture,it
 	table.itemLocked = locked
 end
 
+local function Check_BagNumSlots(frame, bagID)
+	local num = GetContainerNumSlots(bagID)
+	if frame.Num then
+		if frame.Num > num then
+			for i = num,frame.Num do
+				if frame["Slot"..i] then
+					frame["Slot"..i]:Hide()
+				end
+			end
+		elseif frame.Num < num then
+			for i = frame.Num,num do
+				if frame["Slot"..i] then
+					frame["Slot"..i]:Show()
+				end
+			end
+		end
+	end
+	frame.Num = num
+end
+
 local function Insert_BagItem(f)
 	wipe(Bag)
 	wipe(BagFree)
@@ -1008,6 +1028,7 @@ local function Insert_BagItem(f)
 		if not f["Bag"..b] then
 			f["Bag"..b] = Create_BagFrame(f, b)
 		end
+		Check_BagNumSlots(f["Bag"..b], b)
 		if not Bag[BagType] then
 			Bag[BagType] = {}
 		end
@@ -1063,6 +1084,9 @@ local function Refresh_BagItemInfo(frame)
 end
 
 local function Remove_BagItem(frame)
+	for b = 0, NUM_BAG_SLOTS do
+		Check_BagNumSlots(frame["Bag"..b], b)
+	end
 	for i, v in ipairs(Bag[0]) do
 		if not v.itemTexture then
 			tinsert(BagFree[0], v)
@@ -1740,12 +1764,14 @@ local function Sort_ReagentItem(ItemTable)
 	table.sort(ItemTable, SortFunc)
 end
 
-local function Update_BankItem(f)
-	for k,v in ipairs(Bank) do
-		Update_SlotItem(f["Bag"..v.bagID]["Slot"..v.slotID], v)
-	end
-	for k,v in ipairs(BankFree) do
-		Update_SlotItem(f["Bag"..v.bagID]["Slot"..v.slotID], v)
+local function Update_BankItem(frame)
+	for BagType, Slots in pairs(Bank) do
+		for k,v in ipairs(Bank[BagType]) do
+			Update_SlotItem(frame["Bag"..v.bagID]["Slot"..v.slotID], v)
+		end
+		for k,v in ipairs(BankFree[BagType]) do
+			Update_SlotItem(frame["Bag"..v.bagID]["Slot"..v.slotID], v)
+		end
 	end
 end
 
@@ -1758,47 +1784,73 @@ local function Update_ReagentItem(f)
 	end
 end
 
-local function Pos_BankItem(f, pos)
+local function Pos_BankItem(frame, pos)
 	local x,y
 	local z = 0
+	local e = 0
+	local et = 0
 	local it = ""
-	BagGap_Reset(f, BANKITEMCLASS)
-	for k,v in ipairs(Bank) do
+	BagGap_Reset(frame, ITEMCLASS)
+	for k,v in ipairs(Bank[0]) do
 		z = z + 1
-		if it ~= v.itemType then
+		if v.itemType and it ~= v.itemType then
 			it = v.itemType
 			y = floor((z+config.bankperLine-1)/config.bankperLine) - 1
 			x = z - y * config.bankperLine - 1
-			f["BagIcon"..it]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
-			f["BagIcon"..it]: Show()
+			frame["BagIcon"..it]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
+			frame["BagIcon"..it]: Show()
 			z = z + 1
 		end
 		y = floor((z+config.bankperLine-1)/config.bankperLine) - 1
 		x = z - y * config.bankperLine - 1
-		f["Bag"..v.bagID]["Slot"..v.slotID]: ClearAllPoints()
-		f["Bag"..v.bagID]["Slot"..v.slotID]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
-		f["Bag"..v.bagID]["Slot"..v.slotID]: SetAlpha(1)
+		frame["Bag"..v.bagID]["Slot"..v.slotID]: ClearAllPoints()
+		frame["Bag"..v.bagID]["Slot"..v.slotID]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
+		frame["Bag"..v.bagID]["Slot"..v.slotID]: SetAlpha(1)
 	end
 	
-	for k,v in ipairs(BankFree) do
+	for k,v in ipairs(BankFree[0]) do
 		z = z + 1
 		if k == 1 then
 			y = floor((z+config.bankperLine-1)/config.bankperLine) - 1
 			x = z - y * config.bankperLine - 1
-			f["BagIconFree"]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
-			f["BagIconFreeText"]: SetText(SlotNum.BankFree)
-			f["BagIconFree"]: Show()
+			frame["BagIconFree"]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
+			frame["BagIconFreeText"]: SetText(SlotNum.BankFree)
+			frame["BagIconFree"]: Show()
 			z = z + 1
 		end
 		y = floor((z+config.bankperLine-1)/config.bankperLine) - 1
 		x = z- y * config.bankperLine - 1
-		f["Bag"..v.bagID]["Slot"..v.slotID]: ClearAllPoints()
-		f["Bag"..v.bagID]["Slot"..v.slotID]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
-		f["Bag"..v.bagID]["Slot"..v.slotID]: SetAlpha(1)
+		frame["Bag"..v.bagID]["Slot"..v.slotID]: ClearAllPoints()
+		frame["Bag"..v.bagID]["Slot"..v.slotID]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
+		frame["Bag"..v.bagID]["Slot"..v.slotID]: SetAlpha(1)
 	end
 
-	f.Bags: SetHeight((config.buttonSize+config.buttonGap*2)*ceil(z/config.bankperLine)+config.border*2)
-	f: SetHeight((config.buttonSize+config.buttonGap*2)*ceil(z/config.bankperLine)+config.border*2+ 48+2)
+	for t,s in pairs(Bank) do
+		if t ~= 0 then
+			et = et + 1
+			e = ceil(e/config.bankperLine)*config.bankperLine
+			for k,v in ipairs(s) do
+				e = e + 1
+				y = floor((z+config.bankperLine-1)/config.bankperLine)+floor((e+config.bankperLine-1)/config.bankperLine) - 1
+				x = e - (floor((e+config.bankperLine-1)/config.bankperLine)-1) * config.bankperLine - 1
+				frame["Bag"..v.bagID]["Slot"..v.slotID]: ClearAllPoints()
+				frame["Bag"..v.bagID]["Slot"..v.slotID]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border*(et+1)-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
+				frame["Bag"..v.bagID]["Slot"..v.slotID]: SetAlpha(1)
+			end
+			for k,v in ipairs(BankFree[t]) do
+				e = e + 1
+				y = floor((z+config.bankperLine-1)/config.bankperLine)+floor((e+config.bankperLine-1)/config.bankperLine) - 1
+				x = e - (floor((e+config.bankperLine-1)/config.bankperLine)-1) * config.bankperLine - 1
+				frame["Bag"..v.bagID]["Slot"..v.slotID]: ClearAllPoints()
+				frame["Bag"..v.bagID]["Slot"..v.slotID]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border*(et+1)-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
+				frame["Bag"..v.bagID]["Slot"..v.slotID]: SetAlpha(1)
+			end
+		end
+	end
+
+	y = (config.buttonSize+config.buttonGap*2)*(ceil(z/config.bankperLine)+ceil(e/config.bankperLine))+config.border*(2+et)
+	frame.Bags: SetHeight(y)
+	frame: SetHeight(y+48+2)
 end
 
 local function Pos_ReagentItem(f, pos)
@@ -1831,6 +1883,7 @@ local function Insert_BankItem(f)
 	wipe(Reagent)
 	wipe(ReagentFree)
 	for _, b in ipairs(Bank_BagID) do
+		local BagType = select(2,GetContainerNumFreeSlots(b)) or 0
 		if not f["Bag"..b] then
 			f["Bag"..b] = Create_BankFrame(f, b)
 			if b == REAGENTBANK_CONTAINER then
@@ -1839,15 +1892,24 @@ local function Insert_BankItem(f)
 				f["Bag"..b]: SetParent(f.Bags)
 			end
 		end
+		Check_BagNumSlots(f["Bag"..b], b)
+		if not Bank[BagType] then
+			Bank[BagType] = {}
+		end
+		if not BankFree[BagType] then
+			BankFree[BagType] = {}
+		end
 		for s = 1, ContainerFrame_GetContainerNumSlots(b) do
 			if not f["Bag"..b]["Slot"..s] then
 				f["Bag"..b]["Slot"..s] = Create_BagItemButton(f["Bag"..b], b, s)
 			end
-			local texture, itemCount, locked, quality, readable, lootable, itemLink, isFiltered = GetContainerItemInfo(b, s)
+			local itemName,itemID,texture,itemCount,itemType,itemSubType,itemEquipLoc,quality,itemLevel,lockde = GetItemInfoFromBS(b, s)
+			--local texture, itemCount, locked, quality, readable, lootable, itemLink, isFiltered = GetContainerItemInfo(b, s)
 			if texture then
-				local _, itemID = strsplit(":", itemLink)
-				local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemLink)
+				--local _, itemID = strsplit(":", itemLink)
+				--local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemLink)
 				if b == REAGENTBANK_CONTAINER then
+					--[[
 					itemType = itemType or "Other"
 					itemSubType = itemSubType or "Other"
 					insert(Reagent, {
@@ -1858,7 +1920,10 @@ local function Insert_BankItem(f)
 						itemQuality = quality, itemLevel = itemLevel,
 						itemLocked = locked,
 					})
+					--]]
+					insert(Reagent, GetItemTable(b, s, itemName,itemID,texture,itemCount,itemType,itemSubType,itemEquipLoc,quality,itemLevel,locked))
 				else
+					--[[
 					if (itemType == ITEMCLASS_Weapon) or (itemType == ITEMCLASS_Armor) then
 						--local itemRealLevel = LibItemUpgradeInfo:GetUpgradedItemLevel(itemLink)
 						--local itemRealLevel = select(2, LibItemInfo:GetItemInfo(itemLink))
@@ -1888,26 +1953,14 @@ local function Insert_BankItem(f)
 						itemQuality = quality, itemLevel = itemLevel,
 						itemLocked = locked,
 					})
+					--]]
+					insert(Bank[BagType], GetItemTable(b, s, itemName,itemID,texture,itemCount,itemType,itemSubType,itemEquipLoc,quality,itemLevel,locked))
 				end
 			else
 				if b == REAGENTBANK_CONTAINER then
-					insert(ReagentFree, {
-						bagID = b, slotID = s, 
-						itemName = nil, itemID = nil,
-						itemTexture = nil, itemCount = 0, 
-						itemType = nil, itemSubType = nil, 
-						itemQuality = nil, itemLevel = nil,
-						itemLocked = nil,
-					})
+					insert(ReagentFree, GetItemTable(b, s, nil,nil,nil,nil,nil,nil,nil,nil,nil,nil))
 				else
-					insert(BankFree, {
-						bagID = b, slotID = s, 
-						itemName = nil, itemID = nil,
-						itemTexture = nil, itemCount = 0, 
-						itemType = nil, itemSubType = nil, 
-						itemQuality = nil, itemLevel = nil,
-						itemLocked = nil,
-					})
+					insert(BankFree[BagType], GetItemTable(b, s, nil,nil,nil,nil,nil,nil,nil,nil,nil,nil))
 				end
 			end
 		end
@@ -1918,17 +1971,16 @@ local function Insert_BankItem(f)
 	SlotNum.Reagent = SlotNum.ReagentFree + #Reagent
 end
 
-local function FullUpdate_BankItem(f)
-	Insert_BankItem(f)
-	
+local function FullUpdate_BankItem(frame)
+	Insert_BankItem(frame)
 	Sort_BagItem(Bank)
-	Update_BankItem(f)
-	Pos_BankItem(f, f.Bags)
+	Update_BankItem(frame)
+	Pos_BankItem(frame, frame.Bags)
 
 	if not F.IsClassic then
 		Sort_ReagentItem(Reagent)
-		Update_ReagentItem(f)
-		Pos_ReagentItem(f, f.Reagent)
+		Update_ReagentItem(frame)
+		Pos_ReagentItem(frame, frame.Reagent)
 	end
 end
 
@@ -2315,7 +2367,7 @@ local function Bank_Frame(f)
 	f.Bank.Bags = bags
 	
 	Init_BankItemClass()
-	Init_BagGap(f.Bank, BANKITEMCLASS, f.Bank.Bags)
+	Init_BagGap(f.Bank, ITEMCLASS, f.Bank.Bags, true)
 	Insert_BankItem(f.Bank)
 
 	f.Bank.Extra: EnableMouse(true)
