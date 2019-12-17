@@ -827,18 +827,13 @@ local function Friend_ListUpdate(f)
 	local numBNetTotal, numBNetOnline = BNGetNumFriends()
 	if numBNetTotal and numBNetTotal >= 1 then
 		while (BN <= numBNetTotal) and (i <= numBNetOnline) and (i <= MAX_LINES) do
-			local bnetIDAccount, accountName, battleTag, isBattleTagPresence, characterName, bnetIDGameAccount, client, isOnline, lastOnline, isAFK, isDND, messageText, noteText, isRIDFriend, messageTime, canSoR, isReferAFriend, canSummonFriend = BNGetFriendInfo(BN)
-			if isOnline then
-				local _, _, _, realmName, realmID, faction, race, class, _, zoneName, level, gameText, _, _, _, _, _, isGameAFK, isGameBusy, guid = BNGetGameAccountInfo(bnetIDGameAccount)
-				if ( accountName ) then
-					nameText = accountName
-				else
-					nameText = UNKNOWN
-				end
-				characterName = BNet_GetValidatedCharacterName(characterName, battleTag, client)
+			local accountInfo = C_BattleNet.GetFriendAccountInfo(BN)
+			if accountInfo and accountInfo.gameAccountInfo.isOnline then
+				local nameText = accountInfo.accountName or UNKNOWN
+				local characterName = BNet_GetValidatedCharacterName(accountInfo.gameAccountInfo.characterName, accountInfo.battleTag, accountInfo.gameAccountInfo.clientProgram)
 				if characterName then
-					if (client == BNET_CLIENT_WOW) and class then
-						nameText = format("%s %s(%s-%s)%s", nameText,FRIENDS_WOW_NAME_COLOR_CODE,characterName,class,FONT_COLOR_CODE_CLOSE)
+					if (accountInfo.gameAccountInfo.clientProgram == BNET_CLIENT_WOW) and accountInfo.gameAccountInfo.className then
+						nameText = format("%s %s(%s-%s)%s", nameText,FRIENDS_WOW_NAME_COLOR_CODE,characterName,accountInfo.gameAccountInfo.className,FONT_COLOR_CODE_CLOSE)
 					else
 						if ( ENABLE_COLORBLIND_MODE == "1" ) then
 							characterName = characterName..CANNOT_COOPERATE_LABEL;
@@ -856,16 +851,18 @@ local function Friend_ListUpdate(f)
 					end
 				end
 				f.List[i].Bg: SetVertexColor(FRIENDS_BNET_BACKGROUND_COLOR.r, FRIENDS_BNET_BACKGROUND_COLOR.g, FRIENDS_BNET_BACKGROUND_COLOR.b)
-				if ( isBnetAFK or isGameAFK ) then
+				if ( accountInfo.isAFK or accountInfo.gameAccountInfo.isGameAFK ) then
 					f.List[i].Status: SetVertexColor(1,1,0)
-				elseif ( isBnetDND or isGameBusy ) then
+				elseif ( accountInfo.isDND or accountInfo.gameAccountInfo.isGameBusy ) then
 					f.List[i].Status: SetVertexColor(1,0,0)
 				else
 					f.List[i].Status: SetVertexColor(0,1,0)
 				end
 				f.List[i].Name: SetText(nameText)
 				f.List[i].Name: SetTextColor(FRIENDS_BNET_NAME_COLOR.r,FRIENDS_BNET_NAME_COLOR.g,FRIENDS_BNET_NAME_COLOR.b)
-				f.List[i].Icon: SetTexture(ClientIcon[client][2])
+				if accountInfo.gameAccountInfo.clientProgram then
+					f.List[i].Icon: SetTexture(ClientIcon[accountInfo.gameAccountInfo.clientProgram][2])
+				end
 				f.List[i]: Show()
 
 				i = i + 1
@@ -878,8 +875,8 @@ local function Friend_ListUpdate(f)
 	local onlineFriends = C_FriendList.GetNumOnlineFriends() or 0
 	if numberOfFriends and numberOfFriends >= 1 then
 		while (WF <= numberOfFriends) and (j <= onlineFriends) and (i <= MAX_LINES) do
-			local name, level, class, area, connected, status, note, isRaF, guid = GetFriendInfo(j);
-			if connected then
+			local friendInfo = C_FriendList.GetFriendInfoByIndex(j)
+			if friendInfo and friendInfo.connected then
 				if not f.List[i] then
 					f.List[i] = CreateFrame("Button", nil, f)
 					Friend_ListTemplate(f.List[i])
@@ -890,14 +887,14 @@ local function Friend_ListUpdate(f)
 					end
 				end
 				f.List[i].Bg: SetVertexColor(FRIENDS_WOW_BACKGROUND_COLOR.r, FRIENDS_WOW_BACKGROUND_COLOR.g, FRIENDS_WOW_BACKGROUND_COLOR.b)
-				if ( status == "" ) then
-					f.List[i].Status: SetVertexColor(0,1,0)
-				elseif ( status == CHAT_FLAG_AFK ) then
+				if friendInfo.afk then
 					f.List[i].Status: SetVertexColor(1,1,0)
-				elseif ( status == CHAT_FLAG_DND ) then
+				elseif friendInfo.dnd then
 					f.List[i].Status: SetVertexColor(1,0,0)
+				else
+					f.List[i].Status: SetVertexColor(0,1,0)
 				end
-				nameText = name..", "..format(FRIENDS_LEVEL_TEMPLATE, level, class)
+				nameText = friendInfo.name..", "..format(FRIENDS_LEVEL_TEMPLATE, friendInfo.level, friendInfo.className)
 				f.List[i].Name: SetText(nameText)
 				f.List[i].Name: SetTextColor(FRIENDS_WOW_NAME_COLOR.r,FRIENDS_WOW_NAME_COLOR.g,FRIENDS_WOW_NAME_COLOR.b)
 				f.List[i].Icon: SetTexture(ClientIcon[BNET_CLIENT_WOW][2])
@@ -910,10 +907,6 @@ local function Friend_ListUpdate(f)
 		end
 	end
 	f: SetHeight((i-1)*24+2)
-end
-
-local function Friend_List(f)
-	
 end
 
 local function Friend_Frame(f)

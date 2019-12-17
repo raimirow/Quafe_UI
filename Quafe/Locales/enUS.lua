@@ -181,6 +181,7 @@ LOCALE['背包金币数据已重置'] = 'Coin data has be refreshed'
 LOCALE['ASSISTANT'] = 'Assistant'
 LOCALE['RESURRECTION_NOTIFICATION'] = 'Resurrection Notification'
 LOCALE['SKIN_ORDERHALL'] = 'Skin infobar of order hall'
+LOCALE['SKIN_CHARACTER'] = 'Shin character frame'
 
 --> CastingBar
 LOCALE['施法条'] = 'Castbar'

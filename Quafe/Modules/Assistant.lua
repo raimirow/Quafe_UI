@@ -176,11 +176,248 @@ end
 --- ------------------------------------------------------------
 --> Character Frame
 --- ------------------------------------------------------------
+-- itemLevel = LibItemUpgradeInfo:GetUpgradedItemLevel(itemString)
+-- "itemLink" = GetInventoryItemLink("unit", slotId)
+-- current, maximum = GetInventoryItemDurability(slotID)
+-- itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, iconFileDataID, itemSellPrice = GetItemInfo(itemID or "itemString" or "itemName" or "itemLink") 
+
+--local LibItemUpgradeInfo = LibStub:GetLibrary("LibItemUpgradeInfo-1.0")
+local LibItemInfo = LibStub:GetLibrary("LibItemInfo.7000")
+
+local PosSlot = {[0] = "Top", [1] = "Right", [2] = "Right", [3] = "Right", [4] = "Right", [5] = "Right", [6] = "Left", [7] = "Left", [8] = "Left", [9] = "Right", [10] = "Left", [11] = "Left", [12] = "Left", [13] = "Left", [14] = "Left", [15] = "Right", [16] = "Top", [17] = "Top", [18] = "Top"}
+
+local function Get_ItemGem(itemLink)
+	if not itemLink then return end
+	local num = 0
+	local gems = {}
+	local stats = GetItemStats(itemLink)
+	if stats then
+		for k, v in pairs(stats) do
+			if find(k, "EMPTY_SOCKET_") then
+				num = num + v
+			end
+		end
+	end
+	if num > 0 then
+		for i = 1, num do
+			local name, link = GetItemGem(itemLink, i)
+			insert(gems, {Name = name, Link = link})
+		end
+	end
+	return num, gems
+end
+
+local function Create_GemButton(f)
+	local frame = CreateFrame("Button", nil, f)
+	frame: SetSize(12,12)
+	frame.Bg = F.create_Texture(frame, "BACKGROUND", "Addition_Gem1")
+	frame.Bg: SetSize(12,12)
+	frame.Bg: SetPoint("CENTER", frame, "CENTER", 0,0)
+	
+	frame.Icon = F.create_Texture(frame, "BORDER")
+	frame.Icon: SetSize(10,10)
+	frame.Icon: SetPoint("CENTER", frame, "CENTER", 0,0)
+	
+	frame.Bd = F.create_Texture(frame, "OVERLAY", "Addition_Gem2")
+	frame.Bd: SetSize(12,12)
+	frame.Bd: SetPoint("CENTER", frame, "CENTER", 0,0)
+	frame: SetScript("OnEnter", function(self)
+		if self.ItemLink then
+			GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+			GameTooltip:SetHyperlink(self.ItemLink)
+			GameTooltip:Show()
+		end
+	end)
+	frame: SetScript("OnLeave", function(self)
+		GameTooltip: Hide()
+	end)
+	return frame
+end
+
+local function Create_ItemGem(f, itemLink, slotID)
+	local num, gems = Get_ItemGem(itemLink)
+	if num and num > 0 then
+		for i = 1, num do
+			if not f["Gem"..i] then
+				f["Gem"..i] =Create_GemButton(f)
+			end
+			if gems[i]["Link"] then
+				f["Gem"..i].ItemLink = gems[i]["Link"]
+				local itemType, itemSubType, _,_, itemTexture = select(6, GetItemInfo(gems[i]["Link"]))
+				f["Gem"..i].Icon: SetTexture(itemTexture)
+			else
+				f["Gem"..i].ItemLink = nil
+				f["Gem"..i].Icon: SetTexture("")
+				--f["Gem"..i].Icon: SetTexture("Interface\\ItemSocketingFrame\\UI-EmptySocket")
+			end
+			if PosSlot[slotID] == "Right" then
+				if i == 1 then
+					f["Gem"..i]: SetPoint("TOPLEFT", f, "TOPRIGHT", 10, 0)
+				else
+					f["Gem"..i]: SetPoint("TOP", f["Gem"..(i-1)], "BOTTOM", 0, 0)
+				end
+			elseif PosSlot[slotID] == "Left" then
+				if i == 1 then
+					f["Gem"..i]: SetPoint("TOPRIGHT", f, "TOPLEFT", -10, 0)
+				else
+					f["Gem"..i]: SetPoint("TOP", f["Gem"..(i-1)], "BOTTOM", 0, 0)
+				end
+			elseif PosSlot[slotID] == "Top" then
+				if i == 1 then
+					f["Gem"..i]: SetPoint("BOTTOMLEFT", f, "TOPLEFT", 0, 8)
+				else
+					f["Gem"..i]: SetPoint("LEFT", f["Gem"..(i-1)], "RIGHT", 0, 0)
+				end
+			end
+			f["Gem"..i]:Show()
+		end
+		for i = num+1, 4 do
+			if f["Gem"..i] then
+				f["Gem"..i]:Hide()
+			end
+		end
+	else
+		for i = 1, 4 do
+			if f["Gem"..i] then
+				f["Gem"..i]:Hide()
+			end
+		end
+	end
+end
+
+local function Hook_PaperDollSlotButton(self, unit)
+	local slotID = self:GetID()
+	local itemLvel, itemLink, itemQuality, bug
+	--local itemLink = GetInventoryItemLink("player", slotID)
+	--local itemLevel = LibItemUpgradeInfo:GetUpgradedItemLevel(itemLink)
+	--local itemLevel = select(2, LibItemInfo:GetItemInfo(itemLink))
+	local textureName = GetInventoryItemTexture(unit, self:GetID())
+	if unit and textureName then
+		itemLevel, _, itemLink, quality = select(2, LibItemInfo:GetUnitItemInfo(unit, slotID))
+		if (slotID == 16) or (slotID == 17) then
+			local _, mlevel, _, _, mquality = LibItemInfo:GetUnitItemInfo(unit, 16)
+			local _, olevel, _, _, oquality = LibItemInfo:GetUnitItemInfo(unit, 17)
+			if (mlevel > 0 and olevel > 0 and (mquality == 6 or oquality == 6)) then
+				itemLevel = max(mlevel,olevel)
+			end
+		end
+	else
+		itemLevel = 0
+	end
+	local curDura, maxDura = GetInventoryItemDurability(slotID)
+	
+	if not self.ItemFrame then
+		local ItemFrame = CreateFrame("Frame", nil, self)
+		ItemFrame: SetFrameLevel(self:GetFrameLevel()+1)
+		ItemFrame: SetAllPoints(self)
+		
+		self.ItemFrame = ItemFrame
+		self.ItemFrame.Level = F.create_Font(self.ItemFrame, C.Font.NumSmall, 12, "OUTLINE", 0, "CENTER", "CENTER")
+		self.ItemFrame.Level: SetTextColor(F.Color(C.Color.W4))
+		self.ItemFrame.Level: SetAlpha(0.9)
+		self.ItemFrame.Level: SetPoint("CENTER", self.ItemFrame, "CENTER", 1,0)
+		
+		local DuraBar = CreateFrame("StatusBar", nil, self.ItemFrame)
+		DuraBar: SetStatusBarTexture(F.Path("StatusBar\\Flat"))
+		DuraBar: SetStatusBarColor(F.Color(C.Color.Y2))
+		DuraBar: SetRotatesTexture(true)
+		if PosSlot[slotID] == "Right" then
+			DuraBar: SetOrientation("VERTICAL")
+			DuraBar: SetPoint("BOTTOMLEFT", self.ItemFrame, "BOTTOMRIGHT", 1,1)
+			DuraBar: SetPoint("TOPRIGHT", self.ItemFrame, "TOPRIGHT", 5,-1)
+		elseif PosSlot[slotID] == "Left" then
+			DuraBar: SetOrientation("VERTICAL")
+			DuraBar: SetPoint("BOTTOMLEFT", self.ItemFrame, "BOTTOMLEFT", -5,1)
+			DuraBar: SetPoint("TOPRIGHT", self.ItemFrame, "TOPLEFT", -1,-1)
+		elseif PosSlot[slotID] == "Top" then
+			DuraBar: SetOrientation("HORIZONTAL")
+			DuraBar: SetPoint("BOTTOMLEFT", self.ItemFrame, "TOPLEFT", 1,1)
+			DuraBar: SetPoint("TOPRIGHT", self.ItemFrame, "TOPRIGHT", -1,5)
+		end
+		DuraBar: SetMinMaxValues(0, 1)
+		DuraBar: SetValue(0)
+		self.ItemFrame.DuraBar = DuraBar
+		
+		self.ItemFrame.DuraBarBg = F.create_Texture(self.ItemFrame, "BACKGROUND", "White", C.Color.W1, 0.9)
+		self.ItemFrame.DuraBarBg: SetAllPoints(self.ItemFrame.DuraBar)
+	end
+	if itemLevel and (itemLevel > 0) then
+		self.ItemFrame.Level: SetText(itemLevel)
+	else
+		self.ItemFrame.Level: SetText("")
+	end
+	if maxDura then
+		self.ItemFrame.DuraBar: SetValue(curDura/(maxDura+F.Debug))
+		self.ItemFrame.DuraBar: Show()
+	else
+		self.ItemFrame.DuraBar: Hide()
+	end
+	Create_ItemGem(self.ItemFrame, itemLink, slotID)
+end
+
+local function Hook_EquipmentFlyout_DisplayButton(button, paperDollItemSlot)
+	local location = button.location;
+	if ( not location ) then
+		return;
+	end
+	local player, bank, bags, voidStorage, slotID, bagID, tab, voidSlot = EquipmentManager_UnpackLocation(location)
+	if (not (player or bank or bags)) then 
+		return;
+	end
+	local itemLink, itemLevel
+	if bags then
+		itemLink = GetContainerItemLink(bagID, slotID)
+		itemLevel = select(2, LibItemInfo:GetContainerItemLevel(bagID, slotID))
+	else
+		itemLink = GetInventoryItemLink("player", slotID)
+		itemLevel = select(2, LibItemInfo:GetItemInfo(itemLink))
+	end
+	--local itemLevel = LibItemUpgradeInfo:GetUpgradedItemLevel(itemLink)
+	
+	if not button.ItemFrame then
+		local ItemFrame = CreateFrame("Frame", nil, button)
+		ItemFrame: SetFrameLevel(button:GetFrameLevel()+1)
+		ItemFrame: SetAllPoints(button)
+		
+		button.ItemFrame = ItemFrame
+		button.ItemFrame.Level = F.create_Font(button.ItemFrame, C.Font.NumSmall, 12, "OUTLINE", 0, "CENTER", "CENTER")
+		button.ItemFrame.Level: SetTextColor(F.Color(C.Color.W4))
+		button.ItemFrame.Level: SetAlpha(0.9)
+		button.ItemFrame.Level: SetPoint("CENTER", button.ItemFrame, "CENTER", 1,0)
+	end
+	if itemLevel  and (itemLevel > 0) then
+		button.ItemFrame.Level: SetText(itemLevel)
+	else
+		button.ItemFrame.Level: SetText("")
+	end
+end
 
 local Quafe_CharacterFrame = CreateFrame("Frame", nil, E)
 Quafe_CharacterFrame.Init = false
 
+local function Quafe_CharacterFrame_Load()
+	hooksecurefunc("PaperDollItemSlotButton_Update", function(self)
+		Hook_PaperDollSlotButton(self, "player")
+	end)
+	if F.IsClassic then
+		
+	else
+		hooksecurefunc("EquipmentFlyout_DisplayButton", function(button, paperDollItemSlot)
+			Hook_EquipmentFlyout_DisplayButton(button, paperDollItemSlot)
+		end)
+	end
+	Quafe_CharacterFrame.Init = true
+end
 
+local function Quafe_CharacterFrame_Toggle(arg)
+	if arg == "ON" then
+		if not Quafe_CharacterFrame.Init then
+			Quafe_CharacterFrame_Load()
+		end
+	elseif arg == "OFF" then
+		Quafe_NoticeReload()
+	end
+end
 
 --- ------------------------------------------------------------
 --> Assistants
@@ -191,6 +428,9 @@ local function Quafe_Assistant_Load()
 	if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Assistant.SkinOrderHall then
 		SkinOrderHall_Load()
 	end
+	if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Assistant.CharacterFrame then
+		Quafe_CharacterFrame_Load()
+	end
 end
 
 local Quafe_Assistant_Config = {
@@ -198,6 +438,7 @@ local Quafe_Assistant_Config = {
 		["Quafe_Assistant"] = {
 			SoulStone = false,
 			SkinOrderHall = true,
+			CharacterFrame = false,
 		},
 	},
 
@@ -277,6 +518,28 @@ local Quafe_Assistant_Config = {
 				end,
 				Show = function(self)
 					if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Assistant.SkinOrderHall then
+						self.Text:SetText(L["ON"])
+					else
+						self.Text:SetText(L["OFF"])
+					end
+				end,
+			},
+			[4] = {
+				Name = L['SKIN_CHARACTER'],
+				Type = "Switch",
+				Click = function(self, button)
+					if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Assistant.CharacterFrame then
+						Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Assistant.CharacterFrame = false
+						self.Text:SetText(L["OFF"])
+						Quafe_CharacterFrame_Toggle("OFF")
+					else
+						Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Assistant.CharacterFrame = true
+						self.Text:SetText(L["ON"])
+						Quafe_CharacterFrame_Toggle("ON")
+					end
+				end,
+				Show = function(self)
+					if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Assistant.CharacterFrame then
 						self.Text:SetText(L["ON"])
 					else
 						self.Text:SetText(L["OFF"])

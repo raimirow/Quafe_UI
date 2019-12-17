@@ -181,6 +181,7 @@ LOCALE['背包金币数据已重置'] = '背包金幣數據已重置'
 LOCALE['ASSISTANT'] = '附件'
 LOCALE['RESURRECTION_NOTIFICATION'] = '戰鬥中復生通知'
 LOCALE['SKIN_ORDERHALL'] = '美化職業大廳信息欄'
+LOCALE['SKIN_CHARACTER'] = '美化角色介面'
 
 --> CastingBar
 LOCALE['施法条'] = '施法條'

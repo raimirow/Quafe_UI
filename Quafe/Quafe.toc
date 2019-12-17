@@ -1,5 +1,5 @@
 ## Interface: 80205
-## Version: 8.2.5.47
+## Version: 8.2.5.48
 ## Author: Voidiver
 ## Title: Quafe
 ## Notes: Quafe
