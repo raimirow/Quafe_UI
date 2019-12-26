@@ -120,12 +120,24 @@ local function BGU_Pet_Event(frame, event, ...)
 		end
 		F.Smooth_Health("pet")
 		F.Smooth_Power("pet")
+		for k,v in ipairs(E.UBU.Pet.HP) do
+			v("Event", E.Value.pet.Health)
+		end
+		for k,v in ipairs(E.UBU.Pet.PP) do
+			v("Event", E.Value.pet.Power)
+		end
 	end
 	if event == "UNIT_HEALTH" or event == "UNIT_HEALTH_FREQUENT" or event == "UNIT_MAXHEALTH" then
 		F.Smooth_Health("pet")
+		for k,v in ipairs(E.UBU.Pet.HP) do
+			v("Event", E.Value.pet.Health)
+		end
 	end
 	if event == "UNIT_POWER_UPDATE" or event == "UNIT_POWER_FREQUENT" or event == "UNIT_MAXPOWER" then
 		F.Smooth_Power("pet")
+		for k,v in ipairs(E.UBU.Pet.PP) do
+			v("Event", E.Value.pet.Power)
+		end
 	end
 end
 
@@ -180,6 +192,9 @@ local function BGU_OnUpdate(frame)
 			for k,v in ipairs(E.UBU.Player.AS) do
 				v("Update", E.Value.player.Absorb)
 			end
+			for k,v in ipairs(E.UBU.Pet.HP) do
+				v("Update", E.Value.pet.Health)
+			end
 		end
 		if F.Last25H == 0 then
 			for k,v in ipairs(E.UBU.Player.PP) do
@@ -189,6 +204,9 @@ local function BGU_OnUpdate(frame)
 				for k,v in ipairs(E.UBU.Player.MN) do
 					v("Update", E.Value.player.Mana)
 				end
+			end
+			for k,v in ipairs(E.UBU.Pet.PP) do
+				v("Update", E.Value.pet.Power)
 			end
 		end
 	end)
