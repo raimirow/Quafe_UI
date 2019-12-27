@@ -1201,6 +1201,53 @@ local function Search_BagItem(frame, ...)
 end
 
 ----------------------------------------------------------------
+--> Key Ring
+----------------------------------------------------------------
+
+local function KeyRing_OnClick()
+	if (CursorHasItem()) then
+		PutKeyInKeyRing();
+	else
+		ToggleBag(KEYRING_CONTAINER);
+	end
+end
+
+local function KeyRing_Template(frame)
+	local KeyRingFrame = CreateFrame("CheckButton", nil, frame)
+	KeyRingFrame: SetSize(24,24)
+	KeyRingFrame: RegisterForClicks("LeftButtonUp", "RightButtonUp")
+
+	F.create_Backdrop(KeyRingFrame, 2, 8, 4, C.Color.Y1,0, C.Color.W4,0.9)
+	KeyRingFrame.Bg: SetAlpha(0)
+	KeyRingFrame.tooltipText = KEYRING
+
+	local Icon = KeyRingFrame:CreateTexture(nil, "ARTWORK")
+	Icon: SetTexture(F.Path("Bag_Key"))
+	Icon: SetSize(18,18)
+	Icon: SetPoint("CENTER")
+	Icon: SetVertexColor(F.Color(C.Color.W3))
+
+	KeyRingFrame.Icon = Icon
+
+	KeyRingFrame: SetScript("OnClick", KeyRing_OnClick)
+	KeyRingFrame: SetScript("OnEnter", function(self)
+		self.Bg: SetAlpha(1)
+		if self.tooltipText then
+			GameTooltip:SetOwner(self, "ANCHOR_NONE", 0,0)
+			GameTooltip:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0,4)
+			GameTooltip:SetText(self.tooltipText)
+			GameTooltip:Show()
+		end
+	end)
+	KeyRingFrame: SetScript("OnLeave", function(self)
+		self.Bg: SetAlpha(0)
+		GameTooltip:Hide()
+	end)
+
+	return KeyRingFrame
+end
+
+----------------------------------------------------------------
 --> Currency
 ----------------------------------------------------------------
 
@@ -1299,6 +1346,11 @@ local function Currency_Frame(f)
 		self.Bg: SetBackdropColor(F.Color(C.Color.Config.Exit,0))
 		menubuttonicon: SetVertexColor(F.Color(C.Color.W3))
 	end)
+
+	if F.IsClassic then
+		local KeyRingFrame = KeyRing_Template(currency)
+		KeyRingFrame: SetPoint("LEFT", menubutton, "RIGHT", 16, 0)
+	end
 end
 
 local function BagExtra_Frame(f)
