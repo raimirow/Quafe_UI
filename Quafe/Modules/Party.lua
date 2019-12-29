@@ -90,6 +90,20 @@ local function PartyHealth_Update(self, unit)
 	end
 end
 
+local function PartyPower_Update(frame, unit)
+	if unit then
+		local MinPower = UnitPower(unit)
+		frame.PowerBar: SetValue(MinPower)
+	end
+end
+
+local function PartyMaxPower_Update(frame, unit)
+	if unit then
+		local MaxPower = max(UnitPowerMax(unit), 1)
+		frame.PowerBar: SetMinMaxValues(0, MaxPower)
+	end
+end
+
 local function PartyName_Update(self, unit)
 	if unit then
 		local name = UnitName(unit) or "???"
@@ -141,8 +155,8 @@ local function UnitFrame_UpdateUnitEvents(frame)
 	frame: RegisterUnitEvent("UNIT_MAXHEALTH", unit, displayedUnit);
 	frame: RegisterUnitEvent("UNIT_HEALTH", unit, displayedUnit);
 	frame: RegisterUnitEvent("UNIT_HEALTH_FREQUENT", unit, displayedUnit);
-	--frame: RegisterUnitEvent("UNIT_MAXPOWER", unit, displayedUnit);
-	--frame: RegisterUnitEvent("UNIT_POWER_UPDATE", unit, displayedUnit);
+	frame: RegisterUnitEvent("UNIT_MAXPOWER", unit, displayedUnit);
+	frame: RegisterUnitEvent("UNIT_POWER_UPDATE", unit, displayedUnit);
 	frame: RegisterUnitEvent("UNIT_AURA", unit, displayedUnit);
 	if not F.IsClassic then
 		frame: RegisterUnitEvent("UNIT_THREAT_SITUATION_UPDATE", unit, displayedUnit);
@@ -197,6 +211,8 @@ local function PartyButton_UpdateAll(frame)
 	end
 	PartyName_Update(frame, frame.DisplayedUnit)
 	PartyHealth_Update(frame, frame.DisplayedUnit)
+	PartyPower_Update(frame, frame.DisplayedUnit)
+	PartyMaxPower_Update(frame, frame.DisplayedUnit)
 	PartyPortrait_Update(frame, frame.DisplayedUnit)
 	RaidTargetIndicator_Update(frame)
 	GroupLeaderIndicator_Update(frame)
@@ -221,6 +237,10 @@ local function PartyButton_OnEvent(self, event, ...)
 		PartyName_Update(self, self.DisplayedUnit)
 	elseif event == "UNIT_HEALTH" or event == "UNIT_MAXHEALTH" then
 		PartyHealth_Update(self, self.DisplayedUnit)
+	elseif event == "UNIT_POWER_UPDATE" then
+		PartyPower_Update(self, self.DisplayedUnit)
+	elseif event == "UNIT_MAXPOWER" then
+		PartyMaxPower_Update(self, self.DisplayedUnit)
 	elseif event == "UNIT_AURA" then
 		self.Debuff:AuraOnEvent()
 	elseif (event == "RAID_TARGET_UPDATE") then
@@ -277,6 +297,21 @@ local function PartyMember_Template(frame, unit)
 	local HealthBar = F.Create.Texture(button, "ARTWORK", 1, F.Path("Party\\HealthBar"), C.Color.Main1, 0.9, {100,10}, {14/128,114/128, 3/16,13/16})
 	HealthBar: SetPoint("LEFT", HealthBg, "LEFT", 0, 0)
 
+	local PowerBar = CreateFrame("StatusBar", nil, button)
+	PowerBar: SetSize(100,2)
+	PowerBar: SetPoint("TOP", button, "BOTTOM", 0,-4)
+	PowerBar: SetStatusBarTexture(F.Path("StatusBar\\Raid"))
+	PowerBar: SetStatusBarColor(F.Color(C.Color.Main2))
+
+	local Bg2 = F.Create.Texture(button, "BACKGROUND", 1, F.Path("StatusBar\\Raid"), C.Color.Main0, 0.6, {104,6})
+	Bg2: SetPoint("CENTER", PowerBar, "CENTER", 0, 0)
+
+	local BgG2 = F.Create.Texture(button, "BACKGROUND", 2, F.Path("StatusBar\\Raid"), C.Color.Main1, 0.1, {104,6})
+	BgG2: SetPoint("CENTER", PowerBar, "CENTER", 0, 0)
+
+	local PowerBg = F.Create.Texture(button, "BORDER", 1, F.Path("Party\\HealthBar"), C.Color.W2, 0.1, {100,2}, {14/128,114/128, 3/16,13/16})
+	PowerBg: SetPoint("CENTER", PowerBar, "CENTER", 0, 0)
+
 	local Name = F.Create.Font(button, "ARTWORK", C.Font.Txt, 12, nil, C.Color.Main1, {C.Color.Main0}, {1,-1})
 	Name: SetSize(104,10)
 	Name: SetPoint("TOP", button, "TOP", 0, -34)
@@ -310,6 +345,7 @@ local function PartyMember_Template(frame, unit)
 
 	button.Portrait = Portrait
 	button.HealthBar = HealthBar
+	button.PowerBar = PowerBar
 	button.Name = Name
 	button.Percent = Percent
 	button.GroupRoleIndicator = GroupRoleIndicator
@@ -328,11 +364,12 @@ Quafe_Party.Init = false
 
 
 local function Quafe_Party_Load()
-	if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_PartyRaid.Party then
+	--if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_PartyRaid.Party then
+	if Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Party"].Enable then
 		local Party = {}
 		for i = 1,4 do
-			Party[i] = PartyMember_Template(Quafe_Party, "party"..i)
-			--Party[i] = PartyMember_Template(Quafe_Party, "player")
+			--Party[i] = PartyMember_Template(Quafe_Party, "party"..i)
+			Party[i] = PartyMember_Template(Quafe_Party, "player")
 			if i == 1 then
 				Party[i]: SetPoint("LEFT", Quafe_Party, "LEFT", 0, 0)
 			else
@@ -342,14 +379,20 @@ local function Quafe_Party_Load()
 			Party[i]: SetScript("OnShow", PartyButton_OnShow)
 			PartyButton_RgEvent(Party[i])
 
+			if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Party.Power == L['ON'] then
+				Party[i].PowerBar: Show()
+			elseif Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Party.Power == L['OFF'] then
+				Party[i].PowerBar: Hide()
+			end
+
 			Quafe_Party.Party = Party
 		end
 		Quafe_Party.Init = true
 	end
 end
 
-local function Quafe_Party_Toggle(arg)
-	if arg == "ON" then
+local function Quafe_Party_Toggle(arg1, arg2)
+	if arg1 == "ON" then
 		if not Quafe_Party.Init then
 			Quafe_Party_Load()
 		else
@@ -360,7 +403,7 @@ local function Quafe_Party_Toggle(arg)
 				Quafe_Party: Show()
 			end
 		end
-	elseif arg == "OFF" then
+	elseif arg1 == "OFF" then
 		if not Quafe_Party:IsForbidden() then
 			Quafe_Party: Hide()
 			for i = 1,4 do
@@ -368,8 +411,16 @@ local function Quafe_Party_Toggle(arg)
 			end
 		end
 		--Quafe_NoticeReload()
-	elseif arg == "COLOR" then
-		
+	elseif arg1 == "POWER" then
+		if arg2 == "ON" then
+			for i = 1,4 do
+				Quafe_Party.Party[i].PowerBar: Show()
+			end
+		elseif arg2 == "OFF" then
+			for i = 1,4 do
+				Quafe_Party.Party[i].PowerBar: Hide()
+			end
+		end
 	end
 end
 
@@ -377,6 +428,7 @@ local Quafe_Party_Config = {
 	Database = {
 		["Quafe_Party"] = {
 			Enable = true,
+			Power = L['OFF'],
 		},
 	},
 
@@ -402,13 +454,39 @@ local Quafe_Party_Config = {
 				self.Text:SetText(L["OFF"])
 			end
 		end,
-		Sub = nil,
+		Sub = {
+			[1] = {
+				Name = L['SHOW_POWERBAR'],
+				Type = "Dropdown",
+				Show = function(self)
+					if Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Party"].Power then
+						self.Text:SetText(Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Party"].Power)
+					end
+				end,
+				DropMenu = {
+					[1] = {
+						Text = L['OFF'],
+						Click = function(self, button)
+							Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Party.Power = L['OFF']
+							Quafe_Party_Toggle("POWER", "OFF")
+						end,
+					},
+					[2] = {
+						Text = L['ON'],
+						Click = function(self, button)
+							Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Party.Power = L['ON']
+							Quafe_Party_Toggle("POWER", "ON")
+						end,
+					},
+				},
+			},
+		},
 	},
 }
 
 Quafe_Party.Load = Quafe_Party_Load
---Quafe_Party.Config = Quafe_Party_Config
-F.Quafe_Party_Toggle = Quafe_Party_Toggle
+Quafe_Party.Config = Quafe_Party_Config
+--F.Quafe_Party_Toggle = Quafe_Party_Toggle
 insert(E.Module, Quafe_Party)
 
 

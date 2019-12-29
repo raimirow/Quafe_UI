@@ -714,6 +714,7 @@ local Quafe_PartyRaid_Config = {
 		Name = "Quafe "..L['PARTY_RAID'],
 		Type = "Blank",
 		Sub = {
+			--[[
 			[1] = {
 				Name = L['PARTY_FRAME'],
 				Type = "Switch",
@@ -737,7 +738,8 @@ local Quafe_PartyRaid_Config = {
 					end
 				end,
 			},
-			[2] = {
+			--]]
+			[1] = {
 				Name = L['RAID5'],
 				Type = "Switch",
 				Click = function(self, button)

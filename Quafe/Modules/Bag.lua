@@ -537,8 +537,8 @@ local function Create_ButtonBg(f, e, d)
 	f: SetBackdrop(backdrop)
 end
 
-local function Create_BagFrame(f, bagID)
-	local button = CreateFrame("Button", "Quafe_Bag"..bagID, f)
+local function Create_BagFrame(frame, bagID)
+	local button = CreateFrame("Button", "Quafe_Bag"..bagID, frame)
 	button: SetID(bagID)
 	
 	return button
@@ -1204,6 +1204,8 @@ end
 --> Key Ring
 ----------------------------------------------------------------
 
+-- KEYRING_CONTAINER = -2
+
 local function KeyRing_OnClick()
 	if (CursorHasItem()) then
 		PutKeyInKeyRing();
@@ -1223,13 +1225,19 @@ local function KeyRing_Template(frame)
 
 	local Icon = KeyRingFrame:CreateTexture(nil, "ARTWORK")
 	Icon: SetTexture(F.Path("Bag_Key"))
-	Icon: SetSize(18,18)
+	Icon: SetSize(20,20)
 	Icon: SetPoint("CENTER")
 	Icon: SetVertexColor(F.Color(C.Color.W3))
 
 	KeyRingFrame.Icon = Icon
 
 	KeyRingFrame: SetScript("OnClick", KeyRing_OnClick)
+	KeyRingFrame: SetScript("OnReceiveDrag", function(self)
+		if (CursorHasItem()) then
+			PutKeyInKeyRing();
+		end
+	end)
+
 	KeyRingFrame: SetScript("OnEnter", function(self)
 		self.Bg: SetAlpha(1)
 		if self.tooltipText then
@@ -1240,11 +1248,29 @@ local function KeyRing_Template(frame)
 		end
 	end)
 	KeyRingFrame: SetScript("OnLeave", function(self)
-		self.Bg: SetAlpha(0)
+		self.Bg: SetAlpha(0.2)
 		GameTooltip:Hide()
 	end)
 
 	return KeyRingFrame
+end
+
+local function KeyRingButton_Init(frame)
+	if not frame.BagKeys then
+		frame.BagKeys = Create_BagFrame(frame, KEYRING_CONTAINER)
+	end
+	Check_BagNumSlots(frame.BagKeys, KEYRING_CONTAINER)
+	for slotID = 1, ContainerFrame_GetContainerNumSlots(KEYRING_CONTAINER) do
+		if not frame.BagKeys[slotID] then
+			frame.BagKeys[slotID] = Create_BagItemButton(frame.BagKeys, KEYRING_CONTAINER, slotID)
+		end
+	end
+end
+
+local function KeyRingItem_Update(frame)
+	for slotID = 1, ContainerFrame_GetContainerNumSlots(KEYRING_CONTAINER) do
+		local itemName,itemID,texture,itemCount,itemType,itemSubType,itemEquipLoc,quality,itemLevel,lockde = GetItemInfoFromBS(KEYRING_CONTAINER, slotID)
+	end
 end
 
 ----------------------------------------------------------------
@@ -1429,7 +1455,6 @@ local function BagExtra_Frame(f)
 			if bagID == 0 then
 				button = CreateFrame("ItemButton", "Quafe_BagBackpack", bagextra, "Quafe_BackpackButtonTemplate")
 			else
-				--local button = CreateFrame("CheckButton", "Quafe_BagButton"..bagID, bagextra, "ItemButtonTemplate")
 				button = CreateFrame("ItemButton", "Quafe_BagBag"..(bagID-1).."Slot", bagextra, "Quafe_BagSlotButtonTemplate")
 			end
 		end

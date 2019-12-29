@@ -215,6 +215,7 @@ LOCALE['BUFF_LIMIT_NUM'] = '增益最大数量'
 LOCALE['DEBUFF_LIMIT_NUM'] = '减益最大数量'
 
 --> PartyRaid
+LOCALE['SHOW_POWERBAR'] = '显示能量条'
 LOCALE['PARTY_RAID'] = '小队和团队'
 LOCALE['RAID5'] = '治疗用小队框体'
 

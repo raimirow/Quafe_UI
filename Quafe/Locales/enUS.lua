@@ -215,6 +215,7 @@ LOCALE['BUFF_LIMIT_NUM'] = 'Num limit of buff'
 LOCALE['DEBUFF_LIMIT_NUM'] = 'Num limit of debuff'
 
 --> PartyRaid
+LOCALE['SHOW_POWERBAR'] = 'Show Powerbar'
 LOCALE['PARTY_RAID'] = 'Party and Raid'
 LOCALE['RAID5'] = 'PartyFrame for Healer'
 
