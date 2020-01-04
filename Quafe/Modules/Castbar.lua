@@ -24,11 +24,10 @@ local insert = table.insert
 local remove = table.remove
 local wipe = table.wipe
 
-local LibCastClassic = F.IsClassic and LibStub('LibClassicCasterino', true)
---[[
-LibCastClassic:UnitCastingInfo(unit)
-LibCastClassic:UnitChannelInfo(unit)
---]]
+local LibCastClassic = F.IsClassic and LibStub and LibStub('LibClassicCasterino', true)
+--> LibCastClassic:UnitCastingInfo(unit)
+--> LibCastClassic:UnitChannelInfo(unit)
+
 ----------------------------------------------------------------
 --> CastBar
 ----------------------------------------------------------------

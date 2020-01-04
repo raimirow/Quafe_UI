@@ -9,7 +9,7 @@
 ## SavedVariablesPerCharacter: Quafe_DBP
 ## X-oUF: oUF_Quafe
 
-## OptionalDeps: Quafe_Libs_Classic, Quafe_Libs, Details, Skada, MeetingStone, WIM, Clique, RealMobHealth
+## OptionalDeps: Details, Skada, MeetingStone, WIM, Clique, RealMobHealth
 
 Quafe.xml
 Quafe.lua
