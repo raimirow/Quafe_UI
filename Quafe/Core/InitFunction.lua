@@ -28,6 +28,7 @@ F.Build = select(2, GetBuildInfo())
 
 local function CheckClassic()
 	local version, build, date, tocversion = GetBuildInfo()
+	--> version = "2.4.2", build = "8278", date = "May 1 2008", tocversion = 20400
 	if tocversion then
 		if tocversion < 20000 then
 			return true
@@ -38,6 +39,18 @@ local function CheckClassic()
 end
 
 F.IsClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
+local function Get_WoW_Project()
+	if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
+		return 1 --> Retail
+	elseif (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC) then
+		return 2 --> Classic
+	else
+		return 3 --> Other
+	end
+end
+F.Project = Get_WoW_Project()
+--> WOW_PROJECT_ID == WOW_PROJECT_MAINLINE == 1 -- for BfA / main line / retail
+--> WOW_PROJECT_ID == WOW_PROJECT_CLASSIC == 2 -- for WoW Classic
 
 ----------------------------------------------------------------
 

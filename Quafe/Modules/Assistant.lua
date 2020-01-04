@@ -26,15 +26,9 @@ local wipe = table.wipe
 
 local GetTime = GetTime
 
---- ------------------------------------------------------------
---> Assistants Init
---- ------------------------------------------------------------
-
-local Quafe_Assistant = CreateFrame("Frame", "Quafe_Assistant", E)
-
---- ------------------------------------------------------------
+----------------------------------------------------------------
 --> SoulStone
---- ------------------------------------------------------------
+----------------------------------------------------------------
 
 --UNIT_SPELLCAST_START
 --arg1 Unit casting the spell
@@ -129,9 +123,9 @@ local function SoulStoneNotification_Create(frame)
 	end
 end
 
---- ------------------------------------------------------------
+----------------------------------------------------------------
 --> 职业大厅信息栏
---- ------------------------------------------------------------
+----------------------------------------------------------------
 
 local Quafe_SkinOrderHall = CreateFrame("Frame", nil, E)
 Quafe_SkinOrderHall.Info = {}
@@ -173,9 +167,9 @@ local function Quafe_SOH_Toggle(arg)
 	end
 end
 
---- ------------------------------------------------------------
+---——------------------------------------------------------------
 --> Character Frame
---- ------------------------------------------------------------
+---——------------------------------------------------------------
 -- itemLevel = LibItemUpgradeInfo:GetUpgradedItemLevel(itemString)
 -- "itemLink" = GetInventoryItemLink("unit", slotId)
 -- current, maximum = GetInventoryItemDurability(slotID)
@@ -419,9 +413,11 @@ local function Quafe_CharacterFrame_Toggle(arg)
 	end
 end
 
---- ------------------------------------------------------------
+----------------------------------------------------------------
 --> Assistants
---- ------------------------------------------------------------
+----------------------------------------------------------------
+
+local Quafe_Assistant = CreateFrame("Frame", "Quafe_Assistant", E)
 
 local function Quafe_Assistant_Load()
 	SoulStoneNotification_Create(Quafe_Assistant)

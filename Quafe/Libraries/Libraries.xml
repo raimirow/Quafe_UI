@@ -1,0 +1,5 @@
+<Ui>
+	
+	<!-- Classic -->
+	<Script file="LibClassicCasterino-1.0\LibClassicCasterino.lua"/>
+</Ui>

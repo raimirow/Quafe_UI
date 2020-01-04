@@ -368,8 +368,8 @@ local function Quafe_Party_Load()
 	if Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Party"].Enable then
 		local Party = {}
 		for i = 1,4 do
-			--Party[i] = PartyMember_Template(Quafe_Party, "party"..i)
-			Party[i] = PartyMember_Template(Quafe_Party, "player")
+			Party[i] = PartyMember_Template(Quafe_Party, "party"..i)
+			--Party[i] = PartyMember_Template(Quafe_Party, "player")
 			if i == 1 then
 				Party[i]: SetPoint("LEFT", Quafe_Party, "LEFT", 0, 0)
 			else

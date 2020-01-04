@@ -24,9 +24,14 @@ local insert = table.insert
 local remove = table.remove
 local wipe = table.wipe
 
---- ------------------------------------------------------------
+local LibCastClassic = F.IsClassic and LibStub('LibClassicCasterino', true)
+--[[
+LibCastClassic:UnitCastingInfo(unit)
+LibCastClassic:UnitChannelInfo(unit)
+--]]
+----------------------------------------------------------------
 --> CastBar
---- ------------------------------------------------------------
+----------------------------------------------------------------
 
 local function CastBar_FinishSpell(frame)
 	frame.ApplyColor(frame, "Finished")
@@ -47,8 +52,8 @@ local function CastBar_OnEvent(frame, event, ...)
 	if ( event == "PLAYER_ENTERING_WORLD" or event == "PLAYER_TARGET_CHANGED" or event == "PLAYER_FOCUS_CHANGED" ) then
 		local nameSpell, nameChannel
 		if F.IsClassic then
-			nameChannel = ChannelInfo(unit);
-			nameSpell = CastingInfo(unit);
+			nameChannel = LibCastClassic:UnitChannelInfo(unit);
+			nameSpell = LibCastClassic:UnitCastingInfo(unit);
 		else
 			nameChannel = UnitChannelInfo(unit);
 			nameSpell = UnitCastingInfo(unit);
@@ -69,11 +74,11 @@ local function CastBar_OnEvent(frame, event, ...)
 	end
 
 	if ( event == "UNIT_SPELLCAST_START" ) then
-		local name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible
+		local name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID
 		if F.IsClassic then
-			name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = CastingInfo(unit);
+			name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = LibCastClassic:UnitCastingInfo(unit);
 		else
-			name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo(unit);
+			name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = UnitCastingInfo(unit);
 		end
 		if ( not name or (not frame.ShowTradeSkills and isTradeSkill)) then
 			frame:Hide();
@@ -83,6 +88,7 @@ local function CastBar_OnEvent(frame, event, ...)
 		frame.Value = (GetTime() - (startTime / 1000));
 		frame.MaxValue = (endTime - startTime) / 1000;
 		if ( frame.Text ) then
+			text = text or name
 			frame.Text:SetText(text)
 		end
 		if ( frame.Icon ) then
@@ -138,7 +144,7 @@ local function CastBar_OnEvent(frame, event, ...)
 		if ( frame:IsShown() ) then
 			local name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible
 			if F.IsClassic then
-				name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = CastingInfo(unit);
+				name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = LibCastClassic:UnitCastingInfo(unit);
 			else
 				name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo(unit);
 			end
@@ -161,7 +167,7 @@ local function CastBar_OnEvent(frame, event, ...)
 	elseif ( event == "UNIT_SPELLCAST_CHANNEL_START" ) then
 		local name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID
 		if F.IsClassic then
-			name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID = ChannelInfo(unit);
+			name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID = LibCastClassic:UnitChannelInfo(unit);
 		else
 			name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID = UnitChannelInfo(unit);
 		end
@@ -175,6 +181,7 @@ local function CastBar_OnEvent(frame, event, ...)
 		frame.MaxValue = (endTime - startTime) / 1000;
 		frame.ApplyUpdate(frame)
 		if ( frame.Text ) then
+			text = text or name
 			frame.Text:SetText(text);
 		end
 		if ( frame.Icon ) then
@@ -192,7 +199,7 @@ local function CastBar_OnEvent(frame, event, ...)
 		if ( frame:IsShown() ) then
 			local name, text, texture, startTime, endTime, isTradeSkill
 			if F.IsClassic then
-				name, text, texture, startTime, endTime, isTradeSkill = ChannelInfo(unit);
+				name, text, texture, startTime, endTime, isTradeSkill = LibCastClassic:UnitChannelInfo(unit);
 			else
 				name, text, texture, startTime, endTime, isTradeSkill = UnitChannelInfo(unit);
 			end
@@ -248,7 +255,7 @@ local function CastBar_OnShow(frame)
 		local name, text, texture, startTime, endTime
 		if ( frame.Casting ) then
 			if F.IsClassic then
-				name, text, texture, startTime, endTime = CastingInfo(frame.Unit);
+				name, text, texture, startTime, endTime = LibCastClassic:UnitCastingInfo(frame.Unit);
 			else
 				name, text, texture, startTime, endTime = UnitCastingInfo(frame.Unit);
 			end
@@ -257,7 +264,7 @@ local function CastBar_OnShow(frame)
 			end
 		else
 			if F.IsClassic then
-				name, text, texture, startTime, endTime = ChannelInfo(frame.Unit);
+				name, text, texture, startTime, endTime = LibCastClassic:UnitChannelInfo(frame.Unit);
 			else
 				name, text, texture, startTime, endTime = UnitChannelInfo(frame.Unit);
 			end
@@ -275,34 +282,59 @@ local function CastBar_SetUnit(frame)
 	frame.FadeOut = nil
 
 	if frame.Unit then
-		frame: RegisterEvent("UNIT_SPELLCAST_INTERRUPTED");
-		frame: RegisterEvent("UNIT_SPELLCAST_DELAYED");
-		frame: RegisterEvent("UNIT_SPELLCAST_CHANNEL_START");
-		frame: RegisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE");
-		frame: RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP");
-		if not F.IsClassic then
-			frame: RegisterEvent("UNIT_SPELLCAST_INTERRUPTIBLE");
-			frame: RegisterEvent("UNIT_SPELLCAST_NOT_INTERRUPTIBLE");
-		end
-		frame: RegisterEvent("PLAYER_ENTERING_WORLD");
-		frame: RegisterUnitEvent("UNIT_SPELLCAST_START", frame.Unit);
-		frame: RegisterUnitEvent("UNIT_SPELLCAST_STOP", frame.Unit);
-		frame: RegisterUnitEvent("UNIT_SPELLCAST_FAILED", frame.Unit);
-	else
-		frame: UnregisterEvent("UNIT_SPELLCAST_INTERRUPTED");
-		frame: UnregisterEvent("UNIT_SPELLCAST_DELAYED");
-		frame: UnregisterEvent("UNIT_SPELLCAST_CHANNEL_START");
-		frame: UnregisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE");
-		frame: UnregisterEvent("UNIT_SPELLCAST_CHANNEL_STOP");
-		if not F.IsClassic then
-			frame: UnregisterEvent("UNIT_SPELLCAST_INTERRUPTIBLE");
-			frame: UnregisterEvent("UNIT_SPELLCAST_NOT_INTERRUPTIBLE");
-		end
-		frame: UnregisterEvent("PLAYER_ENTERING_WORLD");
-		frame: UnregisterEvent("UNIT_SPELLCAST_START");
-		frame: UnregisterEvent("UNIT_SPELLCAST_STOP");
-		frame: UnregisterEvent("UNIT_SPELLCAST_FAILED");
+		if LibCastClassic then
+			local CastbarEventHandler = function(event, ...)
+				return CastBar_OnEvent(frame, event, ...)
+			end
 
+			LibCastClassic.RegisterCallback(frame, 'UNIT_SPELLCAST_START', CastbarEventHandler)
+			LibCastClassic.RegisterCallback(frame, 'UNIT_SPELLCAST_DELAYED', CastbarEventHandler)
+			LibCastClassic.RegisterCallback(frame, 'UNIT_SPELLCAST_STOP', CastbarEventHandler)
+			LibCastClassic.RegisterCallback(frame, 'UNIT_SPELLCAST_FAILED', CastbarEventHandler)
+			LibCastClassic.RegisterCallback(frame, 'UNIT_SPELLCAST_INTERRUPTED', CastbarEventHandler)
+			LibCastClassic.RegisterCallback(frame, 'UNIT_SPELLCAST_CHANNEL_START', CastbarEventHandler)
+			LibCastClassic.RegisterCallback(frame, 'UNIT_SPELLCAST_CHANNEL_UPDATE', CastbarEventHandler)
+			LibCastClassic.RegisterCallback(frame, 'UNIT_SPELLCAST_CHANNEL_STOP', CastbarEventHandler)
+		else
+			frame: RegisterEvent("UNIT_SPELLCAST_INTERRUPTED");
+			frame: RegisterEvent("UNIT_SPELLCAST_DELAYED");
+			frame: RegisterEvent("UNIT_SPELLCAST_CHANNEL_START");
+			frame: RegisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE");
+			frame: RegisterEvent("UNIT_SPELLCAST_CHANNEL_STOP");
+			if not F.IsClassic then
+				frame: RegisterEvent("UNIT_SPELLCAST_INTERRUPTIBLE");
+				frame: RegisterEvent("UNIT_SPELLCAST_NOT_INTERRUPTIBLE");
+			end
+			frame: RegisterEvent("PLAYER_ENTERING_WORLD");
+			frame: RegisterUnitEvent("UNIT_SPELLCAST_START", frame.Unit);
+			frame: RegisterUnitEvent("UNIT_SPELLCAST_STOP", frame.Unit);
+			frame: RegisterUnitEvent("UNIT_SPELLCAST_FAILED", frame.Unit);
+		end
+	else
+		if LibCastClassic then
+			LibCastClassic.UnregisterCallback(frame, 'UNIT_SPELLCAST_START')
+			LibCastClassic.UnregisterCallback(frame, 'UNIT_SPELLCAST_DELAYED')
+			LibCastClassic.UnregisterCallback(frame, 'UNIT_SPELLCAST_STOP')
+			LibCastClassic.UnregisterCallback(frame, 'UNIT_SPELLCAST_FAILED')
+			LibCastClassic.UnregisterCallback(frame, 'UNIT_SPELLCAST_INTERRUPTED')
+			LibCastClassic.UnregisterCallback(frame, 'UNIT_SPELLCAST_CHANNEL_START')
+			LibCastClassic.UnregisterCallback(frame, 'UNIT_SPELLCAST_CHANNEL_UPDATE')
+			LibCastClassic.UnregisterCallback(frame, 'UNIT_SPELLCAST_CHANNEL_STOP')
+		else
+			frame: UnregisterEvent("UNIT_SPELLCAST_INTERRUPTED");
+			frame: UnregisterEvent("UNIT_SPELLCAST_DELAYED");
+			frame: UnregisterEvent("UNIT_SPELLCAST_CHANNEL_START");
+			frame: UnregisterEvent("UNIT_SPELLCAST_CHANNEL_UPDATE");
+			frame: UnregisterEvent("UNIT_SPELLCAST_CHANNEL_STOP");
+			if not F.IsClassic then
+				frame: UnregisterEvent("UNIT_SPELLCAST_INTERRUPTIBLE");
+				frame: UnregisterEvent("UNIT_SPELLCAST_NOT_INTERRUPTIBLE");
+			end
+			frame: UnregisterEvent("PLAYER_ENTERING_WORLD");
+			frame: UnregisterEvent("UNIT_SPELLCAST_START");
+			frame: UnregisterEvent("UNIT_SPELLCAST_STOP");
+			frame: UnregisterEvent("UNIT_SPELLCAST_FAILED");
+		end
 		frame: Hide()
 	end
 end
@@ -336,3 +368,36 @@ local CAST_COLOR = {
 	Fail = C.Color.Red,
 }
 --]]
+
+
+----------------------------------------------------------------
+--> CastBar Classic
+----------------------------------------------------------------
+
+local CastBarClassic_SetUnit = function(frame)
+	frame.Casting = nil
+	frame.Channeling = nil
+	frame.HoldTime = 0
+	frame.FadeOut = nil
+end
+
+local CastBarClassic_GetSpellInfo = function(frame, spellName)
+	local name, rank, icon, castTime, minRange, maxRange, spellId = GetSpellInfo(spellName)
+	return icon, castTime, spellID
+end
+
+local CastBarClassic_OnEvent = function(frame, eventParam, sourceGUID, spellName)
+	if eventParam == "SPELL_CAST_START" then
+
+	elseif eventParam == "SPELL_CAST_SUCCESS" then
+
+	elseif eventParam == "SPELL_CAST_FAILED" then
+
+	elseif eventType == "SPELL_INTERRUPT" or eventType == "PARTY_KILL" or eventType == "UNIT_DIED" then
+
+	end
+end
+
+F.CastBarClassic_Create = function(frame)
+
+end

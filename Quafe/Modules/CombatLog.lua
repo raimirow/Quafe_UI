@@ -35,7 +35,7 @@ local wipe = table.wipe
 local function CombatLog_Event(frame, event, ...)
 	local timestamp, eventParam, hideCaster, sourceGUID, sourceName, sourceFlags, sourceRaidFlags, destGUID, destName, destFlags, destRaidFlags, 
 	Param12, Param13, Param14, Param15, Param16, Param17, Param18, Param19, Param20, Param21, Param22, Param23, Param24 = CombatLogGetCurrentEventInfo()
-	--Param12 (spellId), Param13 (spellName), Param14 (spellSchool),
+	--Param12 (spellId), Param13 (spellName), Param14 (spellSchool), Param15 (failedType), 
 	
 	for k, v in pairs(E.CombatLogList) do
 		if v.LogEvent and v.LogON then
@@ -45,8 +45,8 @@ local function CombatLog_Event(frame, event, ...)
 end
 
 local function CombatLog_OnEvent(frame)
-	--frame: RegisterEvent("COMBAT_LOG_EVENT")
-	frame: RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED")
+	--frame: RegisterEvent("COMBAT_LOG_EVENT") -->过滤后的记录
+	frame: RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED") -->未过滤的记录
 	frame: SetScript("OnEvent", function(self, event, ...)
 		CombatLog_Event(self, event, ...)
 	end)
@@ -54,7 +54,13 @@ end
 
 local BackgroundCombatLog = CreateFrame("Frame", nil, E)
 local function BGCL_Load()
-	CombatLog_OnEvent(BackgroundCombatLog)
+	if #(E.CombatLogList) > 0 then
+		CombatLog_OnEvent(BackgroundCombatLog)
+	end
 end
 BackgroundCombatLog.Load = BGCL_Load()
 tinsert(E.Module, BackgroundCombatLog)
+
+--SPELL_CAST_START
+--SPELL_CAST_FAILED
+--SPELL_CAST_SUCCESS
