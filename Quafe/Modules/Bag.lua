@@ -17,8 +17,6 @@ local find = string.find
 local insert = table.insert
 local GetItemClassInfo = _G.GetItemClassInfo
 local GetItemSubClassInfo = _G.GetItemSubClassInfo
---local LibItemUpgradeInfo = LibStub:GetLibrary("LibItemUpgradeInfo-1.0")
-local LibItemInfo = LibStub:GetLibrary("LibItemInfo.7000")
 
 --- ------------------------------------------------------------
 --> Bag
@@ -943,10 +941,8 @@ local function GetItemInfoFromBS(BagID, SlotID)
 		local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemLink)
 		--local itemID, itemType, itemSubType, itemEquipLoc, itemTexture, itemClassID, itemSubClassID = GetItemInfoInstant(itemLink) 
 		if (itemType == ITEMCLASS_Weapon) or (itemType == ITEMCLASS_Armor) then
-			--local itemRealLevel = LibItemUpgradeInfo:GetUpgradedItemLevel(itemLink)
-			--local itemRealLevel = select(2, LibItemInfo:GetItemInfo(itemLink))
-			local itemRealLevel = select(2, LibItemInfo:GetContainerItemLevel(BagID, SlotID))
-			itemLevel = itemRealLevel or itemLevel
+			local EffectiveItemLevel = GetDetailedItemLevelInfo(itemLink)
+			itemLevel = EffectiveItemLevel or itemLevel
 		end
 		itemType = itemType or "Other"
 		if not ITEMCLASS[itemType] then
@@ -1986,51 +1982,8 @@ local function Insert_BankItem(f)
 				--local _, itemID = strsplit(":", itemLink)
 				--local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemLink)
 				if b == REAGENTBANK_CONTAINER then
-					--[[
-					itemType = itemType or "Other"
-					itemSubType = itemSubType or "Other"
-					insert(Reagent, {
-						bagID = b, slotID = s, 
-						itemName = itemName, itemID = itemID, 
-						itemTexture = texture, itemCount = itemCount, 
-						itemType = itemType, itemSubType = itemSubType, 
-						itemQuality = quality, itemLevel = itemLevel,
-						itemLocked = locked,
-					})
-					--]]
 					insert(Reagent, GetItemTable(b, s, itemName,itemID,texture,itemCount,itemType,itemSubType,itemEquipLoc,quality,itemLevel,locked))
 				else
-					--[[
-					if (itemType == ITEMCLASS_Weapon) or (itemType == ITEMCLASS_Armor) then
-						--local itemRealLevel = LibItemUpgradeInfo:GetUpgradedItemLevel(itemLink)
-						--local itemRealLevel = select(2, LibItemInfo:GetItemInfo(itemLink))
-						local itemRealLevel = select(2, LibItemInfo:GetContainerItemLevel(b, s))
-						itemLevel = itemRealLevel or itemLevel
-					end
-					itemType = itemType or "Other"
-					if not BANKITEMCLASS[itemType] then
-						itemType = "Other"
-					end
-					if quality == 0 then
-						itemType = "Sale"
-					end
-					if itemType == ITEMCLASS_Consumable then
-						if BANKITEMCLASS.Elixir.SubClass[itemSubType] then
-							itemType = "Elixir"
-						end
-						if BANKITEMCLASS.Food.SubClass[itemSubType] then
-							itemType = "Food"
-						end
-					end
-					insert(Bank, {
-						bagID = b, slotID = s, 
-						itemName = itemName, itemID = itemID, 
-						itemTexture = texture, itemCount = itemCount, 
-						itemType = itemType, itemSubType = itemSubType, 
-						itemQuality = quality, itemLevel = itemLevel,
-						itemLocked = locked,
-					})
-					--]]
 					insert(Bank[BagType], GetItemTable(b, s, itemName,itemID,texture,itemCount,itemType,itemSubType,itemEquipLoc,quality,itemLevel,locked))
 				end
 			else

@@ -2,7 +2,6 @@
 	<Script file="Ace3\LibStub\LibStub.lua"/>
 	<Script file="Ace3\CallbackHandler-1.0\CallbackHandler-1.0.lua"/>
 	
-	<Script file="TinyInspect\LibItemInfo.lua" />
 	<Include file="LibSharedMedia-3.0\lib.xml"/>
 	
 	<!-- Classic -->

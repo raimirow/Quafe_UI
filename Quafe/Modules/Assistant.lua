@@ -173,10 +173,7 @@ end
 -- itemLevel = LibItemUpgradeInfo:GetUpgradedItemLevel(itemString)
 -- "itemLink" = GetInventoryItemLink("unit", slotId)
 -- current, maximum = GetInventoryItemDurability(slotID)
--- itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, iconFileDataID, itemSellPrice = GetItemInfo(itemID or "itemString" or "itemName" or "itemLink") 
-
---local LibItemUpgradeInfo = LibStub:GetLibrary("LibItemUpgradeInfo-1.0")
-local LibItemInfo = LibStub:GetLibrary("LibItemInfo.7000")
+-- itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, iconFileDataID, itemSellPrice = GetItemInfo(itemID or "itemString" or "itemName" or "itemLink")
 
 local PosSlot = {[0] = "Top", [1] = "Right", [2] = "Right", [3] = "Right", [4] = "Right", [5] = "Right", [6] = "Left", [7] = "Left", [8] = "Left", [9] = "Right", [10] = "Left", [11] = "Left", [12] = "Left", [13] = "Left", [14] = "Left", [15] = "Right", [16] = "Top", [17] = "Top", [18] = "Top"}
 
@@ -281,13 +278,20 @@ end
 
 local function Hook_PaperDollSlotButton(self, unit)
 	local slotID = self:GetID()
-	local itemLvel, itemLink, itemQuality, bug
-	--local itemLink = GetInventoryItemLink("player", slotID)
-	--local itemLevel = LibItemUpgradeInfo:GetUpgradedItemLevel(itemLink)
-	--local itemLevel = select(2, LibItemInfo:GetItemInfo(itemLink))
-	local textureName = GetInventoryItemTexture(unit, self:GetID())
+	local ItemLevel, ItemLink, ItemQuality, CurDura, MaxDura
+	
+	ItemLink = GetInventoryItemLink(unit, slotID)
+	if ItemLink then
+		TextureName = GetInventoryItemTexture(unit, slotID)
+		ItemQuality = GetInventoryItemQuality(unit, slotID)
+		CurDura, MaxDura = GetInventoryItemDurability(slotID)
+		ItemLevel = GetDetailedItemLevelInfo(ItemLink)
+	end
+	--[[
 	if unit and textureName then
-		itemLevel, _, itemLink, quality = select(2, LibItemInfo:GetUnitItemInfo(unit, slotID))
+		--itemLevel, _, itemLink, quality = select(2, LibItemInfo:GetUnitItemInfo(unit, slotID))
+
+		local EffectiveItemLevel,IsPreview, ItemLevel = GetDetailedItemLevelInfo(itemLink)
 		if (slotID == 16) or (slotID == 17) then
 			local _, mlevel, _, _, mquality = LibItemInfo:GetUnitItemInfo(unit, 16)
 			local _, olevel, _, _, oquality = LibItemInfo:GetUnitItemInfo(unit, 17)
@@ -298,7 +302,7 @@ local function Hook_PaperDollSlotButton(self, unit)
 	else
 		itemLevel = 0
 	end
-	local curDura, maxDura = GetInventoryItemDurability(slotID)
+	--]]
 	
 	if not self.ItemFrame then
 		local ItemFrame = CreateFrame("Frame", nil, self)
@@ -335,18 +339,18 @@ local function Hook_PaperDollSlotButton(self, unit)
 		self.ItemFrame.DuraBarBg = F.create_Texture(self.ItemFrame, "BACKGROUND", "White", C.Color.W1, 0.9)
 		self.ItemFrame.DuraBarBg: SetAllPoints(self.ItemFrame.DuraBar)
 	end
-	if itemLevel and (itemLevel > 0) then
-		self.ItemFrame.Level: SetText(itemLevel)
+	if ItemLevel and (ItemLevel > 0) then
+		self.ItemFrame.Level: SetText(ItemLevel)
 	else
 		self.ItemFrame.Level: SetText("")
 	end
-	if maxDura then
-		self.ItemFrame.DuraBar: SetValue(curDura/(maxDura+F.Debug))
+	if MaxDura then
+		self.ItemFrame.DuraBar: SetValue(CurDura/(MaxDura+F.Debug))
 		self.ItemFrame.DuraBar: Show()
 	else
 		self.ItemFrame.DuraBar: Hide()
 	end
-	Create_ItemGem(self.ItemFrame, itemLink, slotID)
+	Create_ItemGem(self.ItemFrame, ItemLink, slotID)
 end
 
 local function Hook_EquipmentFlyout_DisplayButton(button, paperDollItemSlot)
@@ -358,15 +362,13 @@ local function Hook_EquipmentFlyout_DisplayButton(button, paperDollItemSlot)
 	if (not (player or bank or bags)) then 
 		return;
 	end
-	local itemLink, itemLevel
+	local itemLink
 	if bags then
 		itemLink = GetContainerItemLink(bagID, slotID)
-		itemLevel = select(2, LibItemInfo:GetContainerItemLevel(bagID, slotID))
 	else
 		itemLink = GetInventoryItemLink("player", slotID)
-		itemLevel = select(2, LibItemInfo:GetItemInfo(itemLink))
 	end
-	--local itemLevel = LibItemUpgradeInfo:GetUpgradedItemLevel(itemLink)
+	local itemLevel = GetDetailedItemLevelInfo(itemLink)
 	
 	if not button.ItemFrame then
 		local ItemFrame = CreateFrame("Frame", nil, button)

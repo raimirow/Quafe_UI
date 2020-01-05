@@ -372,7 +372,7 @@ local CAST_COLOR = {
 ----------------------------------------------------------------
 --> CastBar Classic
 ----------------------------------------------------------------
-
+--[[
 local CastBarClassic_SetUnit = function(frame)
 	frame.Casting = nil
 	frame.Channeling = nil
@@ -400,3 +400,4 @@ end
 F.CastBarClassic_Create = function(frame)
 
 end
+--]]
