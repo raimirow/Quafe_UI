@@ -362,13 +362,15 @@ local function Hook_EquipmentFlyout_DisplayButton(button, paperDollItemSlot)
 	if (not (player or bank or bags)) then 
 		return;
 	end
-	local itemLink
+	local itemLink,itemLevel
 	if bags then
 		itemLink = GetContainerItemLink(bagID, slotID)
 	else
 		itemLink = GetInventoryItemLink("player", slotID)
 	end
-	local itemLevel = GetDetailedItemLevelInfo(itemLink)
+	if itemLink then
+		itemLevel = GetDetailedItemLevelInfo(itemLink)
+	end
 	
 	if not button.ItemFrame then
 		local ItemFrame = CreateFrame("Frame", nil, button)

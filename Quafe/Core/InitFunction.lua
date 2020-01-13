@@ -136,7 +136,7 @@ end
 F.Color = function(color, alpha)
 	local c = color
 	if not (c and c.r) then return end 
-	if c.r > 1 then
+	if (c.r > 1) or (c.g > 1) or (c.b > 1) then
 		c.r = c.r/255
 		c.g = c.g/255
 		c.b = c.b/255

@@ -472,7 +472,7 @@ local Minimap_Filter = {
 	"GarrisonLandingPageMinimapButton"
 }
 
-local IgnoreButtonList = {
+local Miniamp_SpecButtonList = {
 	"BagSync_MinimapButton",
 	"LSItemTrackerMinimapButton",
 }
@@ -511,15 +511,28 @@ local function MBC_AddButton(button)
 	end
 end
 
+local function MBC_AddSpecButtons(frame)
+	for k,v in ipairs(Miniamp_SpecButtonList) do
+		button = _G[v]
+		if button then
+			button.Name = v
+			if v == "BagSync_MinimapButton" then
+				button.Icon = _G.bgMinimapButtonTexture
+			end
+			addButton(frame, button)
+		end
+	end
+end
+
 function findButtons(f, frame)
 	if frame then
 		for i, child in ipairs({frame:GetChildren()}) do
-			local name = child:GetName()
+			child.Name = child:GetName()
 			local parent = child:GetParent()
 			local parentname = parent:GetName()
 			local filter = nil
 			for j = 1, #Minimap_Filter do
-				if (name == Minimap_Filter[j]) or (parentname == Minimap_Filter[j]) then
+				if (child.Name  == Minimap_Filter[j]) or (parentname == Minimap_Filter[j]) then
 					filter = true
 				end
 			end
@@ -529,11 +542,13 @@ function findButtons(f, frame)
 				findButtons(f, child)
 			end	
 		end
+
 	end
 end
 
-local function CollectButtons(f)
-	findButtons(f, Minimap)
+local function CollectButtons(frame)
+	findButtons(frame, Minimap)
+	MBC_AddSpecButtons(frame)
 end
 
 local function MBC_SkinButton(button)
@@ -544,7 +559,11 @@ local function MBC_SkinButton(button)
 		button: SetSize(20,20)
 		button: SetHitRectInsets(0,0,0,0)
 		button: RegisterForDrag()
+		local buttonType = button:GetObjectType()
 		if button: IsMovable() then
+			if button: IsUserPlaced() then
+				button: SetUserPlaced(false)
+			end
 			button: SetMovable(false)
 		end
 		
@@ -583,7 +602,7 @@ local function MBC_SkinButton(button)
 		end
 	end
 	do
-		local icon = button.icon or button.Icon or button.texture or _G[button:GetName().."Icon"] or _G[button:GetName().."_Icon"] or button:GetNormalTexture()
+		local icon = button.icon or button.Icon or button.texture or _G[button:GetName().."Icon"] or _G[button:GetName().."_Icon"] or (buttonType == "Button" and button:GetNormalTexture())
 		if icon then
 			icon: Show()
 			icon: ClearAllPoints()
@@ -592,6 +611,8 @@ local function MBC_SkinButton(button)
 			icon.ClearAllPoints = function() end
 			icon.SetPoint = function() end
 		end
+	end
+	if buttonType == "Button" then
 		local highlight = button: GetHighlightTexture()
 		if highlight then
 			highlight: ClearAllPoints()

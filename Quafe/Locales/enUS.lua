@@ -230,6 +230,7 @@ LOCALE['CLIQUE_SUPPORT'] = 'Clique click-casting support'
 ---------------------------------------------------------------
 
 LOCALE['AUTOSHOT_BAR'] = 'Auto Shot Bar'
+LOCALE['SOUL_SHARD'] = 'Soul Shards'
 
 ---------------------------------------------------------------
 --> 

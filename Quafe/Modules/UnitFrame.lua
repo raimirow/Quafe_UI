@@ -31,18 +31,18 @@ local wipe = table.wipe
 local function BGU_Player_Event(frame, event, ...)
 	if event == "PLAYER_ENTERING_WORLD" or event == "UNIT_ENTERED_VEHICLE" or event == "UNIT_EXITED_VEHICLE" or event == "UNIT_DISPLAYPOWER" then
 		local powerType = UnitPowerType("player")
-		frame.ShowMana = false
+		frame.ShowMana = "Hide"
 		if powerType ~= 0 then
 			local maxmana = UnitPowerMax("player", 0)
 			if maxmana ~= 0 then
-				frame.ShowMana = true
+				frame.ShowMana = "Show"
 			end
 		end
 
 		F.Smooth_Health("player")
 		F.Smooth_Power("player")
 		F.Smooth_Absorb("player")
-		if frame.ShowMana then
+		if frame.ShowMana == "Show" then
 			F.Smooth_Mana("player")
 		end
 		for k,v in ipairs(E.UBU.Player.HP) do
@@ -54,7 +54,7 @@ local function BGU_Player_Event(frame, event, ...)
 		for k,v in ipairs(E.UBU.Player.AS) do
 			v("Event", E.Value.player.Absorb)
 		end
-		if frame.ShowMana then
+		if frame.ShowMana == "Show" then
 			for k,v in ipairs(E.UBU.Player.MN) do
 				v("Event", E.Value.player.Mana)
 			end
@@ -71,7 +71,7 @@ local function BGU_Player_Event(frame, event, ...)
 		for k,v in ipairs(E.UBU.Player.PP) do
 			v("Event", E.Value.player.Power)
 		end
-		if frame.ShowMana then
+		if frame.ShowMana == "Show" then
 			F.Smooth_Mana("player")
 			for k,v in ipairs(E.UBU.Player.MN) do
 				v("Event", E.Value.player.Mana)
@@ -107,36 +107,38 @@ local function BGU_Pet_Event(frame, event, ...)
 		--if UnitInVehicle("player") or UnitExists("pet") then
 		if F.IsClassic then
 			if UnitExists("pet") then
-				frame.ShowPet = true
+				frame.ShowPet = "Show"
 			else
-				frame.ShowPet = false
+				frame.ShowPet = "Hide"
 			end
 		else
 			if UnitHasVehiclePlayerFrameUI("player") or UnitExists("pet") then
-				frame.ShowPet = true
+				frame.ShowPet = "Show"
 			else
-				frame.ShowPet = false
+				frame.ShowPet = "Hide"
 			end
 		end
 		F.Smooth_Health("pet")
 		F.Smooth_Power("pet")
 		for k,v in ipairs(E.UBU.Pet.HP) do
-			v("Event", E.Value.pet.Health)
+			v("Event", E.Value.pet.Health, frame.ShowPet)
 		end
 		for k,v in ipairs(E.UBU.Pet.PP) do
 			v("Event", E.Value.pet.Power)
 		end
 	end
-	if event == "UNIT_HEALTH" or event == "UNIT_HEALTH_FREQUENT" or event == "UNIT_MAXHEALTH" then
-		F.Smooth_Health("pet")
-		for k,v in ipairs(E.UBU.Pet.HP) do
-			v("Event", E.Value.pet.Health)
+	if frame.ShowPet == "Show" then
+		if event == "UNIT_HEALTH" or event == "UNIT_HEALTH_FREQUENT" or event == "UNIT_MAXHEALTH" then
+			F.Smooth_Health("pet")
+			for k,v in ipairs(E.UBU.Pet.HP) do
+				v("Event", E.Value.pet.Health)
+			end
 		end
-	end
-	if event == "UNIT_POWER_UPDATE" or event == "UNIT_POWER_FREQUENT" or event == "UNIT_MAXPOWER" then
-		F.Smooth_Power("pet")
-		for k,v in ipairs(E.UBU.Pet.PP) do
-			v("Event", E.Value.pet.Power)
+		if event == "UNIT_POWER_UPDATE" or event == "UNIT_POWER_FREQUENT" or event == "UNIT_MAXPOWER" then
+			F.Smooth_Power("pet")
+			for k,v in ipairs(E.UBU.Pet.PP) do
+				v("Event", E.Value.pet.Power)
+			end
 		end
 	end
 end
@@ -158,13 +160,13 @@ end
 
 local function Create_OnEvent(frame)
 	local BGUPlayer = CreateFrame("Frame", nil, frame)
-	BGUPlayer.ShowMana = false
+	BGUPlayer.ShowMana = "Hide"
 	BGUPlayer: SetScript("OnEvent", function(self, event, ...)
 		BGU_Player_Event(self, event, ...)
 	end)
 
 	local BGUPet = CreateFrame("Frame", nil, frame)
-	BGUPet.ShowPet = false
+	BGUPet.ShowPet = "Hide"
 	BGUPet: SetScript("OnEvent", function(self, event, ...)
 		BGU_Pet_Event(self, event, ...)
 	end)
@@ -178,10 +180,10 @@ local function BGU_OnUpdate(frame)
 		F.Smooth_Update(E.Value["player"].Health)
 		F.Smooth_Update(E.Value["player"].Power)
 		F.Smooth_Update(E.Value["player"].Absorb)
-		if frame.BGUPlayer.ShowMana then
+		if frame.BGUPlayer.ShowMana == "Show" then
 			F.Smooth_Update(E.Value["player"].Mana)
 		end
-		if frame.BGUPet.ShowPet then
+		if frame.BGUPet.ShowPet == "Show" then
 			F.Smooth_Update(E.Value["pet"].Health)
 			F.Smooth_Update(E.Value["pet"].Power)
 		end
@@ -200,7 +202,7 @@ local function BGU_OnUpdate(frame)
 			for k,v in ipairs(E.UBU.Player.PP) do
 				v("Update", E.Value.player.Power)
 			end
-			if frame.BGUPlayer.ShowMana then
+			if frame.BGUPlayer.ShowMana == "Show" then
 				for k,v in ipairs(E.UBU.Player.MN) do
 					v("Update", E.Value.player.Mana)
 				end
