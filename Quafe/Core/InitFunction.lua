@@ -571,7 +571,8 @@ function F.create_Backdrop(f, d1, d2, d3, color1,alpha1, color2,alpha2)
 	bg:SetPoint("TOPRIGHT", d1, d1)
 	bg:SetPoint("BOTTOMRIGHT", d1, -d1)
 	bg: SetBackdrop({
-		bgFile = F.Path("StatusBar\\Raid"),
+		--bgFile = F.Path("StatusBar\\Raid"),
+		bgFile = F.Path("White"),
 		edgeFile = F.Path("EdgeFile\\EdgeFile_Backdrop"), 
 		edgeSize = d2,
 		insets = { left = d3, right = d3, top = d3, bottom = d3 }
@@ -653,6 +654,40 @@ function F.Create.Font(frame, layer, fontname, fontsize, outline, textcolor, sdc
 		Dummy: SetJustifyV(vertical)
 	end
 	return Dummy
+end
+
+function F.Create.Backdrop(frame, d1, circular, d2, d3, color1, alpha1, color2, alpha2)
+	local Backdrop = CreateFrame("Frame", nil, frame)
+	Backdrop: SetFrameLevel(frame:GetFrameLevel()-1)
+	Backdrop: SetFrameStrata(frame:GetFrameStrata())
+	d1 = d1 or 0
+	Backdrop:SetPoint("TOPLEFT", -d1, d1)
+	Backdrop:SetPoint("BOTTOMLEFT", -d1, -d1)
+	Backdrop:SetPoint("TOPRIGHT", d1, d1)
+	Backdrop:SetPoint("BOTTOMRIGHT", d1, -d1)
+	if circular then
+		Backdrop: SetBackdrop({
+			bgFile = F.Path("White"),
+			edgeFile = F.Path("EdgeFile\\EdgeFile_Circular"), 
+			edgeSize = d2,
+			insets = { left = d3, right = d3, top = d3, bottom = d3 }
+		})
+	else
+		Backdrop: SetBackdrop({
+			bgFile = F.Path("White"),
+			edgeFile = F.Path("EdgeFile\\EdgeFile_Backdrop"), 
+			edgeSize = d2,
+			insets = { left = d3, right = d3, top = d3, bottom = d3 }
+		})
+	end
+	if color1 and alpha1 then
+		Backdrop: SetBackdropColor(F.Color(color1, alpha1))
+	end
+	if color2 and alpha2 then
+		Backdrop: SetBackdropBorderColor(F.Color(color2, alpha2))
+	end
+	
+	return Backdrop
 end
 
 function F.create_StatusBar(f, texture, orientation, rotate)
@@ -834,6 +869,7 @@ end
 
 function F.AutoScale()
 	SetCVar("useUiScale", 1)
+	--local ScreenDPIScale = GetScreenDPIScale()
 	local height = floor(UIParent:GetHeight() + 0.5)
 	local scale = GetCVar("uiScale")
 	local newScale

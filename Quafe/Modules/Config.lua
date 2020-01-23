@@ -47,6 +47,13 @@ local backdrop = {
 	insets = {left = 0, right = 0, top = 0, bottom = 0}
 }
 
+local backdropC = {
+	bgFile = F.Path("White"),
+	edgeFile = F.Path("EdgeFile_Circular"),
+	tile = true, tileSize = 16, edgeSize = 4,
+	insets = {left = 4, right = 4, top = 4, bottom = 4}
+}
+
 local function ButtonHighLight_Create(frame, color)
 	local PlusHighlight = frame:CreateTexture(nil, "BORDER")
 	PlusHighlight: SetTexture(F.Path("White"))
@@ -85,7 +92,7 @@ local function Mover_Artwork(frame)
 	local LowFrame = CreateFrame("Frame", nil, frame)
 	LowFrame: SetFrameStrata("LOW")
 
-	local Gd = F.Create.Texture(LowFrame, "BACKGROUND", 1, F.Path("Grid"), C.Color.B2, 0.5, {4096,2048})
+	local Gd = F.Create.Texture(LowFrame, "BACKGROUND", 1, F.Path("Grid"), C.Color.B2, 0, {4096,2048})
 	Gd: SetPoint("CENTER", UIParent, "CENTER", 0,0)
 
 	local Bg1 = frame: CreateTexture(nil, "BACKGROUND")
@@ -3165,7 +3172,7 @@ local function Scroll_Template(frame)
 end
 
 local function Create_Config(frame)
-	F.create_Backdrop(frame, 2, 8, 4, C.Color.Config.Back,0.9, C.Color.Config.Back,0.9)
+	local Backdrop = F.Create.Backdrop(frame, 0, true, 8, 8, C.Color.Config.Back,0.9, C.Color.Config.Back,0.9)
 
 	local ConfigScroll = Scroll_Template(frame)
 	local AurawatchScroll = Scroll_Template(frame)

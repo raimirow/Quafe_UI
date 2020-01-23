@@ -25,6 +25,7 @@
 	<Script file="ActionBar.lua"/>
 	<Script file="NamePlates.lua"/>
 	<Script file="Notification.lua"/>
+	<Script file="Minimap.lua"/>
 	<Script file="MinimapIcon.lua"/>
 	
 	<Script file="SharedMedia.lua"/>

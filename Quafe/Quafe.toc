@@ -1,6 +1,6 @@
-## Interface: 80205
-## Version: 8.2.5.50
-## Author: Voidiver
+## Interface: 80300
+## Version: 8.3.0.52
+## Author: Raimirow (voidiver)
 ## Title: Quafe
 ## Notes: Quafe
 ## Notes-zhCN: Quafe 核心

@@ -28,6 +28,8 @@ LOCALE['EDIT'] = '编辑'
 LOCALE['SHOW'] = '显示'
 LOCALE['HIDE'] = '隐藏'
 
+LOCALE['ALIGN_CENTER'] = '居中对齐' --8.3.0.52
+
 --- ------------------------------------------------------------
 --> Unit
 --- ------------------------------------------------------------
@@ -119,6 +121,10 @@ LOCALE['BUFF_FRAME'] = '增益减益栏'
 LOCALE['CHAT_FRAME'] = '聊天栏'
 LOCALE['CAST_BAR'] = '施法条'
 LOCALE['MINI_MAP'] = '小地图'
+
+LOCALE['ULTIMATE_FRAME'] = '终极技能充能(能量条)' --8.3.0.52
+LOCALE['ALPHA_OUTCOMBAT'] = '脱战透明度' --8.3.0.52
+LOCALE['SYNC_WITH_PLAYERFRAME'] = '与玩家框体同步' --8.3.0.52
 
 --> 移动框体
 LOCALE['MOVE_FRAME'] = "移动框体"

@@ -67,16 +67,30 @@ local function HideTexture(f)
 	f.SetTexture = function() return end
 end
 
-local function MenuButton_Template(frame)
+local function QuafeChatMenu_SetShown(frame, editbox)
+	if QuafeChatMenu then
+		if QuafeChatMenu: IsShown() then
+			QuafeChatMenu: Hide()
+		else
+			QuafeChatMenu: ClearAllPoints()
+			QuafeChatMenu: SetPoint("BOTTOMLEFT", frame, "TOPRIGHT", 4,4)
+			QuafeChatMenu: Show()
+		end
+	end
+	editbox: ClearFocus()
+end
+
+local function MenuButton_Template(frame, editbox)
 	local MenuButton = CreateFrame("Button", frame:GetName().."MenuButton", frame)
 	MenuButton: SetFrameLevel(frame:GetFrameLevel()+1)
 	MenuButton: SetWidth(28)
-	MenuButton: SetPoint("TOPRIGHT", frame, "TOPLEFT", -4,-3)
-	MenuButton: SetPoint("BOTTOMRIGHT", frame, "BOTTOMLEFT", -4,3)
+	MenuButton: SetPoint("TOPRIGHT", editbox, "TOPLEFT", -4,-3)
+	MenuButton: SetPoint("BOTTOMRIGHT", editbox, "BOTTOMLEFT", -4,3)
 	MenuButton: SetBackdrop(backdrop)
-	MenuButton: SetBackdropColor(F.Color(C.Color.Black, 0.6))
+	MenuButton: SetBackdropColor(F.Color(C.Color.Black, 0))
 	MenuButton: RegisterForClicks("LeftButtonUp", "RightButtonUp")
-	MenuButton: Hide()
+	MenuButton: SetAlpha(0.4)
+	--MenuButton: Hide()
 
 	local Icon = MenuButton: CreateTexture(nil, "ARTWORK")
     Icon: SetTexture(F.Path("Icons\\ChatIcon16"))
@@ -85,20 +99,16 @@ local function MenuButton_Template(frame)
     Icon: SetVertexColor(F.Color(C.Color.White))
 
 	MenuButton: SetScript("OnEnter", function(self, button)
-		Icon: SetVertexColor(F.Color(C.Color.Y3))
-		if QuafeChatMenu then
-			if QuafeChatMenu: IsShown() then
-				QuafeChatMenu: Hide()
-			else
-				QuafeChatMenu: ClearAllPoints()
-				QuafeChatMenu: SetPoint("BOTTOMLEFT", self, "TOPRIGHT", 4,4)
-				QuafeChatMenu: Show()
-			end
-		end
+		--Icon: SetVertexColor(F.Color(C.Color.Y3))
+		self: SetAlpha(1)
+		--QuafeChatMenu_SetShown(self, editbox)
 	end)
 
 	MenuButton: SetScript("OnLeave", function(self, button)
-		Icon: SetVertexColor(F.Color(C.Color.White))
+		--Icon: SetVertexColor(F.Color(C.Color.White))
+		if not (editbox:HasFocus()) then
+			self: SetAlpha(0.4)
+		end
 	end)
 
 	MenuButton: SetScript("OnMouseDown", function(self, button)
@@ -106,6 +116,7 @@ local function MenuButton_Template(frame)
 	end)
 	MenuButton: SetScript("OnMouseUp", function(self, button)
 		Icon: SetTexCoord(0,1,0,1)
+		QuafeChatMenu_SetShown(self, editbox)
 	end)
 
 	return MenuButton
@@ -196,7 +207,7 @@ local function Quafe_ChatFrame_Skin_Event(f, event)
 			FrameSlider: SetValueStep(1)
 			FrameSlider: Enable()
 			FrameSlider: SetValue(1)
-			FrameSlider: SetAlpha(0.1)
+			FrameSlider: SetAlpha(0.4)
 			
 			FrameSlider: SetScript("OnValueChanged", function(self, value)
 				local min, max = self:GetMinMaxValues();
@@ -246,12 +257,12 @@ local function Quafe_ChatFrame_Skin_Event(f, event)
 			end)
 			FrameSliderHelp: SetScript("OnLeave", function(self)
 				if not (FrameSlider:IsMouseOver() or FrameBack:IsShown()) then
-					FrameSlider: SetAlpha(0.1)
+					FrameSlider: SetAlpha(0.4)
 				end
 			end)
 			FrameSlider: SetScript("OnLeave", function(self)
 				if (not (FrameSlider:IsMouseOver() or FrameSliderHelp:IsMouseOver())) and FrameSliderHelp:IsShown() and (not FrameBack:IsShown()) then
-					FrameSlider: SetAlpha(0.1)
+					FrameSlider: SetAlpha(0.4)
 				end
 			end)
 			
@@ -275,7 +286,7 @@ local function Quafe_ChatFrame_Skin_Event(f, event)
 			EditBoxBack: SetBackdropColor(F.Color(C.Color.Black, 0.6))
 			EditBoxBack: Hide()
 
-			local MenuButton = MenuButton_Template(EditBox)
+			local MenuButton = MenuButton_Template(ChatFrame,EditBox)
 			
 			--local EditBox_Language = CreateFrame("Button", frameName.."EditBox_Language", EditBoxBack, "SecureActionButtonTemplate")
 			local EditBox_Language = CreateFrame("Button", frameName.."EditBox_Language", EditBoxBack)
@@ -306,7 +317,9 @@ local function Quafe_ChatFrame_Skin_Event(f, event)
 			EditBox: HookScript("OnEditFocusGained", function(self)
 				--UIFrameFadeIn(EditBoxBack, 0.2, 0, 1)
 				EditBoxBack: Show()
-				MenuButton: Show()
+				--MenuButton: Show()
+				MenuButton: SetAlpha(1)
+				MenuButton: SetBackdropColor(F.Color(C.Color.Black, 0.6))
 				FrameBack: Show()
 				FrameSlider: SetAlpha(0.9)
 				FrameSliderHelp: Hide()
@@ -315,9 +328,11 @@ local function Quafe_ChatFrame_Skin_Event(f, event)
 			EditBox: HookScript("OnEditFocusLost", function(self)
 				--UIFrameFadeOut(EditBoxBack, 0.2, 1, 0)
 				EditBoxBack: Hide()
-				MenuButton: Hide()
+				--MenuButton: Hide()
+				MenuButton: SetAlpha(0.4)
+				MenuButton: SetBackdropColor(F.Color(C.Color.Black, 0))
 				FrameBack: Hide()
-				FrameSlider: SetAlpha(0.1)
+				FrameSlider: SetAlpha(0.4)
 				FrameSliderHelp: Show()
 				if QuafeChatMenu then
 					if QuafeChatMenu: IsShown() then
@@ -334,7 +349,7 @@ local function Quafe_ChatFrame_Skin_Event(f, event)
 				end)
 				ChatFrame1EditBox: HookScript("OnEditFocusLost", function(self)
 					FrameBack: Hide()
-					FrameSlider: SetAlpha(0.1)
+					FrameSlider: SetAlpha(0.4)
 					FrameSliderHelp: Show()
 				end)
 			end
@@ -393,8 +408,13 @@ local CHAT_CHANNEL = {
 
 local function ChatMenu_GetChannelName(index)
 	if type(index) == "number" then
-		local channelNum, channelName = GetChannelName(index)
-		if channelNum ~= 0 then
+		local localID, channelName, instanceID, isCommunitiesChannel = GetChannelName(index)
+		if ( channelName ) then
+			if ( isCommunitiesChannel ) then
+				channelName = ChatFrame_ResolveChannelName(channelName);
+			elseif ( instanceID > 0 ) then
+				channelName = channelName.." "..instanceID;
+			end
 			return channelName
 		end
 	else
@@ -520,7 +540,7 @@ local function ChatMenu_ChannelFrame(frame)
 				if k ~= 1 then
 					Channels[k]: SetPoint("BOTTOM", Channels[k-1], "TOP", 0,2)
 				end
-				Channels[k].Label: SetText(ChatMenu_GetChannelName(k))
+				Channels[k].Label: SetText(name)
 				num = num + 1
 			else
 				Channels[k]: Hide()
@@ -736,6 +756,9 @@ local function Quafe_ChatMenu(frame)
 	end
 
 	ChatMenuFrame: SetScript("OnShow", function(self)
+		
+	end)
+	ChatMenuFrame: SetScript("OnHide", function(self)
 		
 	end)
 

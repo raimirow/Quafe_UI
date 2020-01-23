@@ -28,6 +28,8 @@ LOCALE['EDIT'] = 'Edit'
 LOCALE['SHOW'] = 'Show'
 LOCALE['HIDE'] = 'Hide'
 
+LOCALE['ALIGN_CENTER'] = 'Align Center' --8.3.0.52
+
 --- ------------------------------------------------------------
 --> Unit
 --- ------------------------------------------------------------
@@ -119,6 +121,10 @@ LOCALE['BUFF_FRAME'] = 'Buff and Debuff'
 LOCALE['CHAT_FRAME'] = 'Chat Frame'
 LOCALE['CAST_BAR'] = 'Cast Bar'
 LOCALE['MINI_MAP'] = 'Minimap'
+
+LOCALE['ULTIMATE_FRAME'] = 'Ultimate (Power Bar)' --8.3.0.52
+LOCALE['ALPHA_OUTCOMBAT'] = 'Alpha Out of Combat' --8.3.0.52
+LOCALE['SYNC_WITH_PLAYERFRAME'] = 'Sync with PlayerFrame' --8.3.0.52
 
 --> 移动框体
 LOCALE['MOVE_FRAME'] = "Moving Frame"
