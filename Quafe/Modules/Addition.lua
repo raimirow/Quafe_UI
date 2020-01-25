@@ -30,7 +30,7 @@ local function QuickDeleteGood_Load()
 	end)
 end
 local QuickDeleteGood = {}
-QuickDeleteGood.Load = QuickDeleteGood_Load()
+QuickDeleteGood.Load = QuickDeleteGood_Load
 insert(E.Module, QuickDeleteGood)
 
 --- ------------------------------------------------------------

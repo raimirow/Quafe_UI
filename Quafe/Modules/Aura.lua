@@ -479,5 +479,5 @@ local AuraListUpdate = CreateFrame("Frame", nil, E)
 local function AuraListUpdate_Load()
 	AL_OnEvent(AuraListUpdate)
 end
-AuraListUpdate.Load = AuraListUpdate_Load()
+AuraListUpdate.Load = AuraListUpdate_Load
 tinsert(E.Module, AuraListUpdate)

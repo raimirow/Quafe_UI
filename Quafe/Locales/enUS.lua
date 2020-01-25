@@ -183,6 +183,9 @@ LOCALE['实时刷新'] = 'Real-time refresh'
 LOCALE['重置金币数据'] = 'Refresh coin data'
 LOCALE['背包金币数据已重置'] = 'Coin data has be refreshed'
 
+LOCALE['SOLD'] = 'Sold' --8.3.0.53
+LOCALE['GAINED'] = 'Gained' --8.3.0.53
+
 --> Assistant
 LOCALE['ASSISTANT'] = 'Assistant'
 LOCALE['RESURRECTION_NOTIFICATION'] = 'Resurrection Notification'

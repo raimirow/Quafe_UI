@@ -392,21 +392,24 @@ end
 
 local function Sell_Junk()
 	local JUNK_NUM = 0
+	local JUNK_PRICE = 0
 	for k,v in ipairs(Bag[0]) do
 		if v.itemType then
 			if v.itemType == "Sale" then
 				if JUNK_NUM < 12 then
+					local currPrice = (select(11, GetItemInfo(v.itemID)) or 0) * (v.itemCount or 1)
 					PickupContainerItem(v.bagID, v.slotID)
 					PickupMerchantItem(0)
 					JUNK_NUM = JUNK_NUM + 1
+					JUNK_PRICE = JUNK_PRICE + currPrice
 				else
-					DEFAULT_CHAT_FRAME:AddMessage("Sell:"..JUNK_NUM)
+					DEFAULT_CHAT_FRAME:AddMessage(L['SOLD'].." "..JUNK_NUM.."  "..L['GAINED'].." "..GetCoinTextureString(JUNK_PRICE))
 					return
 				end
 			end
 		end
 	end
-	DEFAULT_CHAT_FRAME:AddMessage("Sell:"..JUNK_NUM)
+	DEFAULT_CHAT_FRAME:AddMessage(L['SOLD'].." "..JUNK_NUM.."  "..L['GAINED'].." "..GetCoinTextureString(JUNK_PRICE))
 end
 
 local function Init_BagGap(f, classtable, p, bank)

@@ -235,11 +235,14 @@ Init_Help: SetScript("OnEvent", function(self, event, addon)
 			Quafe_Init()
 			local OW_Load,OW_Reason = LoadAddOn("Quafe_Overwatch")
 			local TI_Load,TI_Reason = LoadAddOn("Quafe_TIE")
+			local MK_Load,MK_Reason = LoadAddOn("Quafe_MEKA")
+			--[[
 			if F.IsClassic then
 				LoadAddOn("Quafe_MEKA_Classic")
 			else
 				LoadAddOn("Quafe_MEKA")
 			end
+			--]]
 			C.PlayerName = GetUnitName("player", false)
 			C.PlayerClass = select(2, UnitClass("player"))
 			C.PlayerRealm = GetRealmName()

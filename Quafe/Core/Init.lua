@@ -73,6 +73,12 @@ E.UBU = {
 		HP = {},
 		PP = {},
 	},
+	Target = {
+		HP = {},
+		PP = {},
+		AS = {},
+		MN = {},
+	},
 }
 E.Aura = {}
 E.CombatLogList = {}

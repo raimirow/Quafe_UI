@@ -163,7 +163,7 @@ end
 local function ConfigMover_Load()
 	Mover_Artwork(Quafe_ConfigMover)
 end
-Quafe_ConfigMover.Load = ConfigMover_Load()
+Quafe_ConfigMover.Load = ConfigMover_Load
 tinsert(E.Module, Quafe_ConfigMover)
 
 function F.CreateJoystick(frame, sizeX,sizeY, framename)

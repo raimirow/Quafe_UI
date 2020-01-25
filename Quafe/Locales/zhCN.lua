@@ -183,6 +183,9 @@ LOCALE['实时刷新'] = '实时刷新'
 LOCALE['重置金币数据'] = '重置金币数据'
 LOCALE['背包金币数据已重置'] = '背包金币数据已重置'
 
+LOCALE['SOLD'] = '售出:' --8.3.0.53
+LOCALE['GAINED'] = '获得:' --8.3.0.53
+
 --> Assistant
 LOCALE['ASSISTANT'] = '附件'
 LOCALE['RESURRECTION_NOTIFICATION'] = '战斗中复生通知'

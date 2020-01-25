@@ -537,14 +537,18 @@ local function ChatMenu_ChannelFrame(frame)
 			local name = ChatMenu_GetChannelName(k)
 			if name then
 				Channels[k]: Show()
-				if k ~= 1 then
+				if k == 1 then
+					Channels[k]: SetPoint("BOTTOM", self, "BOTTOM", 0,6)
+				else
 					Channels[k]: SetPoint("BOTTOM", Channels[k-1], "TOP", 0,2)
 				end
 				Channels[k].Label: SetText(name)
 				num = num + 1
 			else
 				Channels[k]: Hide()
-				if k ~= 1 then
+				if k == 1 then
+					Channels[k]: SetPoint("BOTTOM", self, "BOTTOM", 0,-16)
+				else
 					Channels[k]: SetPoint("BOTTOM", Channels[k-1], "TOP", 0,-20)
 				end
 			end

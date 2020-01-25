@@ -58,7 +58,7 @@ local function BGCL_Load()
 		CombatLog_OnEvent(BackgroundCombatLog)
 	end
 end
-BackgroundCombatLog.Load = BGCL_Load()
+BackgroundCombatLog.Load = BGCL_Load
 tinsert(E.Module, BackgroundCombatLog)
 
 --SPELL_CAST_START

@@ -14,6 +14,8 @@ local sin = math.sin
 local cos = math.cos
 local rad = math.rad
 
+local Lerp = Lerp
+
 ----------------------------------------------------------------
 --> Function
 ----------------------------------------------------------------
@@ -214,7 +216,7 @@ local Transfer4 = 0
 local flash = CreateFrame("Frame", nil, UIParent)
 flash:SetScript("OnUpdate",function(self, elapsed)
 	--> Flash1
-	local step1 = floor((1/GetFramerate())*1e3)/1e3
+	local step1 = elapsed
 	if Transfer1 == 0 then
 		F.Alpha1 = F.Alpha1 + step1
 	elseif Transfer1 == 1 then
@@ -232,7 +234,7 @@ flash:SetScript("OnUpdate",function(self, elapsed)
 	end
 
 	--> Flash2
-	local step2 = floor((2/GetFramerate())*1e3)/1e3
+	local step2 = 2*elapsed
 	if Transfer2 == 0 then
 		F.Alpha2 = F.Alpha2 + step2
 	elseif Transfer2 == 1 then
@@ -250,7 +252,7 @@ flash:SetScript("OnUpdate",function(self, elapsed)
 	end
 	
 	--> Flash4
-	local step4 = floor((4/GetFramerate())*1e3)/1e3
+	local step4 = 4*elapsed
 	if Transfer4 == 0 then
 		F.Alpha4 = F.Alpha4 + step4
 	elseif Transfer4 == 1 then
@@ -544,8 +546,29 @@ F.Smooth_Update = function(f)
 end
 --]]
 
+local function clamp(v, min, max)
+	min = min or 0
+	max = max or 1
+
+	if v > max then
+		return max
+	elseif v < min then
+		return min
+	end
+
+	return v
+end
+
+local function isCloseEnough(new, target, range)
+	if range > 0 then
+		return abs((new - target) / range) <= 0.001
+	end
+
+	return true
+end
+
 local function SmoothNumUpdate(Per, Cur)
-	if abs(Per-Cur) < 1e-4 then
+	if abs(Per-Cur) < 0.001 then
 		Cur = Per
 	else
 		Cur = Cur + (Per-Cur)/6
