@@ -271,8 +271,8 @@ local function PartyButton_RgEvent(frame)
 	UnitFrame_UpdateUnitEvents(frame)
 end
 
-local function PartyMember_Template(frame, unit)
-	local button = CreateFrame("Button", nil, frame, "SecureUnitButtonTemplate")
+local function PartyMember_Template(frame, unit, name)
+	local button = CreateFrame("Button", name, frame, "SecureUnitButtonTemplate")
 	button: SetSize(106,60)
 	button.Unit = unit
 	button.DisplayedUnit = unit
@@ -312,11 +312,11 @@ local function PartyMember_Template(frame, unit)
 	local PowerBg = F.Create.Texture(button, "BORDER", 1, F.Path("Party\\HealthBar"), C.Color.W2, 0.1, {100,2}, {14/128,114/128, 3/16,13/16})
 	PowerBg: SetPoint("CENTER", PowerBar, "CENTER", 0, 0)
 
-	local Name = F.Create.Font(button, "ARTWORK", C.Font.Txt, 12, nil, C.Color.Main1, {C.Color.Main0}, {1,-1})
+	local Name = F.Create.Font(button, "ARTWORK", C.Font.Txt, 12, nil, C.Color.Main1,1, C.Color.Main0,1, {1,-1})
 	Name: SetSize(104,10)
 	Name: SetPoint("TOP", button, "TOP", 0, -34)
 
-	local Percent = F.Create.Font(Portrait, "OVERLAY", C.Font.NumSmall, 14, nil, C.Color.Main1, {C.Color.Main0}, {1,-1})
+	local Percent = F.Create.Font(Portrait, "OVERLAY", C.Font.NumSmall, 14, nil, C.Color.Main1,1, C.Color.Main0,1, {1,-1})
 	Percent: SetPoint("BOTTOMLEFT", button, "BOTTOMLEFT", 4, 34)
 
 	local Help = CreateFrame("Frame", nil, Portrait)
@@ -368,15 +368,16 @@ local function Quafe_Party_Load()
 	if Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Party"].Enable then
 		local Party = {}
 		for i = 1,4 do
-			Party[i] = PartyMember_Template(Quafe_Party, "party"..i)
-			--Party[i] = PartyMember_Template(Quafe_Party, "player")
+			Party[i] = PartyMember_Template(Quafe_Party, "party"..i, "Quafe "..L['PARTY_FRAME']..i)
+			--Party[i] = PartyMember_Template(Quafe_Party, "target")
+			Party[i]: SetScript("OnEvent", PartyButton_OnEvent)
+			Party[i]: SetScript("OnShow", PartyButton_OnShow)
 			if i == 1 then
 				Party[i]: SetPoint("LEFT", Quafe_Party, "LEFT", 0, 0)
+				F.ExpBar_HookOnShow(Party[i])
 			else
 				Party[i]: SetPoint("LEFT", Party[i-1], "RIGHT", 10, 0)
 			end
-			Party[i]: SetScript("OnEvent", PartyButton_OnEvent)
-			Party[i]: SetScript("OnShow", PartyButton_OnShow)
 			PartyButton_RgEvent(Party[i])
 
 			if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Party.Power == L['ON'] then

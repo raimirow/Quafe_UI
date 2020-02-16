@@ -177,20 +177,80 @@ local function Quafe_Login()
 	end
 end
 
+local function Button_Template(frame, color)
+	local Dummy = CreateFrame("Button", nil, frame)
+	Dummy: SetSize(240,28)
+
+	local Bg = F.Create.Backdrop(Dummy, 2, true, 2, 2, color, 0.9, color, 0.9)
+    local Text = F.Create.Font(Dummy, "ARTWORK", C.Font.Txt, 16, nil, C.Color.W3,1, C.Color.Config.Back,1, {1,-1}, "CENTER", "CENTER")
+    Text: SetPoint("CENTER", Dummy, "CENTER", 0,0)
+
+    Dummy: SetScript("OnEnter", function(self)
+		Bg: SetBackdropColor(F.Color(color, 0.7))
+        Bg: SetBackdropBorderColor(F.Color(C.Color.W3, 0.9))
+	end)
+	Dummy: SetScript("OnLeave", function(self)
+		Bg: SetBackdropColor(F.Color(color, 0.9))
+        Bg: SetBackdropBorderColor(F.Color(color, 0.9))
+	end)
+	
+	Dummy.Text = Text
+
+    return Dummy
+end
+
 local function Quafe_InterfaceOptions()
-	local QuafeInterfaceOptionsFrame = CreateFrame("Frame")
+	local QuafeInterfaceOptionsFrame = CreateFrame("Frame", nil, InterfaceOptionsFrame)
 	QuafeInterfaceOptionsFrame: SetSize(396,400)
 
-	local Logo = F.Create.Texture(QuafeInterfaceOptionsFrame, "ARTWORK", 1, F.Path("Logo"), {r = 250, g = 213, b =  62}, 1, {256,128})
-	Logo: SetPoint("TOPLEFT", QuafeInterfaceOptionsFrame, "TOPLEFT", 10,0)
+	--local Logo = F.Create.Texture(QuafeInterfaceOptionsFrame, "ARTWORK", 1, F.Path("Logo"), {r=250,g=213,b= 62}, 1, {256,128})
+	--Logo: SetPoint("TOPLEFT", QuafeInterfaceOptionsFrame, "TOPLEFT", 10,0)
 
-	local VersionText = F.Create.Font(QuafeInterfaceOptionsFrame, "ARTWORK", C.Font.NumOWI, 28, nil, {r = 250, g = 213, b =  62})
-	VersionText: SetPoint("TOPLEFT", QuafeInterfaceOptionsFrame, "TOPLEFT", 24,-110)
+	local LogoText = F.Create.Font(QuafeInterfaceOptionsFrame, "ARTWORK", C.Font.NumOWI, 80, nil, C.Color.Y1,1)
+	LogoText: SetPoint("TOPLEFT", QuafeInterfaceOptionsFrame, "TOPLEFT", 24,-28)
+	LogoText: SetText("Quafe UI")
+	LogoText: SetAlpha(1)
+
+	local VersionText = F.Create.Font(QuafeInterfaceOptionsFrame, "ARTWORK", C.Font.NumOWI, 28, nil, C.Color.W3,1)
+	VersionText: SetPoint("BOTTOMLEFT", LogoText, "BOTTOMRIGHT", 10,9)
 	VersionText: SetText("Version: "..GetAddOnMetadata("Quafe", "Version"))
-	VersionText: SetAlpha(0.85)
+	VersionText: SetAlpha(1)
 
+	local Setupwizard_Button = Button_Template(QuafeInterfaceOptionsFrame, C.Color.Config.Bar2)
+	Setupwizard_Button: SetPoint("TOP", QuafeInterfaceOptionsFrame, "CENTER", 0,-40)
+	Setupwizard_Button.Text: SetText(L['OPEN_SETUP_WIZARD'])
+	Setupwizard_Button: SetScript("OnClick", function(self, button)
+		if Quafe_Setupwizard then
+			InterfaceOptionsFrameOkay_OnClick()
+			HideUIPanel(GameMenuFrame)
+			Quafe_Setupwizard: Show()
+		end
+	end)
+
+	local Settings_Button = Button_Template(QuafeInterfaceOptionsFrame, C.Color.Config.Bar2)
+	Settings_Button: SetPoint("TOP", Setupwizard_Button, "BOTTOM", 0,-16)
+	Settings_Button.Text: SetText(L['OPEN_CONFIG_FRAME'])
+	Settings_Button: SetScript("OnClick", function(self, button)
+		if Quafe_Config then
+			InterfaceOptionsFrameOkay_OnClick()
+			HideUIPanel(GameMenuFrame)
+			Quafe_Config: Show()
+		end
+	end)
+
+	local Options_Button = Button_Template(QuafeInterfaceOptionsFrame, C.Color.Config.Bar2)
+	Options_Button: SetPoint("TOP", Settings_Button, "BOTTOM", 0,-16)
+	Options_Button.Text: SetText(L['LOAD_CONFIG_FRAME'])
+	Options_Button: SetScript("OnClick", function(self, button)
+		if not IsAddOnLoaded("Quafe_Options") then
+			LoadAddOn("Quafe_Options")
+		end
+	end)
+	Options_Button: Hide()
+
+	--[[
 	local Mech = CreateFrame("Button", nil, QuafeInterfaceOptionsFrame)
-	Mech: SetSize(128,128)
+	Mech: SetSize(164,164)
 	Mech: SetPoint("CENTER", QuafeInterfaceOptionsFrame, "CENTER")
 
 	local Bd1 = F.Create.Texture(Mech, "BORDER", 1, F.Path("CommunicationMenu\\Bd1"), C.Color.W3, 0.4, {256,256})
@@ -221,6 +281,13 @@ local function Quafe_InterfaceOptions()
 	Mech: SetScript("OnLeave", function(Self)
 		Bd2: SetAlpha(0)
 	end)
+	--]]
+
+	--QuafeInterfaceOptionsFrame: SetScript("OnShow", function(self)
+		--if not IsAddOnLoaded("Quafe_Options") then
+		--	LoadAddOn("Quafe_Options")
+		--end
+	--end)
 
 	QuafeInterfaceOptionsFrame.name = "Quafe UI"
 	InterfaceOptions_AddCategory(QuafeInterfaceOptionsFrame)
@@ -233,16 +300,11 @@ Init_Help: SetScript("OnEvent", function(self, event, addon)
 	if event == "ADDON_LOADED" then
 		if addon == E.Name then
 			Quafe_Init()
+			local QE_Load,QE_Reason = LoadAddOn("Quafe_Extra")
 			local OW_Load,OW_Reason = LoadAddOn("Quafe_Overwatch")
 			local TI_Load,TI_Reason = LoadAddOn("Quafe_TIE")
 			local MK_Load,MK_Reason = LoadAddOn("Quafe_MEKA")
-			--[[
-			if F.IsClassic then
-				LoadAddOn("Quafe_MEKA_Classic")
-			else
-				LoadAddOn("Quafe_MEKA")
-			end
-			--]]
+
 			C.PlayerName = GetUnitName("player", false)
 			C.PlayerClass = select(2, UnitClass("player"))
 			C.PlayerRealm = GetRealmName()

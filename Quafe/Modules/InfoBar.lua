@@ -1570,30 +1570,32 @@ local function ExpBar_Artwork(frame)
 	frame.Value = Value
 end
 
-local function ExpBar_RePos(self, event, ...)
-	if event == "ALL" or event == "PLAYER_ENTERING_WORLD" or event == "GROUP_ROSTER_UPDATE" then
-		if UnitInParty("player") then
-			self: SetPoint("TOPLEFT", UIParent, "TOPLEFT", 60, -120)
-		else
-			self: SetPoint("TOPLEFT", UIParent, "TOPLEFT", 60, -40)
+local function ExpBar_RePos(frame, hook_frame)
+	if not frame.HookParty then
+		if hook_frame then
+			hook_frame: HookScript("OnShow", function(self)
+				if frame then
+					frame: SetPoint("TOPLEFT", UIParent, "TOPLEFT", 60, -110)
+				end
+			end)
+			hook_frame: HookScript("OnHide", function(self)
+				if frame then
+					frame: SetPoint("TOPLEFT", UIParent, "TOPLEFT", 60, -30)
+				end
+			end)
+			frame.HookParty = true
 		end
 	end
 end
 
-local function ExpBar_Update(frame)
-	frame: SetScript("OnUpdate", function(bar, elapsed)
-		local limit = 30/GetFramerate()
-		frame.Info.XP = frame.Info.XP + math.min((frame.Info.CurXP-frame.Info.XP)/6, math.max(frame.Info.CurXP-frame.Info.XP, limit))
-		if abs(frame.Info.XP - frame.Info.CurXP) <= 1 then
-			frame.Info.XP = frame.Info.CurXP
-			frame.Bar: SetValue(frame.Info.XP)
-			frame.Value: SetText(format("%d/%d", frame.Info.XP, frame.Info.MaxXP))
-			frame: SetScript("OnUpdate", nil)
-		else
-			frame.Bar: SetValue(frame.Info.XP)
-			frame.Value: SetText(format("%d/%d", frame.Info.XP, frame.Info.MaxXP))
-		end
-	end)
+local function ExpBar_UpdateValue(frame, value)
+	frame._OldValue = value
+	frame.Bar: SetValue(value)
+	frame.Value: SetText(format("%d/%d", value, frame._MaxValue))
+end
+
+local function ExpBar_UpdateMaxValue(frame, min_value, max_value)
+	frame.Bar: SetMinMaxValues(min_value, max_value)
 end
 
 local function ExpBar_Event(frame, event, ...)
@@ -1608,49 +1610,48 @@ local function ExpBar_Event(frame, event, ...)
 	end
 	local DATA = Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_ExpBar"]
 	if (ShowExp and DATA.Enable) then
-		local minXP = UnitXP("player") or 0
-		local maxXP = UnitXPMax("player")
-		if frame.Info.MaxXP ~= maxXP then
-			frame.Bar: SetMinMaxValues(0,maxXP)
-			frame.Info.MaxXP = maxXP
-			frame.Info.CurXP = minXP
-			ExpBar_Update(frame)
+		if event == "ALL" or event == "PLAYER_ENTERING_WORLD" or event == "PLAYER_XP_UPDATE" or event == "PLAYER_LEVEL_UP" then
+			local minXP = UnitXP("player") or 0
+			local maxXP = UnitXPMax("player")
+			if frame.Info.MaxXP ~= maxXP then
+				frame.Info.MaxXP = maxXP
+				frame:UpdateMaxValue(0,maxXP)
+			end
+			if frame.Info.CurXP ~= minXP then
+				frame.Info.CurXP = minXP
+				frame:UpdateValue(minXP)
+			end
+			if frame.Info.Level ~= newLevel then
+				frame.Info.Level = newLevel
+				frame.Level: SetText(frame.Info.Level)
+			end
+			frame: SetAlpha(1)
 		end
-		if frame.Info.CurXP ~= minXP then
-			frame.Info.CurXP = minXP
-			ExpBar_Update(frame)
-		end
-		if frame.Info.Level ~= newLevel then
-			frame.Info.Level = newLevel
-			frame.Level: SetText(frame.Info.Level)
-		end
-		frame: Show()
 	elseif (AzeriteItemLocation and DATA.Enable and DATA.Azerite) then
-		local minXP,maxXP = C_AzeriteItem.GetAzeriteItemXPInfo(AzeriteItemLocation)
-		local azeriteLevel = C_AzeriteItem.GetPowerLevel(AzeriteItemLocation)
-		if frame.Info.MaxXP ~= maxXP then
-			frame.Bar: SetMinMaxValues(0,maxXP)
-			frame.Info.MaxXP = maxXP
-			frame.Info.CurXP = minXP
-			ExpBar_Update(frame)
+		if event == "ALL" or event == "PLAYER_ENTERING_WORLD" or event == "PLAYER_LEVEL_UP" or event == "AZERITE_ITEM_EXPERIENCE_CHANGED" or event == "PLAYER_EQUIPMENT_CHANGED" then
+			local minXP,maxXP = C_AzeriteItem.GetAzeriteItemXPInfo(AzeriteItemLocation)
+			local azeriteLevel = C_AzeriteItem.GetPowerLevel(AzeriteItemLocation)
+			if frame.Info.MaxXP ~= maxXP then
+				frame.Info.MaxXP = maxXP
+				frame:UpdateMaxValue(0,maxXP)
+			end
+			if frame.Info.CurXP ~= minXP then
+				frame.Info.CurXP = minXP
+				frame:UpdateValue(minXP)
+			end
+			if frame.Info.Level ~= azeriteLevel then
+				frame.Info.Level = azeriteLevel
+				frame.Level: SetText(frame.Info.Level)
+			end
+			frame: SetAlpha(1)
 		end
-		if frame.Info.CurXP ~= minXP then
-			frame.Info.CurXP = minXP
-			ExpBar_Update(frame)
-		end
-		if frame.Info.Level ~= azeriteLevel then
-			frame.Info.Level = azeriteLevel
-			frame.Level: SetText(frame.Info.Level)
-		end
-		frame: Show()
 	else
-		frame: Hide()
+		frame: SetAlpha(0)
 	end
 end
 
 local function ExpBar_OnEvent(frame)
 	frame: SetScript("OnEvent", function(self, event, ...)
-		ExpBar_RePos(frame, event, ...)
 		ExpBar_Event(frame, event, ...)
 	end)
 end
@@ -1659,18 +1660,16 @@ local function ExpBar_Refresh(frame)
 	frame: RegisterEvent("PLAYER_ENTERING_WORLD")
 	frame: RegisterEvent("PLAYER_XP_UPDATE")
 	frame: RegisterEvent("PLAYER_LEVEL_UP")
-	frame: RegisterEvent("GROUP_ROSTER_UPDATE")
 	if (not F.IsClassic) and Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_ExpBar"].Azerite then
 		frame: RegisterEvent("AZERITE_ITEM_EXPERIENCE_CHANGED")
 		frame: RegisterEvent("PLAYER_EQUIPMENT_CHANGED")
 	end
-	ExpBar_RePos(frame, "ALL")
 	ExpBar_Event(frame, "ALL")
 end
 
 local Quafe_ExpBar = CreateFrame("Frame", "Quafe_ExpBar", E)
 Quafe_ExpBar: SetSize(440,40)
-Quafe_ExpBar: SetPoint("TOPLEFT", UIParent, "TOPLEFT", 100, -60)
+Quafe_ExpBar: SetPoint("TOPLEFT", UIParent, "TOPLEFT", 60, -30)
 Quafe_ExpBar.Init = false
 Quafe_ExpBar.Info = {}
 Quafe_ExpBar.Info.CurXP = 0
@@ -1680,6 +1679,9 @@ Quafe_ExpBar.Info.XP = 0
 
 local function Quafe_ExpBar_Load()
 	if Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_ExpBar"].Enable then
+		Quafe_ExpBar.UpdateValue = ExpBar_UpdateValue
+		Quafe_ExpBar.UpdateMaxValue = ExpBar_UpdateMaxValue
+		F.SetSmooth(Quafe_ExpBar, true)
 		ExpBar_Artwork(Quafe_ExpBar)
 		ExpBar_OnEvent(Quafe_ExpBar)
 		ExpBar_Refresh(Quafe_ExpBar)
@@ -1760,6 +1762,10 @@ local Quafe_ExpBar_Config = {
 		},
 	},
 }
+
+F.ExpBar_HookOnShow = function(frame)
+	ExpBar_RePos(Quafe_ExpBar, frame)
+end
 
 Quafe_ExpBar.Load = Quafe_ExpBar_Load
 Quafe_ExpBar.Config = Quafe_ExpBar_Config

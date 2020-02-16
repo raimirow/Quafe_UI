@@ -167,9 +167,9 @@ local function Quafe_SOH_Toggle(arg)
 	end
 end
 
----——------------------------------------------------------------
+----------------------------------------------------------------
 --> Character Frame
----——------------------------------------------------------------
+----------------------------------------------------------------
 -- itemLevel = LibItemUpgradeInfo:GetUpgradedItemLevel(itemString)
 -- "itemLink" = GetInventoryItemLink("unit", slotId)
 -- current, maximum = GetInventoryItemDurability(slotID)
@@ -416,6 +416,16 @@ local function Quafe_CharacterFrame_Toggle(arg)
 		Quafe_NoticeReload()
 	end
 end
+
+----------------------------------------------------------------
+--> Loot Specialization
+----------------------------------------------------------------
+
+--specID = GetLootSpecialization()
+--SetLootSpecialization(specID)
+--Triggers Events
+----PLAYER_LOOT_SPEC_UPDATED upon changing loot specialization successfully.
+----CHAT_MSG_SYSTEM only if specID > 0.
 
 ----------------------------------------------------------------
 --> Assistants

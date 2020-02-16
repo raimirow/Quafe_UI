@@ -92,30 +92,47 @@ local function MenuButton_Template(frame, editbox)
 	MenuButton: SetAlpha(0.4)
 	--MenuButton: Hide()
 
-	local Icon = MenuButton: CreateTexture(nil, "ARTWORK")
-    Icon: SetTexture(F.Path("Icons\\ChatIcon16"))
-    Icon: SetSize(16,16)
-    Icon: SetPoint("CENTER")
-    Icon: SetVertexColor(F.Color(C.Color.White))
+	local Icon1 = MenuButton: CreateTexture(nil, "ARTWORK")
+	Icon1: SetTexture(F.Path("Config_ArrowDown"))
+    Icon1: SetSize(28,28)
+    Icon1: SetPoint("CENTER")
+    Icon1: SetVertexColor(F.Color(C.Color.White))
+
+	local Icon2 = MenuButton: CreateTexture(nil, "ARTWORK")
+    Icon2: SetTexture(F.Path("Icons\\ChatIcon16"))
+    Icon2: SetSize(16,16)
+    Icon2: SetPoint("CENTER")
+    Icon2: SetVertexColor(F.Color(C.Color.White))
+	Icon2: SetAlpha(0)
 
 	MenuButton: SetScript("OnEnter", function(self, button)
 		--Icon: SetVertexColor(F.Color(C.Color.Y3))
 		self: SetAlpha(1)
+		C_Timer.After(5, function()
+			Icon1: SetAlpha(1)
+			Icon2: SetAlpha(0)
+			if not (editbox:HasFocus()) then
+				self: SetAlpha(0.4)
+			end
+		end)
+		Icon1: SetAlpha(0)
+		Icon2: SetAlpha(1)
+
 		--QuafeChatMenu_SetShown(self, editbox)
 	end)
 
 	MenuButton: SetScript("OnLeave", function(self, button)
 		--Icon: SetVertexColor(F.Color(C.Color.White))
-		if not (editbox:HasFocus()) then
-			self: SetAlpha(0.4)
-		end
+		--if not (editbox:HasFocus()) then
+		--	self: SetAlpha(0.4)
+		--end
 	end)
 
 	MenuButton: SetScript("OnMouseDown", function(self, button)
-		Icon: SetTexCoord(-0.1,1.1,-0.1,1.1)
+		Icon2: SetTexCoord(-0.1,1.1,-0.1,1.1)
 	end)
 	MenuButton: SetScript("OnMouseUp", function(self, button)
-		Icon: SetTexCoord(0,1,0,1)
+		Icon2: SetTexCoord(0,1,0,1)
 		QuafeChatMenu_SetShown(self, editbox)
 	end)
 
@@ -464,7 +481,7 @@ local function ChatMenu_ChatFrame(frame)
 		Channels[k]: SetBackdrop(backdrop)
 		Channels[k]: SetBackdropColor(F.Color(C.Color.White2, 0))
 
-		local Label = F.Create.Font(Channels[k], "ARTWORK", C.Font.Txt, 14, nil, nil, nil, nil, "LEFT", "CENTER")
+		local Label = F.Create.Font(Channels[k], "ARTWORK", C.Font.Txt, 14, nil, nil, nil, nil, nil, nil, "LEFT", "CENTER")
 		Label: SetPoint("TOPLEFT", Channels[k], "TOPLEFT", 4,-2)
 		Label: SetPoint("BOTTOMRIGHT", Channels[k], "BOTTOMRIGHT", -4,2)
 		Label: SetText(ChatMenu_GetChannelName(v.Text))
@@ -512,7 +529,7 @@ local function ChatMenu_ChannelFrame(frame)
 		Channels[k]: SetBackdrop(backdrop)
 		Channels[k]: SetBackdropColor(F.Color(C.Color.White2, 0))
 
-		local Label = F.Create.Font(Channels[k], "ARTWORK", C.Font.Txt, 14, nil, nil, nil, nil, "LEFT", "CENTER")
+		local Label = F.Create.Font(Channels[k], "ARTWORK", C.Font.Txt, 14, nil, nil, nil, nil, nil, nil, "LEFT", "CENTER")
 		Label: SetPoint("TOPLEFT", Channels[k], "TOPLEFT", 4,-2)
 		Label: SetPoint("BOTTOMRIGHT", Channels[k], "BOTTOMRIGHT", -4,2)
 		Label: SetText(ChatMenu_GetChannelName(k))
@@ -587,7 +604,7 @@ local function ChatMenu_LanguageFrame(frame)
 		Languages[k]: SetBackdrop(backdrop)
 		Languages[k]: SetBackdropColor(F.Color(C.Color.White2, 0))
 
-		local Label = F.Create.Font(Languages[k], "ARTWORK", C.Font.Txt, 14, nil, nil, nil, nil, "LEFT", "CENTER")
+		local Label = F.Create.Font(Languages[k], "ARTWORK", C.Font.Txt, 14, nil, nil, nil, nil, nil, nil, "LEFT", "CENTER")
 		Label: SetPoint("TOPLEFT", Languages[k], "TOPLEFT", 4,-2)
 		Label: SetPoint("BOTTOMRIGHT", Languages[k], "BOTTOMRIGHT", -4,2)
 
@@ -736,7 +753,7 @@ local function Quafe_ChatMenu(frame)
 		Menus[k]: SetBackdrop(backdrop)
 		Menus[k]: SetBackdropColor(F.Color(C.Color.White2, 0))
 
-		local Label = F.Create.Font(Menus[k], "ARTWORK", C.Font.Txt, 14, nil, nil, nil, nil, "LEFT", "CENTER")
+		local Label = F.Create.Font(Menus[k], "ARTWORK", C.Font.Txt, 14, nil, nil, nil, nil, nil, nil, "LEFT", "CENTER")
 		Label: SetPoint("TOPLEFT", Menus[k], "TOPLEFT", 4,-2)
 		Label: SetPoint("BOTTOMRIGHT", Menus[k], "BOTTOMRIGHT", -4,2)
 		Label: SetText(v.Text)
@@ -807,7 +824,8 @@ end
 local function Quafe_ChatFrame_VoiceMenuFrame(frame)
 	local VoiceMenuButton = CreateFrame("Frame", nil, frame)
 	VoiceMenuButton: SetSize(28,28)
-	VoiceMenuButton: SetPoint("BOTTOMRIGHT", ChatFrame1, "TOPLEFT", -4, 4)
+	--VoiceMenuButton: SetPoint("BOTTOMRIGHT", ChatFrame1, "TOPLEFT", -4, 4)
+	VoiceMenuButton: SetPoint("BOTTOMRIGHT", ChatFrame1, "TOPLEFT", -4, 8)
 
 	local Icon = VoiceMenuButton: CreateTexture(nil, "ARTWORK")
     Icon: SetTexture(F.Path("Config_ArrowUp"))

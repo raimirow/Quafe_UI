@@ -1381,6 +1381,27 @@ end
 
 ----------------------------------------------------------------
 --> Add New
+----------------------------------------------------------------
+
+local function Aurawatch_AddNew_Tips(frame)
+	local Dummy = CreateFrame("Frame", nil, frame)
+	Dummy: SetSize(760,200)
+
+	local Bg = F.Create.Backdrop(Dummy, 2, true, 6, 6, C.Color.Config.Back, 0.95, C.Color.Config.Back, 0.95)
+	local Title = F.Create.Font(Dummy, "ARTWORK", C.Font.NumSmall, 20, nil, nil, nil, C.Color.Config.Back,1, {1,-1})
+	Title: SetTextColor(F.Color(C.Color.W3, 0.4))
+    Title: SetPoint("TOPLEFT", Dummy, "TOPLEFT", 10,-10)
+	Title: SetText("Tips")
+    local Text = F.Create.Font(Dummy, "ARTWORK", C.Font.Txt, 16, nil, nil, nil, C.Color.Config.Back,1, {1,-1}, "LEFT", "TOP")
+	Text: SetTextColor(F.Color(C.Color.W3, 0.9))
+    Text: SetPoint("TOPLEFT", Dummy, "TOPLEFT", 10,-50)
+	Text: SetText(L['FCS_NEW_TIPS'])
+
+	Dummy.Text = Text
+
+	return Dummy
+end
+
 local function Aurawatch_AddNew_Sub_Open(frame)
 	frame.Case: Show()
 	frame.Plus.Tex: SetTexture(F.Path("Config_Plus2"))
@@ -1978,7 +1999,7 @@ end
 local function Aurawatch_AddNew_Artwork(frame, scroll, configframe)
 	local Bg = frame: CreateTexture(nil, "BACKGROUND")
 	Bg: SetTexture(F.Path("White"))
-	Bg: SetVertexColor(F.Color(C.Color.W1))
+	Bg: SetVertexColor(F.Color(C.Color.Config.Back))
 	Bg: SetAlpha(0.95)
 	Bg: SetAllPoints(frame)
 	
@@ -2146,6 +2167,8 @@ local function Aurawatch_AddNew(frame, configframe)
 
 	Aurawatch_AddNew_Buttons(NewWatcher)
 	Aurawatch_AddNew_Artwork(NewWatcher, frame, configframe)
+	local Tips = Aurawatch_AddNew_Tips(NewWatcher)
+	Tips: SetPoint("BOTTOM", NewWatcher, "TOP", 0,10)
 
 	NewWatcher: SetScript("OnShow", Aurawatch_AddNew_OnShow)
 	
@@ -2564,7 +2587,7 @@ local function Profile_Title_Template(frame)
 	local Bg = F.Create.Texture(Bar, "BACKGROUND", 1, F.Path("White"), C.Color.B1, 0.7, {720-button_size-4, 4})
 	Bg: SetPoint("TOPLEFT", Bar, "TOPLEFT", 0,4-button_size)
 
-	local Name = F.Create.Font(Bar, "ARTWORK", C.Font.Txt, 14, nil, C.Color.W3)
+	local Name = F.Create.Font(Bar, "ARTWORK", C.Font.Txt, 14, nil, C.Color.W3, 1)
 	Name: SetPoint("LEFT", Bar, "LEFT", button_size+20+4, 0)
 	Name: SetText(L['PROFILE_NAME'])
 
@@ -2633,7 +2656,7 @@ local function ProfileBar_Template(frame)
 	local Menu = F.Create.Texture(MenuButton, "ARTWORK", 1, F.Path("Config_Plus3"), C.Color.W3, 1, {32,32})
 	Menu: SetPoint("CENTER", MenuButton, "CENTER")
 
-	local Name = F.Create.Font(NameHold, "ARTWORK", C.Font.Txt, 14, nil, C.Color.W3)
+	local Name = F.Create.Font(NameHold, "ARTWORK", C.Font.Txt, 14, nil, C.Color.W3, 1)
 	Name: SetPoint("LEFT", NameHold, "LEFT", 20,0)
 
 	local EditHold = CreateFrame("Frame", nil, Bar)
@@ -2649,7 +2672,7 @@ local function ProfileBar_Template(frame)
 	DeleteButton: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
 	ButtonHighLight_Create(DeleteButton, C.Color.R3)
 	
-	local DeleteText = F.Create.Font(DeleteButton, "ARTWORK", C.Font.Txt, 14, nil, C.Color.W3)
+	local DeleteText = F.Create.Font(DeleteButton, "ARTWORK", C.Font.Txt, 14, nil, C.Color.W3, 1)
 	DeleteText: SetPoint("CENTER", DeleteButton, "CENTER", 0,0)
 	DeleteText: SetText(L['DELETE'])
 
@@ -2661,7 +2684,7 @@ local function ProfileBar_Template(frame)
 	CopyButton: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
 	ButtonHighLight_Create(CopyButton, C.Color.Y1)
 
-	local CopyText = F.Create.Font(CopyButton, "ARTWORK", C.Font.Txt, 14, nil, C.Color.W3)
+	local CopyText = F.Create.Font(CopyButton, "ARTWORK", C.Font.Txt, 14, nil, C.Color.W3, 1)
 	CopyText: SetPoint("CENTER", CopyButton, "CENTER", 0,0)
 	CopyText: SetText(L['COPY'])
 
@@ -2673,7 +2696,7 @@ local function ProfileBar_Template(frame)
 	ReNameButton: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
 	ButtonHighLight_Create(ReNameButton, C.Color.B2)
 
-	local ReNameText = F.Create.Font(ReNameButton, "ARTWORK", C.Font.Txt, 14, nil, C.Color.W3)
+	local ReNameText = F.Create.Font(ReNameButton, "ARTWORK", C.Font.Txt, 14, nil, C.Color.W3, 1)
 	ReNameText: SetPoint("CENTER", ReNameButton, "CENTER", 0,0)
 	ReNameText: SetText(L['RENAME'])
 
@@ -2690,7 +2713,7 @@ local function ProfileBar_Template(frame)
 	CancelButton: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
 	ButtonHighLight_Create(CancelButton, C.Color.B2)
 
-	local CancelText = F.Create.Font(CancelButton, "ARTWORK", C.Font.Txt, 14, nil, C.Color.W3)
+	local CancelText = F.Create.Font(CancelButton, "ARTWORK", C.Font.Txt, 14, nil, C.Color.W3, 1)
 	CancelText: SetPoint("CENTER", CancelButton, "CENTER", 0,0)
 	CancelText: SetText(L['CANCEL'])
 
@@ -2702,7 +2725,7 @@ local function ProfileBar_Template(frame)
 	ConfirmButton: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
 	ButtonHighLight_Create(ConfirmButton, C.Color.Y1)
 
-	local ConfirmText = F.Create.Font(ConfirmButton, "ARTWORK", C.Font.Txt, 14, nil, C.Color.W3)
+	local ConfirmText = F.Create.Font(ConfirmButton, "ARTWORK", C.Font.Txt, 14, nil, C.Color.W3, 1)
 	ConfirmText: SetPoint("CENTER", ConfirmButton, "CENTER", 0,0)
 	ConfirmText: SetText(L['CONFIRM'])
 
@@ -3172,7 +3195,7 @@ local function Scroll_Template(frame)
 end
 
 local function Create_Config(frame)
-	local Backdrop = F.Create.Backdrop(frame, 0, true, 8, 8, C.Color.Config.Back,0.9, C.Color.Config.Back,0.9)
+	local Backdrop = F.Create.Backdrop(frame, 0, true, 6, 6, C.Color.Config.Back,0.9, C.Color.Config.Back,0.9)
 
 	local ConfigScroll = Scroll_Template(frame)
 	local AurawatchScroll = Scroll_Template(frame)
@@ -3229,12 +3252,11 @@ local wReload_Arts = function(frame)
 
 	for i = 1,2 do
 		local Button = CreateFrame("Button", nil, frame)
-		Button: SetSize(104,42)
+		Button: SetFrameLevel(frame: GetFrameLevel()+2)
+		Button: SetSize(100,38)
+		Button.Color = C.Color.B1
 
-		local ButtonBg = Button:CreateTexture(nil, "BACKGROUND")
-		ButtonBg: SetTexture(F.Path("White"))
-		ButtonBg: SetVertexColor(F.Color(C.Color.B1))
-		ButtonBg: SetAllPoints(Button)
+		local Bg = F.Create.Backdrop(Button, 2, true, 2, 2, Button.Color, 0.9, Button.Color, 0.9)
 
 		local ButtonTxt = Button: CreateFontString(nil, "ARTWORK")
 		ButtonTxt: SetFont(C.Font.Txt, 18, nil)
@@ -3243,18 +3265,28 @@ local wReload_Arts = function(frame)
 		ButtonTxt: SetTextColor(F.Color(C.Color.W3))
 		ButtonTxt: SetPoint("CENTER", Button, "CENTER", 0, 0)
 
-		Button.Bg = ButtonBg
+		Button: SetScript("OnEnter", function(self)
+			Bg: SetBackdropColor(F.Color(Button.Color, 0.7))
+			Bg: SetBackdropBorderColor(F.Color(C.Color.W3, 0.9))
+		end)
+		Button: SetScript("OnLeave", function(self)
+			Bg: SetBackdropColor(F.Color(Button.Color, 0.9))
+			Bg: SetBackdropBorderColor(F.Color(Button.Color, 0.9))
+		end)
+
+		Button.Bg = Bg
 		Button.Txt = ButtonTxt
 		frame["Button"..i] = Button
 	end
 
-	frame.Button1: SetPoint("BOTTOMRIGHT", frame, "BOTTOM", -12, 12)
-	frame.Button1.Bg: SetVertexColor(F.Color(C.Color.B1, 0.7))
+	frame.Button1: SetPoint("BOTTOMRIGHT", frame, "BOTTOM", -14, 12)
 	frame.Button1.Txt: SetText(L['LATER'])
 
-	frame.Button2: SetPoint("BOTTOMLEFT", frame, "BOTTOM", -8, 12)
+	frame.Button2: SetPoint("BOTTOMLEFT", frame, "BOTTOM", -6, 12)
 	frame.Button2: SetWidth(128)
-	frame.Button2.Bg: SetVertexColor(F.Color(C.Color.Y1, 0.9))
+	frame.Button2.Color = C.Color.Y1
+	frame.Button2.Bg: SetBackdropColor(F.Color(frame.Button2.Color, 0.9))
+	frame.Button2.Bg: SetBackdropBorderColor(F.Color(frame.Button2.Color, 0.9))
 	frame.Button2.Txt: SetText(L['OK'])
 
 	frame.Title1 = Title1

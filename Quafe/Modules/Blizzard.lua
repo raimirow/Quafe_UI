@@ -37,7 +37,7 @@ local function Load()
 		F.HideUnitFrame("PlayerFrame")
 	end
 	if Quafe_DB.Profile[Quafe_DBP.Profile].Blizzard.TargetFrame == false then
-		F.HideUnitFrame("TargetFrame")
+		F.HideUnitFrame("TargetFrame", true)
 	end
 	if Quafe_DB.Profile[Quafe_DBP.Profile].Blizzard.FocusFrame == false then
 		F.HideUnitFrame("FocusFrame")

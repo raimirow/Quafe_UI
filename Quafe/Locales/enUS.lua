@@ -20,6 +20,9 @@ LOCALE['EXIT'] = "Exit"
 LOCALE['CANCEL'] = "Cancel"
 LOCALE['DELETE'] = 'Delete'
 
+LOCALE['OPEN'] = 'Open'
+LOCALE['CLOSE'] = 'Close'
+
 LOCALE['NEW'] = 'New'
 LOCALE['COPY'] = 'Copy'
 LOCALE['RENAME'] = 'Rename'
@@ -45,14 +48,17 @@ LOCALE['ALL_UNIT'] = 'All Unit'
 --- ------------------------------------------------------------
 
 LOCALE['BINDING_COMMUNICATIONMENU'] = 'Binding Communication Menu'
-LOCALE['THANK'] = "Thanks"
-LOCALE['HELLO'] = "Hello"
-LOCALE['DANCE'] = "Dance"
-LOCALE['HEALME'] = "Heal me"
-LOCALE['RUDE'] = "Rude"
-LOCALE['AUTOLOOT'] = "Auto loot"
-LOCALE['SHEATHE'] = "Sheathe" 
-LOCALE['UNSHEATHE'] = "Unsheathe"
+LOCALE['THANK'] = "THANK"
+LOCALE['HELLO'] = "HELLO"
+LOCALE['DANCE'] = "DANCE"
+LOCALE['HEALME'] = "NEED HEALING"
+LOCALE['RUDE'] = "RUDE"
+LOCALE['AUTOLOOT'] = "AUTO LOOT"
+LOCALE['SHEATHE'] = "SHEATHE" 
+LOCALE['UNSHEATHE'] = "UNSHEATHE"
+
+LOCALE['ACKNOWLEDGE'] = 'ACKNOWLEDGE' --8.3.0.54
+LOCALE['OOM'] = 'OUT OF MANA' --8.3.0.54
 
 LOCALE.FactionStandingID = {
 	[0] = FACTION_STANDING_LABEL0,
@@ -115,7 +121,12 @@ LOCALE['APPLY_RELOAD'] = "Click the confirm button to reload UI"
 LOCALE['RESET_TEXT1'] = ""
 LOCALE['RESET_TEXT2'] = ""
 
+LOCALE['OPEN_SETUP_WIZARD'] = "Open Setup wizard" --v63
+LOCALE['OPEN_CONFIG_FRAME'] = "Open Setting Frame" --v63
+LOCALE['LOAD_CONFIG_FRAME'] = "Load detail setting options" --v63
+
 LOCALE['OBJECTIVE_TRACKER'] = "Object Tracker"
+LOCALE['PLAYER_POWER_BAR_ALTER'] = "Player PowerBarAlt" --v62
 LOCALE['COMMUNICATION_MENU'] = 'Communication Menu'
 LOCALE['BUFF_FRAME'] = 'Buff and Debuff'
 LOCALE['CHAT_FRAME'] = 'Chat Frame'
@@ -125,6 +136,11 @@ LOCALE['MINI_MAP'] = 'Minimap'
 LOCALE['ULTIMATE_FRAME'] = 'Ultimate (Power Bar)' --8.3.0.52
 LOCALE['ALPHA_OUTCOMBAT'] = 'Alpha Out of Combat' --8.3.0.52
 LOCALE['SYNC_WITH_PLAYERFRAME'] = 'Sync with PlayerFrame' --8.3.0.52
+
+LOCALE['SETUP_WIZARD'] = 'Setup wizard' --v57
+
+LOCALE['LOAD_MEKA_LAYOUT'] = 'Load MEKA layout' --v57
+LOCALE['LOAD_OVERWATCH_LAYOUT'] = 'Load Overwatch layout' --v57
 
 --> 移动框体
 LOCALE['MOVE_FRAME'] = "Moving Frame"
@@ -147,8 +163,11 @@ LOCALE['MOUSE_RESOLUTION'] = "Mouse Resolution（DPI）"
 --> Blizzard Frames
 LOCALE["BLIZZARD_FRAMES"] = "WoW Default Frames"
 LOCALE['PLAYER_FRAME'] = "Player Frame"
+LOCALE['PET_FRAME'] = "Pet Frame" --v63
 LOCALE['TARGET_FRAME'] = "Target Frame"
+LOCALE['TARGET_TARGET_FRAME'] = "Target of Target Frame" --v63
 LOCALE['FOCUS_FRAME'] = "Focus Frame"
+LOCALE['FOCUS_TARGET_FRAME'] = "Target of Focus Frame" --v63
 LOCALE['PARTY_FRAME'] = "Party Frame"
 LOCALE['BOSS_FRAME'] = "Boss Frame"
 
@@ -172,6 +191,10 @@ LOCALE["MEKA_BR"] = 'MEKA Bar Right'
 LOCALE["MEKA_IL"] = 'MEKA Icon Left'
 LOCALE["MEKA_IR"] = 'MEKA Icon Right'
 
+LOCALE['FCS_FILTER'] = 'Only show Buff on friendly unit and Debuff on enemy unit' --8.3.0.55
+
+LOCALE['FCS_NEW_TIPS'] = '|cffdca240Steps|r 1.select Type, 2.select Icon (can skip), 3.Fill ID or Name of Buff/Debuff/Spell, 4.Add.\n\n|cffdca240Watch several Buff/Debuffs|r use ";" separate each Buff/Debuff can watch Buff/Debuffs at \nsame time. e.g. 1112;1113;1114;1115\n\n|cffdca240Watch two Buff/Debuffs with Icon watcher|r use "," separate the two Buff/Debuffs, the first \none shown in center, the second one shown in edge. e.g. Power word: shield,Weak soul.' --v58
+
 --> Bag
 LOCALE['SELL_JUNK'] = 'Sell junk'
 LOCALE['BAG'] = 'Bag'
@@ -193,7 +216,11 @@ LOCALE['SKIN_ORDERHALL'] = 'Skin infobar of order hall'
 LOCALE['SKIN_CHARACTER'] = 'Shin character frame'
 
 --> CastingBar
-LOCALE['施法条'] = 'Castbar'
+LOCALE['CAST_BAR'] = 'Cast Bar'
+LOCALE['GCD'] = 'Global CD (GCD)' --v60
+LOCALE['MIRROR_BAR'] = 'Mirror bar (breath etc.)' --v60
+LOCALE['SWING_BAR'] = 'Swing bar' --v60
+LOCALE['PLAYER_SPELLNAME'] = 'Spell name of Player' --v61
 
 --> ClassPowerBar
 LOCALE['CLASS'] = 'Class'

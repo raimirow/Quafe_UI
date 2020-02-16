@@ -20,6 +20,9 @@ LOCALE['EXIT'] = "退出"
 LOCALE['CANCEL'] = "取消"
 LOCALE['DELETE'] = '刪除'
 
+LOCALE['OPEN'] = '打開'
+LOCALE['CLOSE'] = '關閉'
+
 LOCALE['NEW'] = '新建'
 LOCALE['COPY'] = '複製'
 LOCALE['RENAME'] = '重命名'
@@ -53,6 +56,9 @@ LOCALE['RUDE'] = "粗魯"
 LOCALE['AUTOLOOT'] = "自動拾取"
 LOCALE['SHEATHE'] = "收起武器" 
 LOCALE['UNSHEATHE'] = "拿出武器"
+
+LOCALE['ACKNOWLEDGE'] = '收到' --8.3.0.54
+LOCALE['OOM'] = '法力不足' --8.3.0.54
 
 LOCALE.FactionStandingID = {
 	[0] = FACTION_STANDING_LABEL0,
@@ -115,16 +121,25 @@ LOCALE['APPLY_RELOAD'] = "點擊確認按鈕將立即重載界面"
 LOCALE['RESET_TEXT1'] = ""
 LOCALE['RESET_TEXT2'] = ""
 
+LOCALE['OPEN_SETUP_WIZARD'] = "打開設置嚮導" --v63
+LOCALE['OPEN_CONFIG_FRAME'] = "打開設置界面" --v63
+LOCALE['LOAD_CONFIG_FRAME'] = "載入詳細設置選項" --v63
+
 LOCALE['OBJECTIVE_TRACKER'] = "任務追蹤"
+LOCALE['PLAYER_POWER_BAR_ALTER'] = "玩家特殊能量條" --v62
 LOCALE['COMMUNICATION_MENU'] = '交流菜單'
 LOCALE['BUFF_FRAME'] = 'Aura框體'
 LOCALE['CHAT_FRAME'] = '聊天框體'
-LOCALE['CAST_BAR'] = '施法條'
 LOCALE['MINI_MAP'] = '小地圖'
 
 LOCALE['ULTIMATE_FRAME'] = '終極技能充能(能量條)' --8.3.0.52
 LOCALE['ALPHA_OUTCOMBAT'] = '脫戰透明度' --8.3.0.52
 LOCALE['SYNC_WITH_PLAYERFRAME'] = '與玩家框體同步' --8.3.0.52
+
+LOCALE['SETUP_WIZARD'] = '設置嚮導' --v57
+
+LOCALE['LOAD_MEKA_LAYOUT'] = '加載MEKA界面配置' --v57
+LOCALE['LOAD_OVERWATCH_LAYOUT'] = '加載Overwatch界面配置' --v57
 
 --> 移动框体
 LOCALE['MOVE_FRAME'] = "移動框體"
@@ -147,8 +162,11 @@ LOCALE['MOUSE_RESOLUTION'] = "滑鼠移動的每英寸點數（DPI）"
 --> Blizzard Frames
 LOCALE["BLIZZARD_FRAMES"] = "魔獸默認框體"
 LOCALE['PLAYER_FRAME'] = "玩家框體"
+LOCALE['PET_FRAME'] = "寵物框體" --v63
 LOCALE['TARGET_FRAME'] = "目標框體"
+LOCALE['TARGET_TARGET_FRAME'] = "目標的目標框體" --v63
 LOCALE['FOCUS_FRAME'] = "焦點框體"
+LOCALE['FOCUS_TARGET_FRAME'] = "焦點的目標框體" --v63
 LOCALE['PARTY_FRAME'] = "小隊框體"
 LOCALE['BOSS_FRAME'] = "首領框體"
 
@@ -172,6 +190,10 @@ LOCALE["MEKA_BR"] = 'MEKA 計時條 右'
 LOCALE["MEKA_IL"] = 'MEKA 圖標 左'
 LOCALE["MEKA_IR"] = 'MEKA 圖標 右'
 
+LOCALE['FCS_FILTER'] = '只顯示友方Buff與敵方Debuff' --8.3.0.55
+
+LOCALE['FCS_NEW_TIPS'] = '|cffdca240添加步驟|r 1.選樣式, 2.選圖標(可略過), 3.填寫Buff/Debuff/技能的ID或名稱, 4.添加.\n\n|cffdca240同時監控多個Buff/Debuff|r 用";"隔開每個Buff/Debuff, 可以同時監控數個Buff/Debuff.\n例如 1112;1113;1114;1115\n\n|cffdca240圖標同時監控兩個Buff/Debuff|r 用","隔開兩個Buff/Debuff, 第一個在中心顯示, 第二\n個在邊框顯示. 例如 真言術：盾,虛弱靈魂.' --v58
+
 --> Bag
 LOCALE['SELL_JUNK'] = '賣出垃圾物品'
 LOCALE['BAG'] = '背包'
@@ -193,7 +215,11 @@ LOCALE['SKIN_ORDERHALL'] = '美化職業大廳信息欄'
 LOCALE['SKIN_CHARACTER'] = '美化角色介面'
 
 --> CastingBar
-LOCALE['施法条'] = '施法條'
+LOCALE['CAST_BAR'] = '施法條'
+LOCALE['GCD'] = '公用CD (GCD)' --v60
+LOCALE['MIRROR_BAR'] = '鏡像條(呼吸條等)' --v60
+LOCALE['SWING_BAR'] = '武器攻擊條' --v60
+LOCALE['PLAYER_SPELLNAME'] = '玩家法術名稱' --v61
 
 --> ClassPowerBar
 LOCALE['CLASS'] = '職業'
@@ -231,6 +257,7 @@ LOCALE['RAID5'] = '治療用小隊框體'
 --> MinimapIcon
 LOCALE['MINIMAPICON_LEFT_CLICK'] = '左鍵點擊: 打開設置界面'
 
+--> Clique
 LOCALE['CLIQUE_SUPPORT'] = 'Clique 點擊施法支持'
 
 ---------------------------------------------------------------

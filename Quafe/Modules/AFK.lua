@@ -39,21 +39,52 @@ local function ToggleAwayMode(afk)
 	end
 end
 
-local function AwayMode_Event(self, event)
-	if InCombatLockdown() then return end
-	--if event == "PLAYER_FLAGS_CHANGED" then
-		local isAFK = UnitIsAFK("player")
-		if isAFK and not prevAFKState then
-			prevAFKState = true
-			ToggleAwayMode(true)
-		elseif not isAFK and prevAFKState then
-			prevAFKState = false
-			ToggleAwayMode(false)
+local function UpdateAwayMode()
+	local isAFK = UnitIsAFK("player")
+	if isAFK and not prevAFKState then
+		prevAFKState = true
+		ToggleAwayMode(true)
+	elseif not isAFK and prevAFKState then
+		prevAFKState = false
+		ToggleAwayMode(false)
+	end
+end
+
+local function AwayMode_OnUpdate(frame)
+	local Dummy = frame:CreateAnimationGroup()
+    Dummy: SetLooping("REPEAT") --[NONE, REPEAT, or BOUNCE].
+
+	local DummyAmin = Dummy:CreateAnimation()
+    DummyAmin: SetDuration(1)
+    DummyAmin: SetOrder(1)
+    
+	Dummy:SetScript("OnLoop", function(self)
+		if not InCombatLockdown() then
+       		UpdateAwayMode()
+			self:Stop()
 		end
-	--end
+	end)
+	--Dummy:Play()
+	--Dummy:Stop()
+	frame.Timer = Dummy
+end
+
+local function AwayMode_Event(frame, event)
+	if InCombatLockdown() then
+		if prevAFKState then
+			frame.Timer:Play()
+		end
+	else
+		UpdateAwayMode()
+		frame.Timer:Stop()
+	end
 end
 
 local function AwayMode_OnEvent(frame)
+	frame: SetScript("OnEvent", AwayMode_Event)
+end
+
+local function AwayMode_RgEvent(frame)
 	--SetCVar("AutoClearAFK", 1)
 	frame:RegisterEvent("PLAYER_ENTERING_WORLD")
 	frame:RegisterEvent("PLAYER_REGEN_DISABLED")
@@ -62,9 +93,6 @@ local function AwayMode_OnEvent(frame)
 	frame:RegisterEvent("LFG_PROPOSAL_SHOW")
 	frame:RegisterEvent("TAXIMAP_OPENED")
 	frame:RegisterEvent("TAXIMAP_CLOSED")
-	frame:SetScript("OnEvent", function(self, event)
-		AwayMode_Event(self, event)
-	end)
 end
 
 --- ------------------------------------------------------------
@@ -73,7 +101,9 @@ end
 
 local AwayMode = CreateFrame("Frame", nil, E)
 local function Load()
+	AwayMode_RgEvent(AwayMode)
 	AwayMode_OnEvent(AwayMode)
+	AwayMode_OnUpdate(AwayMode)
 end
 AwayMode.Load = Load
 insert(E.Module, AwayMode)

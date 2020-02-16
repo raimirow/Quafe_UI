@@ -54,6 +54,9 @@ end
 
 local function BGU_UpdateHealthMax(frame, parent)
 	local value = UnitHealthMax(parent.Unit) or 1
+	if E.Value[parent.Unit] then
+		E.Value[parent.Unit].Health.Max = value
+	end
 	frame.UpdateMaxValue(frame, 0, value)
 end
 
@@ -241,7 +244,6 @@ local function BGU_Pet_Event(frame, event, ...)
 				frame.Unit = "pet"
 			end
 		end
-
 		BGU_UpdateHealthMax(frame.Health, frame)
 		BGU_UpdateHealth(frame.Health, frame, "Pet", "HP")
 		BGU_UpdatePowerMax(frame.Power, frame)
@@ -324,13 +326,14 @@ local function BGU_Target_Event(frame, event, ...)
 
 		BGU_UpdateHealthMax(frame.Health, frame)
 		BGU_UpdateHealth(frame.Health, frame, "Target", "HP")
+		BGU_UpdatePowerType(frame.Power, powerType)
 		BGU_UpdatePowerMax(frame.Power, frame)
 		BGU_UpdatePower(frame.Power, frame, "Target", "PP")
 		BGU_UpdateHealthMax(frame.Absorb, frame)
 		BGU_UpdateAbsorb(frame.Absorb, frame, "Target", "AS")
 		if frame.ShowMana == "Show" then
-			BGU_UpdateManaMax(frame.Mana, frame)
-			BGU_UpdateMana(frame.Mana, frame, "Target", "MN")
+			--BGU_UpdateManaMax(frame.Mana, frame)
+			--BGU_UpdateMana(frame.Mana, frame, "Target", "MN")
 		end
 	elseif event == "UNIT_HEALTH_FREQUENT" then
 		BGU_UpdateHealth(frame.Health, frame, "Target", "HP")
@@ -342,14 +345,14 @@ local function BGU_Target_Event(frame, event, ...)
 	elseif event == "UNIT_POWER_FREQUENT" then
 		BGU_UpdatePower(frame.Power, frame, "Target", "PP")
 		if frame.ShowMana == "Show" then
-			BGU_UpdateMana(frame.Mana, frame, "Target", "MN")
+			--BGU_UpdateMana(frame.Mana, frame, "Target", "MN")
 		end
 	elseif event == "UNIT_MAXPOWER" then
 		BGU_UpdatePowerMax(frame.Power, frame)
 		BGU_UpdatePower(frame.Power, frame, "Target", "PP")
 		if frame.ShowMana == "Show" then
-			BGU_UpdateManaMax(frame.Mana, frame)
-			BGU_UpdateMana(frame.Mana, frame, "Target", "MN")
+			--BGU_UpdateManaMax(frame.Mana, frame)
+			--BGU_UpdateMana(frame.Mana, frame, "Target", "MN")
 		end
 	elseif event == "UNIT_ABSORB_AMOUNT_CHANGED" then
 		BGU_UpdateAbsorb(frame.Absorb, frame, "Target", "AS")

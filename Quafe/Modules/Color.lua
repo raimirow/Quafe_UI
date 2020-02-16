@@ -60,7 +60,8 @@ C.Color.Theme = {
 	["Overwatch2"] = {
 		Main0 = {r =   4, g =   4, b =   4},
 		Main1 = {r = 243, g = 244, b = 246},
-		Main2 = {r = 248, g = 192, b =  84},
+		--Main2 = {r = 248, g = 192, b =  84},
+		Main2 = C.Color.Y1,
 		Main3 = {r =  31, g = 174, b = 255},
 		Warn1 = {r = 248, g =  58, b = 106},
 	},
@@ -136,11 +137,11 @@ end
 local Quafe_Color_Config = {
 	Database = {
 		["Quafe_Color"] = {
-			State = "MEKA1",
-			Main1 = C.Color.Theme.MEKA1.Main1,
-			Main2 = C.Color.Theme.MEKA1.Main2,
-			Main3 = C.Color.Theme.MEKA1.Main3,
-			Warn1 = C.Color.Theme.MEKA1.Warn1,
+			State = "Blue1",
+			Main1 = C.Color.Theme.Blue1.Main1,
+			Main2 = C.Color.Theme.Blue1.Main2,
+			Main3 = C.Color.Theme.Blue1.Main3,
+			Warn1 = C.Color.Theme.Blue1.Warn1,
 		},
 	},
 

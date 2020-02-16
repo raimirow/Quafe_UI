@@ -72,10 +72,7 @@ local function TalkingHead_RePos(f)
 		TalkingHeadFrame.BackgroundFrame.TextBackground: Hide()
 		F.HideFrame(TalkingHeadFrame.BackgroundFrame.TextBackground)
 		if not TalkingHeadFrame.BackgroundFrame.TextBackgroundAlter then
-			local Bg = TalkingHeadFrame.BackgroundFrame: CreateTexture(nil, "BACKGROUND")
-			Bg: SetTexture(F.Path("StatusBar\\Raid"))
-			Bg: SetAllPoints(f)
-			Bg: SetVertexColor(F.Color(C.Color.W1, 0.8))
+			local Bg = F.Create.Backdrop(TalkingHeadFrame, 2, true, 6, 6, C.Color.Main0, 0.9, C.Color.Main0, 0.9)
 			TalkingHeadFrame.BackgroundFrame.TextBackgroundAlter = Bg
 		end
 		

@@ -1645,8 +1645,7 @@ local function PlayerMoney_Update(frame)
 end
 
 local function Bag_Frame(frame)
-	local BagFrame = CreateFrame("Frame", "Quafe_BagFrame", UIParent)
-	BagFrame: SetFrameStrata("HIGH")
+	local BagFrame = CreateFrame("Frame", "Quafe_BagFrame", frame)
 	BagFrame: SetFrameLevel(2)
 	BagFrame: SetSize((config.buttonSize+config.buttonGap*2)*config.perLine+config.border*2, 48)
 	--BagFrame: SetPoint("TOPRIGHT", UIParent, "TOPRIGHT", -40,-240)
@@ -1998,8 +1997,8 @@ local function Insert_BankItem(f)
 			end
 		end
 	end
-	SlotNum.BankFree = #BankFree
-	SlotNum.Bank = SlotNum.BankFree + #Bank
+	SlotNum.BankFree = #BankFree[0]
+	SlotNum.Bank = SlotNum.BankFree + #Bank[0]
 	SlotNum.ReagentFree = #ReagentFree
 	SlotNum.Reagent = SlotNum.ReagentFree + #Reagent
 end
@@ -2160,10 +2159,15 @@ local function BankExtra_Frame(f)
 	editbox.Right: Hide()
 	F.create_Backdrop(editbox, 6, 8, 6, C.Color.W2,0, C.Color.W4,0.9)
 	
+	local ToggleButton = Button_Template(bagextra)
+	ToggleButton: SetPoint("LEFT", editbox, "RIGHT", 16, 0)
+	ToggleButton.Icon: SetTexture(F.Path("Bag_Button1"))
+
+	local DepositButton = Button_Template(bagextra)
+	DepositButton: SetPoint("LEFT", ToggleButton, "RIGHT", 2, 0)
+	DepositButton.Icon: SetTexture(F.Path("Bag_Button2"))
+
 	if not F.IsClassic then
-		local ToggleButton = Button_Template(bagextra)
-		ToggleButton: SetPoint("LEFT", editbox, "RIGHT", 16, 0)
-		ToggleButton.Icon: SetTexture(F.Path("Bag_Button1"))
 		ToggleButton.tooltipText = REAGENT_BANK
 		ToggleButton: SetScript("OnClick", function(self)
 			--PlaySound(852)
@@ -2180,15 +2184,15 @@ local function BankExtra_Frame(f)
 			GameTooltip:SetText(self.tooltipText)
 		end)
 		
-		local DepositButton = Button_Template(bagextra)
-		DepositButton: SetPoint("LEFT", ToggleButton, "RIGHT", 2, 0)
-		DepositButton.Icon: SetTexture(F.Path("Bag_Button2"))
 		DepositButton.tooltipText = REAGENTBANK_DEPOSIT
 		DepositButton: SetScript("OnClick", function(self)
 			--PlaySound(852)
 			PlaySoundFile(F.Path("Sound\\Show.ogg"), "Master")
 			DepositReagentBank()
 		end)
+	else
+		ToggleButton: Hide()
+		DepositButton: Hide()
 	end
 
 --> Purchase
@@ -2370,8 +2374,7 @@ local function BankExtra_Frame(f)
 end
 
 local function Bank_Frame(f)
-	local bank = CreateFrame("Frame", "Quafe_BankFrame", UIParent)
-	bank: SetFrameStrata("HIGH")
+	local bank = CreateFrame("Frame", "Quafe_BankFrame", f)
 	bank: SetFrameLevel(2)
 	bank: SetSize((config.buttonSize+config.buttonGap*2)*config.bankperLine + config.border*2, 48)
 	--bank: SetPoint("TOPLEFT", UIParent, "TOPLEFT", 20,-200)
@@ -2465,6 +2468,8 @@ end
 --- ------------------------------------------------------------
 
 local Quafe_Container = CreateFrame("Frame", nil, E)
+Quafe_Container: SetFrameStrata("HIGH")
+Quafe_Container: SetSize(8,8)
 Quafe_Container.Init = false
 
 local function Quafe_Container_Load()
@@ -2474,15 +2479,22 @@ local function Quafe_Container_Load()
 		Bank_Frame(Quafe_Container)
 		CanIMogIt_Load()
 		--CIMI_LoadCheck()
+
+		if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.Scale then
+			Quafe_Container: SetScale(Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.Scale)
+		end
+
 		Quafe_Container.Init = true
 	end
 end
 
-local function Quafe_Container_Toggle(arg)
-	if arg == "ON" then
+local function Quafe_Container_Toggle(arg1,arg2)
+	if arg1 == "ON" then
 		Quafe_NoticeReload()
-	elseif arg == "OFF" then
+	elseif arg1 == "OFF" then
 		Quafe_NoticeReload()
+	elseif arg1 == "SCALE" then
+		Quafe_Container: SetScale(arg2)
 	end
 end
 
@@ -2492,6 +2504,7 @@ local Quafe_Container_Config = {
 			Enable = true,
 			Gold = {},
 			RefreshRate = "Closing", --Always, Closing, Manual
+			Scale = 1,
 		},
 	},
 
@@ -2559,6 +2572,23 @@ local Quafe_Container_Config = {
 				},
 			},
 			[2] = {
+                Name = L['SCALE'],
+                Type = "Slider",
+                State = "ALL",
+				Click = nil,
+                Load = function(self)
+                    self.Slider: SetMinMaxValues(0.5, 2)
+					self.Slider: SetValueStep(0.05)
+                    self.Slider: SetValue(Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.Scale)
+					self.Slider: HookScript("OnValueChanged", function(s, value)
+                        value = floor(value*100+0.5)/100
+                        Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.Scale = value
+						Quafe_Container_Toggle("SCALE", value)
+					end)
+                end,
+                Show = nil,
+            },
+			[3] = {
 				Name = L['重置金币数据'],
 				Type = "Trigger",
 				Click = function(self, button)

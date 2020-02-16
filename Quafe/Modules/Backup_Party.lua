@@ -71,10 +71,10 @@ local function PartyMember_Template(frame)
 	local HealthBar = F.Create.Texture(button, "ARTWORK", 1, F.Path("Party\\HealthBar"), C.Color.Main1, 0.9, {100,10}, {14/128,114/128, 3/16,13/16})
 	HealthBar: SetPoint("LEFT", HealthBg, "LEFT", 0, 0)
 
-	local Name = F.Create.Font(button, "ARTWORK", C.Font.Txt, 12, nil, C.Color.Main1)
+	local Name = F.Create.Font(button, "ARTWORK", C.Font.Txt, 12, nil, C.Color.Main1,1)
 	Name: SetPoint("TOP", button, "TOP", 0, -34)
 
-	local Percent = F.Create.Font(button, "OVERLAY", C.Font.NumSmall, 14, nil, C.Color.Main1, C.Color.Main0, {1,-1})
+	local Percent = F.Create.Font(button, "OVERLAY", C.Font.NumSmall, 14, nil, C.Color.Main1,1, C.Color.Main0,1, {1,-1})
 	Name: SetPoint("BOTTOMLEFT", button, "BOTTOMLEFT", 4, 34)
 
 	local help = CreateFrame("Frame", nil, Portrait)

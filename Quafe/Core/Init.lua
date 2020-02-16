@@ -27,6 +27,22 @@ E.Version = tonumber(GetAddOnMetadata(E.Name, "Version"))
 E.Module = {}
 E.Config = {}
 E.AuraUpdate = {
+	player = {
+		Buff = {},
+		Debuff = {},
+	},
+	target = {
+		Buff = {},
+		Debuff = {},
+	},
+	pet = {
+		Buff = {},
+		Debuff = {},
+	},
+	focus = {
+		Buff = {},
+		Debuff = {},
+	},
 	AuraList = {},
 	UnitList = {"player", "target"},
 }
@@ -117,6 +133,8 @@ SlashCmdList["QUAFE"] = function(msg)
 	elseif msg == "aurawatch reset" then
 		wipe(Quafe_DB.Global.AuraWatch)
 		Quafe_DB.Global.AuraWatch = E.Aurawatch
+		DEFAULT_CHAT_FRAME:AddMessage("Quafe AuraWatch has be reset")
+		Quafe_WarningReload()
 	else
 		if _G["Quafe_Config"] then _G["Quafe_Config"]: Show() end
 	end

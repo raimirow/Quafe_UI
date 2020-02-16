@@ -363,7 +363,7 @@ function F.Aura_Create(frame)
 		f.debufflimit
 		f.perline
 		f.unit
-		f.type "Boss,Aura,Steal"
+		f.type "Boss,Aura,Steal,nil"
 		f.filter "HARMFUL|HELPFUL|PLAYER|RAID"
 		f.special
 		f.growthH --横
@@ -396,13 +396,18 @@ function F.Aura_Template(frame)
 end
 
 ----------------------------------------------------------------
-
-----------------------------------------------------------------
---> Aura List Update
+--> Aura Background Update
 ----------------------------------------------------------------
 
-local function AL_List_Refresh(auralist)
-	for k, v in pairs(auralist) do
+local ABGU_ENABLE = {
+	player = false,
+	target = false,
+	pet = false,
+	focus = false,
+}
+
+local function ABGU_List_Refresh(aura_list)
+	for k, v in pairs(aura_list) do
 		if v.Aura then
 			v.Exist = false
 			v.Icon = ""
@@ -414,60 +419,90 @@ local function AL_List_Refresh(auralist)
 	end
 end
 
-local function AL_AuraUpdate(auralist, unit, name, icon, count, duration, expires, caster, spellID)
-	for k, v in pairs(E.AuraUpdate.AuraList) do
-		if v.Aura and v.Unit == unit and (v.Aura == tostring(spellID) or v.Aura == name) then
-			if (v.Caster and v.Caster == caster) or (not v.Caster) then
-				v.Exist = true
-				v.Icon = icon
-				v.Count = count
-				E.AuraUpdate.AuraList[k].Count = count
-				v.Duration = duration
-				v.Remain = max(expires - GetTime(), 0)
-				v.Total = (v.Total or 0) + 1
-			end
+local function ABGU_AuraUpdate(aura_list, icon, count, duration, expirationTime, unitCaster)
+	if (aura_list.Caster and aura_list.Caster == unitCaster) or (not aura_list.Caster) then
+		aura_list.Exist = true
+		aura_list.Icon = icon
+		aura_list.Count = count
+		aura_list.Duration = duration
+		aura_list.Remain = max(expirationTime - GetTime(), 0)
+		aura_list.Total = (aura_list.Total or 0) + 1
+	end
+end
+
+local function ABGU_Check(aura_list, name, icon, count, duration, expirationTime, unitCaster, spellID)
+	if aura_list[name] then
+		ABGU_AuraUpdate(aura_list[name], icon, count, duration, expirationTime, unitCaster)
+	end
+	spellID = tostring(spellID)
+	if aura_list[spellID] then
+		ABGU_AuraUpdate(aura_list[spellID], icon, count, duration, expirationTime, unitCaster)
+	end
+end
+
+local function ABGU_UpdateBuff(unit)
+	if not ABGU_ENABLE[unit] then return end
+	ABGU_List_Refresh(E.AuraUpdate[unit].Buff)
+	local num = 1
+	while num do
+		local name, icon, count, dispelType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellID = F.UnitAura(unit, num, "HELPFUL")
+		if name then
+			ABGU_Check(E.AuraUpdate[unit].Buff, name, icon, count, duration, expirationTime, unitCaster, spellID)
+			num = num + 1
+		else
+			num = nil
 		end
 	end
 end
 
-local function AL_Event(frame, event)
-	AL_List_Refresh(E.AuraUpdate.AuraList)
-	local name, icon, count, dispelType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellID
-	for k, unit in ipairs(E.AuraUpdate.UnitList) do
-		local NumBuff,NumDebuff = 1, 1
-		while NumBuff do
-			name, icon, count, dispelType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellID = UnitBuff(unit, NumBuff)
-			if name then
-				AL_AuraUpdate(E.AuraUpdate.AuraList, unit, name, icon, count, duration, expirationTime, unitCaster, spellID)
-				NumBuff = NumBuff + 1
-			else
-				NumBuff = nil
-			end
-		end	
-		while NumDebuff do
-			name, icon, count, dispelType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellID = UnitDebuff(unit, NumDebuff)
-			if name then
-				AL_AuraUpdate(E.AuraUpdate.AuraList, unit, name, icon, count, duration, expirationTime, unitCaster, spellID)
-				NumDebuff = NumDebuff + 1
-			else
-				NumDebuff = nil
-			end
-		end	
+local function ABGU_UpdateDebuff(unit)
+	if not ABGU_ENABLE[unit] then return end
+	ABGU_List_Refresh(E.AuraUpdate[unit].Debuff)
+	local num = 1
+	while num do
+		local name, icon, count, dispelType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellID = F.UnitAura(unit, num, "HARMFUL")
+		if name then
+			ABGU_Check(E.AuraUpdate[unit].Debuff, name, icon, count, duration, expirationTime, unitCaster, spellID)
+			num = num + 1
+		else
+			num = nil
+		end
 	end
 end
 
-local function AL_OnEvent(frame)
+local function ABGU_Event(frame, event, arg1)
+	if event == "UNIT_AURA" then
+		if E.AuraUpdate[arg1] then
+			ABGU_UpdateBuff(arg1)
+			ABGU_UpdateDebuff(arg1)
+		end
+	elseif event == "PLAYER_TARGET_CHANGED" then
+		ABGU_UpdateBuff("target")
+		ABGU_UpdateDebuff("target")
+	elseif event == "PLAYER_FOCUS_CHANGED" then
+		ABGU_UpdateBuff("focus")
+		ABGU_UpdateDebuff("focus")
+	elseif event == "UNIT_PET" then
+		ABGU_UpdateBuff("pet")
+		ABGU_UpdateDebuff("pet")
+	else
+		ABGU_UpdateBuff("player")
+		ABGU_UpdateDebuff("player")
+		ABGU_UpdateBuff("pet")
+		ABGU_UpdateDebuff("pet")
+	end
+end
+
+local function ABGU_OnEvent(frame)
 	frame: RegisterEvent("PLAYER_ENTERING_WORLD")
 	frame: RegisterEvent("PLAYER_TARGET_CHANGED")
-	if F.IsClassic then
-		
-	else
+	if not F.IsClassic then
 		frame: RegisterEvent("PLAYER_FOCUS_CHANGED")
 	end
 	frame: RegisterUnitEvent("UNIT_PET", "player")
 	frame: RegisterEvent("UNIT_AURA")
-	frame: SetScript("OnEvent", function(self,event)
-		AL_Event(self, event, E.AuraUpdate.UnitList)
+	frame: SetScript("OnEvent", function(self,event,arg1)
+		ABGU_Event(self, event, arg1)
 	end)
 end
 
@@ -476,8 +511,13 @@ end
 ----------------------------------------------------------------
 
 local AuraListUpdate = CreateFrame("Frame", nil, E)
-local function AuraListUpdate_Load()
-	AL_OnEvent(AuraListUpdate)
+local function ABGU_Toggle(unit)
+	ABGU_ENABLE[unit] = true
 end
+local function AuraListUpdate_Load()
+	ABGU_OnEvent(AuraListUpdate)
+end
+
+F.ABGU_Toggle = ABGU_Toggle
 AuraListUpdate.Load = AuraListUpdate_Load
 tinsert(E.Module, AuraListUpdate)

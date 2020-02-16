@@ -1,4 +1,14 @@
-<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/..\FrameXML\UI.xsd">
+<Ui>
+	<Frame name = "Quafe_LeftSlidingFrameTemplate" virtual="true">
+		<Attributes>
+			<Attribute name="UIPanelLayout-defined" type="boolean" value="true"/>
+			<Attribute name="UIPanelLayout-enabled" type="boolean" value="true"/>
+			<Attribute name="UIPanelLayout-area" type="string" value="left"/>
+			<Attribute name="UIPanelLayout-pushable" type="number" value="5"/>
+			<!-- <Attribute name="UIPanelLayout-width" type="number" value="200"/> -->
+			<Attribute name="UIPanelLayout-whileDead" type="boolean" value="true"/>
+		</Attributes>
+	</Frame>
 	
 	<Button name = "Quafe_AuraButtonTemplate" inherits = "SecureActionButtonTemplate" virtual="true">
 		<Size x="26" y="26"/>

@@ -1017,8 +1017,8 @@ local function Location_Artwork(frame)
 	local Text3 =  F.create_Font(frame, C.Font.Txt, 12, nil, 0, "LEFT", "CENTER")
 	Text3: SetTextColor(F.Color(C.Color.W3))
 	Text3: SetAlpha(1)
-	Text3: SetPoint("TOPLEFT", Border, "RIGHT", 10,-3)
-	Text3: SetText("坐标: ")
+	Text3: SetPoint("TOPLEFT", Border, "RIGHT", 12,-3)
+	Text3: SetText("XY ")
 
 	local Text4 =  F.create_Font(frame, C.Font.Txt, 12, nil, 0, "LEFT", "CENTER")
 	Text4: SetTextColor(F.Color(C.Color.W3))
@@ -1070,6 +1070,12 @@ local function GetPlayerMapPos(mapID)
 	end
 end
 
+local function MapPos_Update(frame)
+	----local px,py = GetPlayerMapPosition("player")
+	local PlayerUiMapID = C_Map.GetBestMapForUnit("player")
+	frame.Text3:SetText(format("XY   %.1f , %.1f", GetPlayerMapPos(PlayerUiMapID)))
+end
+
 local function Location_Frame(frame)
 	local Location = CreateFrame("Frame", nil, frame)
 	Location: SetSize(6,36)
@@ -1088,11 +1094,14 @@ local function Location_Frame(frame)
 
 	frame: HookScript("OnShow", function(self)
 		Location_Update(Location)
-		Location:SetScript("OnUpdate", function()
-			if F.Last5 == 0 then
-				----local px,py = GetPlayerMapPosition("player")
-				local PlayerUiMapID = C_Map.GetBestMapForUnit("player")
-				Location.Text4:SetText(format("%.1f %.1f", GetPlayerMapPos(PlayerUiMapID)))
+		MapPos_Update(Location)
+		local last = 0
+		Location:SetScript("OnUpdate", function(self, elapsed)
+			if last >= elapsed*5 then
+				last = 0
+				MapPos_Update(Location)
+			else
+				last = last + elapsed
 			end
 		end)
 	end)
@@ -1121,6 +1130,7 @@ local function Emote_Templet(f, p, angle, color, texture, text, alpha)
 	f.Icon: SetPoint("CENTER", p, "CENTER", 180*cos(rad(angle)), 180*sin(rad(angle)))
 end
 
+--> Thanks
 local function Thanks_Create(f, angle)
 	f.Thanks = CreateFrame("Frame", nil, f)
 	Emote_Templet(f.Thanks, f, angle, C.Color.Y2, "CommunicationMenu\\Icon_Thanks", L['THANK'])
@@ -1153,32 +1163,44 @@ end
 --> Healme
 local function Healme_Create(f, angle)
 	f.Healme = CreateFrame("Frame", nil, f)
-	Emote_Templet(f.Healme, f, angle, C.Color.Y2, "CommunicationMenu\\Icon_HealMe", L['HEALME'])
+	Emote_Templet(f.Healme, f, angle, C.Color.W4, "CommunicationMenu\\Icon_HealMe", L['HEALME'])
 end
 
 local function Healme_Click(f)
 	DoEmote("HEALME")
 end
 
+--> OOM
+local function OOM_Create(f, angle)
+	f.OOM = CreateFrame("Frame", nil, f)
+	Emote_Templet(f.OOM, f, angle, C.Color.W4, "CommunicationMenu\\Icon_OOM", L['OOM'])
+end
+
+local function OOM_Click(f)
+	DoEmote("OOM")
+end
+
+--> Nod
+local function Nod_Create(f, angle)
+	f.Nod = CreateFrame("Frame", nil, f)
+	Emote_Templet(f.Nod, f, angle, C.Color.W4, "CommunicationMenu\\Icon_Nod", L['ACKNOWLEDGE'])
+end
+
+local function Nod_Click(f)
+	DoEmote("NOD")
+end
+
 --> Rude
 local function Rude_Create(f, angle)
 	f.Rude = CreateFrame("Frame", nil, f)
-	Emote_Templet(f.Rude, f, angle, C.Color.Y2, "CommunicationMenu\\Icon_Rude", L['RUDE'])
+	Emote_Templet(f.Rude, f, angle, C.Color.W4, "CommunicationMenu\\Icon_Rude", L['RUDE'])
 end
 
 local function Rude_Click(f)
 	DoEmote("RUDE")
 end
 
---DoEmote("THANK")
---DoEmote("DANCE")
---DoEmote("HELLO")
---DoEmote("HEALME")
---DoEmote("Rude")
---DoEmote("BYE")
-
 --> Auto Loot
-
 local function AutoLoot_Update(frame)
 	local autoloot = GetCVar("autoLootDefault")
 	if autoloot == "0" then
@@ -1210,6 +1232,7 @@ local function AutoLoot_Create(frame, angle)
 end
 
 --> Sheath
+--[[
 local function Sheath_Txt(f)
 	local sheathState = GetSheathState()
 	if sheathState == 1 then
@@ -1234,6 +1257,7 @@ local function Sheath_Click(f)
 	ToggleSheath()
 	Sheath_Txt(f.Sheath)
 end
+--]]
 
 --- ------------------------------------------------------------
 --> CommunicationMenu Frame
@@ -1286,7 +1310,7 @@ local function CommunicationMenu_Artwork(frame)
 	local Bd3 = F.Create.Texture(frame, "BORDER", 1, F.Path("CommunicationMenu\\Bd4"), C.Color.W3, 0.02, {1024,1024}, nil)
 	Bd3: SetPoint("CENTER", frame, "CENTER", 0,0)
 
-	local Bd4 = F.Create.Texture(frame, "ARTWORK", 1, F.Path("CommunicationMenu\\Bd5"), C.Color.B1, 1, {1024,1024}, nil)
+	local Bd4 = F.Create.Texture(frame, "BACKGROUND", 1, F.Path("CommunicationMenu\\Bd5Sd"), C.Color.B1, 1, {1024,1024}, nil)
 	Bd4: SetPoint("CENTER", frame, "CENTER", 0,0)
 	Bd4: Hide()
 
@@ -1365,10 +1389,10 @@ local function Load()
 	Hello_Create(CommunicationMenu, 45)
 	Dance_Create(CommunicationMenu, 90)
 	Thanks_Create(CommunicationMenu, 135)
-	Rude_Create(CommunicationMenu, 180)
-	AutoLoot_Create(CommunicationMenu, 225)
-	Sheath_Create(CommunicationMenu, 270)
-	--Bye_Create(CommunicationMenu, 315)
+	Nod_Create(CommunicationMenu, 180)
+	Rude_Create(CommunicationMenu, 225)
+	AutoLoot_Create(CommunicationMenu, 270)
+	OOM_Create(CommunicationMenu, 315)
 
 	CommunicationMenu: HookScript("OnShow", function(self)
 		PlaySoundFile(F.Path("Sound\\Show.ogg"), "Master")
@@ -1466,13 +1490,13 @@ local function Load()
 			elseif a < 157.5 then
 				Thanks_Click()
 			elseif a < 202.5 then
-				Rude_Click()
+				Nod_Click()
 			elseif a < 247.5 then
-				AutoLoot_Click(CommunicationMenu)
+				Rude_Click()
 			elseif a < 292.5 then
-				Sheath_Click(CommunicationMenu)
+				AutoLoot_Click(CommunicationMenu)
 			elseif a < 337.5 then
-				
+				OOM_Click()
 			end
 		end
 	end)

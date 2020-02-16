@@ -13,6 +13,7 @@ local sqrt = math.sqrt
 local sin = math.sin
 local cos = math.cos
 local rad = math.rad
+local modf = math.modf
 
 local Lerp = Lerp
 
@@ -20,12 +21,13 @@ local Lerp = Lerp
 --> Function
 ----------------------------------------------------------------
 
-F.Debug = 0.000000001
+F.Debug = 0.000001
 
 F.Void = function() end
 
 F.PlayerClass = select(2, UnitClass("player"))
 F.PlayerName = GetUnitName("player")
+F.PlayerGUID = UnitGUID("player")
 F.Build = select(2, GetBuildInfo())
 
 local function CheckClassic()
@@ -77,6 +79,44 @@ end
 
 ----------------------------------------------------------------
 
+F.Round = function(value, idp)
+	if(idp and idp > 0) then
+		local mult = 10 ^ idp
+		return floor(value * mult + 0.5) / mult
+	end
+	return floor(value + 0.5)
+end
+
+F.Clamp = function(value, min_value, max_value)
+	if value > max_value then
+		return max_value
+	elseif value < min_value then
+		return min_value
+	end
+
+	return value
+end
+
+ --[[
+string.sub()
+for w in gmatch(tostring(count), "(%d)") do
+	insert(d, w)
+end
+--]]
+
+F.BreakNums = function(value, idp)
+	local nums = {}
+	value = value/10^idp+F.Debug
+	for i = idp,1,-1 do
+		if i == 1 then
+			nums[i] = modf(value*10)
+		else
+			nums[i],value = modf(value*10)
+		end
+	end
+	return unpack(nums)
+end
+
 F.ShortValue = function(value)
 	if value >= 1e6 then
 		return ("%.2fm"):format(value / 1e6):gsub("%.?0+([km])$", "%1")
@@ -106,7 +146,7 @@ F.FormatTime = function(s, n)
 	end
 end
 
-function F.FormatNum(v, n, wan)
+F.FormatNum = function(v, n, wan)
 	if not n then n = 0 end
 	if v < 1e4 then
 		return format("%.0f", v)  
@@ -658,14 +698,26 @@ function F.Create.Texture(frame, layer, sublayer, texture, color, alpha, size, c
 	return Dummy
 end
 
-function F.Create.Font(frame, layer, fontname, fontsize, outline, textcolor, sdcolor, sdoffset, horizon, vertical)
+function F.Create.MaskTexture(frame, texture, size)
+	local Dummy = frame:CreateMaskTexture()
+	if texture then
+    	Dummy: SetTexture(texture, "CLAMPTOBLACKADDITIVE", "CLAMPTOBLACKADDITIVE")
+	end
+	if size then
+    	Dummy: SetSize(unpack(size))
+	end
+
+	return Dummy
+end
+
+function F.Create.Font(frame, layer, fontname, fontsize, outline, textcolor, textalpha, sdcolor, sdalpha, sdoffset, horizon, vertical)
 	local Dummy = frame:CreateFontString(nil, layer)
 	Dummy: SetFont(fontname, fontsize, outline)
 	if textcolor then
-		Dummy: SetTextColor(F.Color(textcolor))
+		Dummy: SetTextColor(F.Color(textcolor, textalpha))
 	end
 	if sdcolor then
-		Dummy: SetShadowColor(F.Color(unpack(sdcolor)))
+		Dummy: SetShadowColor(F.Color(sdcolor, sdalpha))
 	end
 	if sdoffset then
 		Dummy: SetShadowOffset(unpack(sdoffset))
@@ -799,7 +851,7 @@ end
 local HiddenParent = CreateFrame("Frame")
 HiddenParent:Hide()
 
-local HandleFrame = function(baseName)
+local HandleFrame = function(baseName, show_alt)
 	local frame
 	if(type(baseName) == 'string') then
 		frame = _G[baseName]
@@ -830,14 +882,14 @@ local HandleFrame = function(baseName)
 		end
 
 		local altpowerbar = frame.powerBarAlt
-		if(altpowerbar) then
+		if (not show_alt) and (altpowerbar) then
 			altpowerbar:UnregisterAllEvents()
 		end
 	end
 end
 
-function F.HideUnitFrame(frame)
-	HandleFrame(frame)
+function F.HideUnitFrame(frame, show_alt)
+	HandleFrame(frame, show_alt)
 end
 
 local function RemoveAnchor(f)

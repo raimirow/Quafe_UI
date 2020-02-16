@@ -21,8 +21,9 @@ local next = next
 local SmoothObjects = {}
 local HandledObjects = {}
 local TARGET_FPS = 60
-local FPS_RATE = 2
-local AMOUNT = 0.33
+local FPS_RATE = 1.5
+--local AMOUNT = 0.33
+local AMOUNT = 0.1
 
 ----------------------------------------------------------------
 --> Function
@@ -52,8 +53,8 @@ local function SmoothBackground_Update(self, elapsed)
 	LAST = LAST + elapsed
 	if LAST >= FPS_RATE * elapsed then
 		for object, target in next, SmoothObjects do
-			--local new = Lerp(object._Value, target, clamp(AMOUNT * FPS_RATE * elapsed * TARGET_FPS, 0, 1))
 			local new = Lerp(object._Value, target, clamp(AMOUNT * LAST * TARGET_FPS, 0, 1))
+			--local new = Lerp(object._Value, target, clamp(AMOUNT * elapsed * TARGET_FPS, 0, 1))
 			if isCloseEnough(new, target, object._MaxValue - object._MinValue) then
 				new = target
 				SmoothObjects[object] = nil
@@ -88,13 +89,14 @@ local function SetSmoothMinMax(frame, min_value, max_value)
 
 		frame._MinValue = min_value
 		frame._MaxValue = max_value
-
+		
 		local cur = frame._Value
 		if cur then
 			frame:_UpdateValue(cur * ratio)
 			frame._Value = cur * ratio
 		end
 	end
+	frame:_UpdateMaxValue(min_value,max_value)
 end
 
 local function DoSmooth(frame)

@@ -5,6 +5,8 @@ local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
 ----------------------------------------------------------------
 
 local LOCALE = GetLocale()
+--LOCALE = "enUS"
+--LOCALE = "zhTW"
 
 local function Debug_Test()
     local LocaleList = {

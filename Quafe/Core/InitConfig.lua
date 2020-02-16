@@ -179,7 +179,7 @@ C.Color.Rune = {
 --- ------------------------------------------------------------
 
 C.Font = {}
-C.Font["Txt"] = UNIT_NAME_FONT
+C.Font.Txt = C.Font.Txt or UNIT_NAME_FONT
 C.Font["Num"] = F.Path("Fonts\\Num.ttf")
 C.Font["NumSmall"] = F.Path("Fonts\\Futura.ttf")
 C.Font["NumOW"] = F.Path("Fonts\\BigNoodleToo.ttf")

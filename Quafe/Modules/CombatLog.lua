@@ -45,19 +45,32 @@ local function CombatLog_Event(frame, event, ...)
 end
 
 local function CombatLog_OnEvent(frame)
-	--frame: RegisterEvent("COMBAT_LOG_EVENT") -->过滤后的记录
-	frame: RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED") -->未过滤的记录
 	frame: SetScript("OnEvent", function(self, event, ...)
 		CombatLog_Event(self, event, ...)
 	end)
 end
 
+local function BGCL_RgEvent(frame)
+	--frame: RegisterEvent("COMBAT_LOG_EVENT") -->过滤后的记录
+	frame: RegisterEvent("COMBAT_LOG_EVENT_UNFILTERED") -->未过滤的记录
+end
+
 local BackgroundCombatLog = CreateFrame("Frame", nil, E)
-local function BGCL_Load()
+
+local function BGCL_Toggle()
 	if #(E.CombatLogList) > 0 then
-		CombatLog_OnEvent(BackgroundCombatLog)
+		BGCL_RgEvent(BackgroundCombatLog)
+	else
+		BackgroundCombatLog: UnregisterAllEvents()
 	end
 end
+
+local function BGCL_Load()
+	CombatLog_OnEvent(BackgroundCombatLog)
+	BGCL_Toggle()
+end
+
+F.BGCL_Toggle = BGCL_Toggle
 BackgroundCombatLog.Load = BGCL_Load
 tinsert(E.Module, BackgroundCombatLog)
 

@@ -469,8 +469,8 @@ local function Raid5Button_OnUpdate(frame, elapsed)
 	InRange_Update(frame)
 end
 
-local function Raid5Button_Template(frame, unit)
-	local button = CreateFrame("Button", nil, frame, "SecureUnitButtonTemplate")
+local function Raid5Button_Template(frame, unit, name)
+	local button = CreateFrame("Button", name, frame, "SecureUnitButtonTemplate")
 	button: SetSize(100,50)
 	button.Unit = unit
 	button.DisplayedUnit = unit
@@ -517,7 +517,7 @@ local function Raid5Button_Template(frame, unit)
 	local Help = CreateFrame("Frame", nil, button)
 	Help: SetFrameLevel(button:GetFrameLevel()+2)
 
-	local Name = F.Create.Font(Help, "BORDER", C.Font.Txt, 12, nil, C.Color.W3, {C.Color.Main0}, {1,-1}, "CENTER", "CENTER")
+	local Name = F.Create.Font(Help, "BORDER", C.Font.Txt, 12, nil, C.Color.W3,1, C.Color.Main0,1, {1,-1}, "CENTER", "CENTER")
 	Name: SetSize(100,10)
 	--Name: SetPoint("CENTER", button, "CENTER", 0, 13)
 	Name: SetPoint("CENTER", button, "CENTER", 0,0)
@@ -525,7 +525,7 @@ local function Raid5Button_Template(frame, unit)
 	local NameBg = F.Create.Texture(Help, "BACKGROUND", 1, F.Path("StatusBar\\Raid"), C.Color.Main0, 0.3, {100,20})
 	NameBg: SetPoint("CENTER", button, "CENTER")
 
-	local Text = F.Create.Font(Help, "BORDER", C.Font.NumSmall, 14, nil, C.Color.W3, {C.Color.Main0}, {1,-1}, "CENTER", "CENTER")
+	local Text = F.Create.Font(Help, "BORDER", C.Font.NumSmall, 14, nil, C.Color.W3,1, C.Color.Main0,1, {1,-1}, "CENTER", "CENTER")
 	Text: SetPoint("CENTER", button, "CENTER", 0, -13)
 
 	local GroupRoleIndicator = F.Create.Texture(Help, "ARTWORK", 1, F.Path("Raid_RoleIcon"), nil, 0.9, {16,16})
@@ -592,10 +592,10 @@ local function Quafe_Raid5_Load()
 		local Party = {}
 		for i = 1,5 do
 			if i == 1 then
-				Party[i] = Raid5Button_Template(Quafe_Raid5, "player")
+				Party[i] = Raid5Button_Template(Quafe_Raid5, "player", "Quafe "..L['RAID5']..i)
 				Party[i]: SetPoint("LEFT", Quafe_Raid5, "LEFT", 0, 0)
 			else
-				Party[i] = Raid5Button_Template(Quafe_Raid5, "party"..(i-1))
+				Party[i] = Raid5Button_Template(Quafe_Raid5, "party"..(i-1), "Quafe "..L['RAID5']..i)
 				Party[i]: SetPoint("LEFT", Party[i-1], "RIGHT", 10, 0)
 			end
 			Party[i]: SetScript("OnEvent", Raid5Button_OnEvent)

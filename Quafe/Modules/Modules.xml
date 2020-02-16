@@ -12,13 +12,12 @@
 	<Script file="Blizzard.lua"/>
 	<Script file="UnitFrame.lua"/>
 	<Script file="CombatLog.lua"/>
-	
-	<!--<Script file="TDR.lua"/>-->
 
 	<Script file="CombatText.lua"/>
 	
 	<Script file="ChatFrame.lua"/>
 	<Script file="ObjectiveTracker.lua"/>
+	<Script file="PlayerPowerBarAlt.lua"/>
 	<Script file="BuffFrame.lua"/>
 	<Script file="InfoBar.lua"/>
 	<Script file="CommunicationMenu.lua"/>
@@ -28,7 +27,6 @@
 	<Script file="Minimap.lua"/>
 	<Script file="MinimapIcon.lua"/>
 	
-	<Script file="SharedMedia.lua"/>
 	<Script file="VehicleSeatIndicator.lua"/>
 	<Script file="Bag.lua"/>
 	<Script file="AFK.lua"/>
@@ -37,4 +35,9 @@
 	<Script file="Party.lua"/>
 	<Script file="Raid.lua"/>
 	<Include file="UnitGroup.xml"/>
+
+	<!-- <Include file="CornerIndicator.xml"/>
+	<Script file="CornerIndicator.lua"/> -->
+	<Script file="InitLayout.lua"/>
+	<Script file="SharedMedia.lua"/>
 </Ui>
