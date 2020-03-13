@@ -1,8 +1,0 @@
-<Ui xmlns="http://www.blizzard.com/wow/ui/">
-	<!--<Script file="Utf8\utf8.lua"/>-->
-
-	<Include file="Libraries\Libraries.xml"/>
-	<Include file="Core\Core.xml"/>
-	<Include file="Locales\Locales.xml"/>
-	<Include file="Modules\Modules.xml"/>
-</Ui>

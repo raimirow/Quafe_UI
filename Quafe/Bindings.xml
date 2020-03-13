@@ -1,5 +1,0 @@
-<Bindings>
-	<Binding name="QUAFE_COMMUNICATIONMENU" runOnUp="true" category="BINDING_HEADER_QUAFE">
-		Quafe_Binding_CommunicationMenu(keystate)
-	</Binding>
-</Bindings>
