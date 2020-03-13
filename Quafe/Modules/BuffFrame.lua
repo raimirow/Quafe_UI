@@ -170,14 +170,14 @@ local function Icon_Art(button)
 	button.Icon: SetAllPoints(button)
 
 	button.CD = button:CreateFontString(nil, "OVERLAY")
-	button.CD: SetFont(C.Font.NumSmall, 12, "OUTLINE")--"THINOUTLINE,MONOCHROME"
+	button.CD: SetFont(C.Font.Num, 12, "OUTLINE")--"THINOUTLINE,MONOCHROME"
 	button.CD: SetShadowColor(0,0,0,0.25)
 	button.CD: SetShadowOffset(1,-1)
 	button.CD: SetJustifyH("CENTER")
 	button.CD: SetPoint("TOP", button, "BOTTOM", 0,-2)
 
 	button.Ct = button:CreateFontString(nil, "OVERLAY")
-	button.Ct: SetFont(C.Font.NumSmall, 12, "OUTLINE")
+	button.Ct: SetFont(C.Font.Num, 12, "OUTLINE")
 	button.Ct: SetShadowColor(0,0,0,0.25)
 	button.Ct: SetShadowOffset(1,1)
 	button.Ct: SetJustifyH("CENTER")

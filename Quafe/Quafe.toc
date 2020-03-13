@@ -1,0 +1,15 @@
+## Interface: 80300
+## Version: 8.3.0.64
+## Author: Raimirow (voidiver)
+## Title: Quafe
+## Notes: Quafe
+## Notes-zhCN: Quafe 核心
+
+## SavedVariables: Quafe_DB
+## SavedVariablesPerCharacter: Quafe_DBP
+## X-oUF: oUF_Quafe
+
+## OptionalDeps: Details, Skada, MeetingStone, WIM, Clique
+
+Quafe.xml
+Quafe.lua

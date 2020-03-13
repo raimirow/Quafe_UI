@@ -227,7 +227,7 @@ local Aura_Event = function(f)
 			f.Aura[i].Icon: SetPoint("CENTER", f.Aura[i], "CENTER", 0,0)
 			
 			f.Aura[i].CD = f.Aura[i]:CreateFontString(nil, "OVERLAY")
-			f.Aura[i].CD: SetFont(C.Font.NumSmall, f.fontsize, "THINOUTLINE")--"THINOUTLINE,MONOCHROME"
+			f.Aura[i].CD: SetFont(C.Font.Num, f.fontsize, "THINOUTLINE")--"THINOUTLINE,MONOCHROME"
 			f.Aura[i].CD: SetShadowColor(0,0,0,0.9)
 			f.Aura[i].CD: SetShadowOffset(0,0)
 			f.Aura[i].CD: SetJustifyH("CENTER")

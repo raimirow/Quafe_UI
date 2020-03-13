@@ -74,7 +74,7 @@ local function PartyMember_Template(frame)
 	local Name = F.Create.Font(button, "ARTWORK", C.Font.Txt, 12, nil, C.Color.Main1,1)
 	Name: SetPoint("TOP", button, "TOP", 0, -34)
 
-	local Percent = F.Create.Font(button, "OVERLAY", C.Font.NumSmall, 14, nil, C.Color.Main1,1, C.Color.Main0,1, {1,-1})
+	local Percent = F.Create.Font(button, "OVERLAY", C.Font.Num, 14, nil, C.Color.Main1,1, C.Color.Main0,1, {1,-1})
 	Name: SetPoint("BOTTOMLEFT", button, "BOTTOMLEFT", 4, 34)
 
 	local help = CreateFrame("Frame", nil, Portrait)
@@ -191,7 +191,7 @@ function PartyButton_OnLoad(self)
 
 	self.ArtFrame.Name: SetFont(C.Font.Txt, 12, nil)
 	self.ArtFrame.Name: SetTextColor(F.Color(C.Color.Main1))
-	self.ArtFrame.Percent: SetFont(C.Font.NumSmall, 14, nil)
+	self.ArtFrame.Percent: SetFont(C.Font.Num, 14, nil)
 	self.ArtFrame.Percent: SetTextColor(F.Color(C.Color.Main1))
 
 	local unit = self:GetAttribute("unit")

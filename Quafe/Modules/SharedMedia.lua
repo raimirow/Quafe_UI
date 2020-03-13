@@ -32,8 +32,8 @@ SharedMedia:Register(TypeBorder, "SlimBlack", F.Path("EdgeFile\\EdgeFile_Layer")
 --> Font
 ----------------------------------------------------------------
 
-SharedMedia:Register(TypeFont, "Overwatch", F.Path("Fonts\\BigNoodleTooOblique.ttf"), Locale_western)
-SharedMedia:Register(TypeFont, "Overwatch", F.Path("Fonts\\BigNoodleTooOblique.ttf"), Locale_zhCN)
+--SharedMedia:Register(TypeFont, "Overwatch", F.Path("Fonts\\BigNoodleTooOblique.ttf"), Locale_western)
+--SharedMedia:Register(TypeFont, "Overwatch", F.Path("Fonts\\BigNoodleTooOblique.ttf"), Locale_zhCN)
 
 ----------------------------------------------------------------
 --> Statusbar

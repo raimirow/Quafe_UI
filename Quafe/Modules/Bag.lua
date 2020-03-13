@@ -469,8 +469,7 @@ local function Init_BagGap(f, classtable, p, bank)
 	numfree: SetSize(config.buttonSize, config.buttonSize)
 	f["BagIconFree"] = numfree
 	
-	local freetext = F.create_Font(numfree, C.Font.NumOW, 21, nil, 1, "CENTER", "CENTER")
-	freetext: SetTextColor(F.Color(C.Color.Y2, 1))
+	local freetext = F.Create.Font(numfree, "ARTWORK", C.Font.Num, 16, nil, C.Color.Y1, 1, C.Color.W1, 0, {0,0}, "CENTER", "CENTER")
 	freetext: SetPoint("CENTER", numfree, "CENTER", 0,0)
 	f["BagIconFreeText"] = freetext
 
@@ -583,12 +582,12 @@ local function Create_BagItemButton(f, bagID, slotID)
 	button.icon: SetAllPoints(button)
 	button.icon: SetTexCoord(0.1, 0.9, 0.1, 0.9)
 
-	button.Count: SetFont(C.Font.NumSmall, 11, "OUTLINE")
+	button.Count: SetFont(C.Font.Num, 12, "OUTLINE")
 	button.Count: SetTextColor(197/255, 202/255, 233/255, 1)
 	button.Count: ClearAllPoints()
 	button.Count: SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -1,2)
 	
-	button.Level = F.create_Font(button, C.Font.NumSmall, 12, "OUTLINE", 0, "CENTER", "CENTER")
+	button.Level = F.create_Font(button, C.Font.Num, 12, "OUTLINE", 0, "CENTER", "CENTER")
 	button.Level: SetTextColor(F.Color(C.Color.W4))
 	button.Level: SetAlpha(0.9)
 	button.Level: SetPoint("CENTER", button, "CENTER", 1,0)
@@ -857,25 +856,124 @@ local function Update_BagItem(frame)
 	end
 end
 
-local function Pos_BagItem(frame, pos)
+local function Init_Pos(frame, bag)
+	bag.NumBag = bag.NumBag or 0
+	bag.NumFree = bag.NumFree or 0
+	bag.NumExtra = bag.NumExtra or 0
+	bag.NumExtraT = bag.NumExtraT or 0
+end
+
+local function BagItem_Pos(frame, bag)
+	local pos_x, pos_y
+	local num = 0
+	local item_type = ""
+	BagGap_Reset(frame, ITEMCLASS)
+	for k,v in ipairs(Bag[0]) do
+		num = num + 1
+		if v.itemType and it ~= v.itemType then
+			it = v.itemType
+			y = floor((num+config.perLine-1)/config.perLine) - 1
+			x = num - y * config.perLine - 1
+			frame["BagIcon"..it]: SetPoint("TOPLEFT", bag, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
+			frame["BagIcon"..it]: Show()
+			num = num + 1
+		end
+		y = floor((num+config.perLine-1)/config.perLine) - 1
+		x = num - y * config.perLine - 1
+		frame["Bag"..v.bagID]["Slot"..v.slotID]: ClearAllPoints()
+		frame["Bag"..v.bagID]["Slot"..v.slotID]: SetPoint("TOPLEFT", bag, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
+		frame["Bag"..v.bagID]["Slot"..v.slotID]: SetAlpha(1)
+	end
+	bag.NumBag = num
+end
+
+local function BagFreeItem_Pos(frame, bag)
+	local newgap = false
+	local freegap = false
+	local num = bag.NumBag
+	for k,v in ipairs(BagFree[0]) do
+		num = num + 1
+		if (not newgap) and v.itemType then
+			y = floor((num+config.perLine-1)/config.perLine) - 1
+			x = num- y * config.perLine - 1
+			frame["BagIconNew"]: SetPoint("TOPLEFT", bag, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
+			frame["BagIconNew"]: Show()
+			num = num + 1
+			newgap = true
+		end
+		if (not freegap) and (not v.itemType) then
+			y = floor((num+config.perLine-1)/config.perLine) - 1
+			x = num- y * config.perLine - 1
+			frame["BagIconFree"]: SetPoint("TOPLEFT", bag, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
+			frame["BagIconFreeText"]: SetText(SlotNum.Free)
+			frame["BagIconFree"]: Show()
+			num = num + 1
+			freegap = true
+		end
+		y = floor((num+config.perLine-1)/config.perLine) - 1
+		x = num- y * config.perLine - 1
+		frame["Bag"..v.bagID]["Slot"..v.slotID]: ClearAllPoints()
+		frame["Bag"..v.bagID]["Slot"..v.slotID]: SetPoint("TOPLEFT", bag, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
+		frame["Bag"..v.bagID]["Slot"..v.slotID]: SetAlpha(1)
+	end
+	bag.NumFree = num - bag.NumBag
+end
+
+local function OtherBagItem_Pos(frame, bag)
+	local e = 0
+	local et = 0
+	local num = bag.NumBag + bag.NumFree
+	for t,s in pairs(Bag) do
+		if t ~= 0 then
+			et = et + 1
+			e = ceil(e/config.perLine)*config.perLine
+			for k,v in ipairs(s) do
+				e = e + 1
+				y = floor((num+config.perLine-1)/config.perLine)+floor((e+config.perLine-1)/config.perLine) - 1
+				x = e - (floor((e+config.perLine-1)/config.perLine)-1) * config.perLine - 1
+				frame["Bag"..v.bagID]["Slot"..v.slotID]: ClearAllPoints()
+				frame["Bag"..v.bagID]["Slot"..v.slotID]: SetPoint("TOPLEFT", bag, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border*(et+1)-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
+				frame["Bag"..v.bagID]["Slot"..v.slotID]: SetAlpha(1)
+			end
+			for k,v in ipairs(BagFree[t]) do
+				e = e + 1
+				y = floor((num+config.perLine-1)/config.perLine)+floor((e+config.perLine-1)/config.perLine) - 1
+				x = e - (floor((e+config.perLine-1)/config.perLine)-1) * config.perLine - 1
+				frame["Bag"..v.bagID]["Slot"..v.slotID]: ClearAllPoints()
+				frame["Bag"..v.bagID]["Slot"..v.slotID]: SetPoint("TOPLEFT", bag, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border*(et+1)-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
+				frame["Bag"..v.bagID]["Slot"..v.slotID]: SetAlpha(1)
+			end
+		end
+	end
+	bag.NumExtra = e
+	bag.NumExtraT = et
+end
+
+local function BagFrame_ReSize(frame, bag)
+	y = (config.buttonSize+config.buttonGap*2)*(ceil((bag.NumBag + bag.NumFree)/config.perLine)+ceil(bag.NumExtra/config.perLine))+config.border*(2+bag.NumExtraT)
+	frame.Bags: SetHeight(y)
+	frame: SetHeight(y+48+2)
+end
+
+local function Pos_AllBagItem(frame, pos)
 	local x,y
-	local z = 0
+	local num = 0
 	local e = 0
 	local et = 0
 	local it = ""
 	BagGap_Reset(frame, ITEMCLASS)
 	for k,v in ipairs(Bag[0]) do
-		z = z + 1
+		num = num + 1
 		if v.itemType and it ~= v.itemType then
 			it = v.itemType
-			y = floor((z+config.perLine-1)/config.perLine) - 1
-			x = z - y * config.perLine - 1
+			y = floor((num+config.perLine-1)/config.perLine) - 1
+			x = num - y * config.perLine - 1
 			frame["BagIcon"..it]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
 			frame["BagIcon"..it]: Show()
-			z = z + 1
+			num = num + 1
 		end
-		y = floor((z+config.perLine-1)/config.perLine) - 1
-		x = z - y * config.perLine - 1
+		y = floor((num+config.perLine-1)/config.perLine) - 1
+		x = num - y * config.perLine - 1
 		frame["Bag"..v.bagID]["Slot"..v.slotID]: ClearAllPoints()
 		frame["Bag"..v.bagID]["Slot"..v.slotID]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
 		frame["Bag"..v.bagID]["Slot"..v.slotID]: SetAlpha(1)
@@ -884,26 +982,26 @@ local function Pos_BagItem(frame, pos)
 	local newgap = false
 	local freegap = false
 	for k,v in ipairs(BagFree[0]) do
-		z = z + 1
+		num = num + 1
 		if (not newgap) and v.itemType then
-			y = floor((z+config.perLine-1)/config.perLine) - 1
-			x = z- y * config.perLine - 1
+			y = floor((num+config.perLine-1)/config.perLine) - 1
+			x = num- y * config.perLine - 1
 			frame["BagIconNew"]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
 			frame["BagIconNew"]: Show()
-			z = z + 1
+			num = num + 1
 			newgap = true
 		end
 		if (not freegap) and (not v.itemType) then
-			y = floor((z+config.perLine-1)/config.perLine) - 1
-			x = z- y * config.perLine - 1
+			y = floor((num+config.perLine-1)/config.perLine) - 1
+			x = num- y * config.perLine - 1
 			frame["BagIconFree"]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
 			frame["BagIconFreeText"]: SetText(SlotNum.Free)
 			frame["BagIconFree"]: Show()
-			z = z + 1
+			num = num + 1
 			freegap = true
 		end
-		y = floor((z+config.perLine-1)/config.perLine) - 1
-		x = z- y * config.perLine - 1
+		y = floor((num+config.perLine-1)/config.perLine) - 1
+		x = num- y * config.perLine - 1
 		frame["Bag"..v.bagID]["Slot"..v.slotID]: ClearAllPoints()
 		frame["Bag"..v.bagID]["Slot"..v.slotID]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
 		frame["Bag"..v.bagID]["Slot"..v.slotID]: SetAlpha(1)
@@ -915,7 +1013,7 @@ local function Pos_BagItem(frame, pos)
 			e = ceil(e/config.perLine)*config.perLine
 			for k,v in ipairs(s) do
 				e = e + 1
-				y = floor((z+config.perLine-1)/config.perLine)+floor((e+config.perLine-1)/config.perLine) - 1
+				y = floor((num+config.perLine-1)/config.perLine)+floor((e+config.perLine-1)/config.perLine) - 1
 				x = e - (floor((e+config.perLine-1)/config.perLine)-1) * config.perLine - 1
 				frame["Bag"..v.bagID]["Slot"..v.slotID]: ClearAllPoints()
 				frame["Bag"..v.bagID]["Slot"..v.slotID]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border*(et+1)-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
@@ -923,7 +1021,7 @@ local function Pos_BagItem(frame, pos)
 			end
 			for k,v in ipairs(BagFree[t]) do
 				e = e + 1
-				y = floor((z+config.perLine-1)/config.perLine)+floor((e+config.perLine-1)/config.perLine) - 1
+				y = floor((num+config.perLine-1)/config.perLine)+floor((e+config.perLine-1)/config.perLine) - 1
 				x = e - (floor((e+config.perLine-1)/config.perLine)-1) * config.perLine - 1
 				frame["Bag"..v.bagID]["Slot"..v.slotID]: ClearAllPoints()
 				frame["Bag"..v.bagID]["Slot"..v.slotID]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border*(et+1)-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
@@ -932,7 +1030,7 @@ local function Pos_BagItem(frame, pos)
 		end
 	end
 
-	y = (config.buttonSize+config.buttonGap*2)*(ceil(z/config.perLine)+ceil(e/config.perLine))+config.border*(2+et)
+	y = (config.buttonSize+config.buttonGap*2)*(ceil(num/config.perLine)+ceil(e/config.perLine))+config.border*(2+et)
 	frame.Bags: SetHeight(y)
 	frame: SetHeight(y+48+2)
 end
@@ -1050,6 +1148,31 @@ local function Insert_BagItem(f)
 	SlotNum.Total = SlotNum.Free + #Bag[0]
 end
 
+local BagFreeNew = {}
+local function BagFreeItem_Insert(frame)
+	wipe(BagFreeNew)
+	for b = 0, NUM_BAG_SLOTS do
+		local BagType = select(2,GetContainerNumFreeSlots(b)) or 0
+		if not frame["Bag"..b] then
+			frame["Bag"..b] = Create_BagFrame(frame, b)
+		end
+		Check_BagNumSlots(frame["Bag"..b], b)
+		if not Bag[BagType] then
+			Bag[BagType] = {}
+		end
+		if not BagFree[BagType] then
+			BagFree[BagType] = {}
+		end
+		for s = 1, ContainerFrame_GetContainerNumSlots(b) do
+			if not frame["Bag"..b]["Slot"..s] then
+				frame["Bag"..b]["Slot"..s] = Create_BagItemButton(frame["Bag"..b], b, s)
+				local itemName,itemID,texture,itemCount,itemType,itemSubType,itemEquipLoc,quality,itemLevel,lockde = GetItemInfoFromBS(b, s)
+				insert(BagFree[BagType], GetItemTable(b, s, itemName,itemID,texture,itemCount,itemType,itemSubType,itemEquipLoc,quality,itemLevel,locked))
+			end
+		end
+	end
+end
+
 local function Refresh_SlotNumFree(frame)
 	SlotNum.Free = 0
 	for BagID = 0, NUM_BAG_SLOTS do
@@ -1058,7 +1181,7 @@ local function Refresh_SlotNumFree(frame)
 			SlotNum.Free = SlotNum.Free + FreeSlots or 0
 		end
 	end
-	--frame["BagIconFreeText"]: SetText(SlotNum.Free)
+	frame["BagIconFreeText"]: SetText(SlotNum.Free)
 end
 
 local function Refresh_BagItemInfo(frame)
@@ -1086,10 +1209,12 @@ local function Remove_BagItem(frame)
 	for b = 0, NUM_BAG_SLOTS do
 		Check_BagNumSlots(frame["Bag"..b], b)
 	end
-	for i, v in ipairs(Bag[0]) do
-		if not v.itemTexture then
-			tinsert(BagFree[0], v)
-			tremove(Bag[0], i)
+	for BagType, Slots in pairs(Bag) do
+		for k,v in ipairs(Bag[BagType]) do
+			if not v.itemTexture then
+				tinsert(BagFree[BagType], v)
+				tremove(Bag[BagType], k)
+			end
 		end
 	end
 end
@@ -1098,16 +1223,28 @@ local function FullUpdate_BagItem(frame)
 	Insert_BagItem(frame)
 	Sort_BagItem(Bag)
 	Update_BagItem(frame)
-	Pos_BagItem(frame, frame.Bags)
+	--Pos_AllBagItem(frame, frame.Bags)
+	Init_Pos(frame, frame.Bags)
+	BagItem_Pos(frame, frame.Bags)
+	BagFreeItem_Pos(frame, frame.Bags)
+	OtherBagItem_Pos(frame, frame.Bags)
+	BagFrame_ReSize(frame, frame.Bags)
 end
 
 local function LimitedUpdate_BagItem(frame)
+	BagFreeItem_Insert(frame)
 	Refresh_BagItemInfo()
 	Remove_BagItem(frame)
+	Sort_BagItem(Bag)
 	Sort_BagItem(BagFree)
 	Refresh_SlotNumFree(frame)
 	Update_BagItem(frame)
-	Pos_BagItem(frame, frame.Bags)
+	--Pos_AllBagItem(frame, frame.Bags)
+	Init_Pos(frame, frame.Bags)
+	BagItem_Pos(frame, frame.Bags)
+	BagFreeItem_Pos(frame, frame.Bags)
+	OtherBagItem_Pos(frame, frame.Bags)
+	BagFrame_ReSize(frame, frame.Bags)
 end
 
 local function Update_ItemLock(self, ...)
@@ -1247,7 +1384,7 @@ local function KeyRing_Template(frame)
 		end
 	end)
 	KeyRingFrame: SetScript("OnLeave", function(self)
-		self.Bg: SetAlpha(0.2)
+		self.Bg: SetAlpha(0)
 		GameTooltip:Hide()
 	end)
 
@@ -1276,6 +1413,50 @@ end
 --> Currency
 ----------------------------------------------------------------
 
+local function RefreshButton_Template(frame)
+	local DummyButton = CreateFrame("Button", nil, frame)
+	DummyButton: SetSize(24,24)
+	DummyButton: RegisterForClicks("LeftButtonUp", "RightButtonUp")
+
+	local Backdrop = F.Create.Backdrop(DummyButton, 2, false, 8, 4, C.Color.Y1,0, C.Color.W4,0.9)
+	Backdrop: SetAlpha(0)
+	DummyButton.tooltipText = L['BAG_GROUP_REFRESH']
+
+	local Icon = F.Create.Texture(DummyButton, "ARTWORK", 1, F.Path("Bag_Clean"), C.Color.W3, 1, {20,20})
+	Icon: SetPoint("CENTER")
+
+	DummyButton: SetScript("OnEnter", function(self)
+		Backdrop: SetAlpha(1)
+		if self.tooltipText then
+			GameTooltip:SetOwner(self, "ANCHOR_NONE", 0,0)
+			GameTooltip:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0,4)
+			GameTooltip:SetText(self.tooltipText)
+			GameTooltip:Show()
+		end
+	end)
+	DummyButton: SetScript("OnLeave", function(self)
+		Backdrop: SetAlpha(0)
+		GameTooltip:Hide()
+	end)
+
+	DummyButton: SetScript("OnClick", function(self)
+		frame:GetParent():FullUpdate_BagItem()
+	end)
+
+	return DummyButton
+end
+
+local function RefreshButton_Toggle(frame)
+	local point, relativeTo, relativePoint = frame.Currency.RefreshButton:GetPoint()
+	if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Always" then
+		frame.Currency.RefreshButton: SetPoint(point, relativeTo, relativePoint, 0, 0)
+		frame.Currency.RefreshButton: Hide()
+	else
+		frame.Currency.RefreshButton: SetPoint(point, relativeTo, relativePoint, 40, 0)
+		frame.Currency.RefreshButton: Show()
+	end
+end
+
 local function Currency_Frame(f)
 	local currency = CreateFrame("Frame", nil, f)
 	currency: SetSize((config.buttonSize+config.buttonGap*2)*config.perLine+config.border*2, 48)
@@ -1283,10 +1464,8 @@ local function Currency_Frame(f)
 	F.create_Backdrop(currency, 2, 8, 4, C.Color.Config.Back,0.9, C.Color.Config.Back,0.9)
 	f.Currency = currency
 
-	local money = F.create_Font(currency, C.Font.NumOW, 21, nil, 1, "RIGHT", "CENTER")
-	money: SetTextColor(F.Color(C.Color.Y2, 1))
-	money: SetSize(180,14)
-	money: SetPoint("RIGHT", currency, "RIGHT", -33,0)
+	local money = F.Create.Font(currency, "ARTWORK", C.Font.NumOW, 24, nil, C.Color.Y2, 1, C.Color.W1, 0, {0,0}, "RIGHT", "CENTER")
+	money: SetPoint("RIGHT", currency, "RIGHT", -42,0)
 	f.Currency.Money = money
 
 	local MoneyHelp = CreateFrame("Button", nil, currency)
@@ -1321,15 +1500,16 @@ local function Currency_Frame(f)
 		GameTooltip: Hide()
 	end)
 
+	f.Currency.MoneyHold = MoneyHelp
+
 	local closebutton = CreateFrame("Button", nil, currency)
 	closebutton: SetSize(24,30)
 	closebutton: SetPoint("RIGHT", currency, "RIGHT", -2,0)
 	closebutton: RegisterForClicks("LeftButtonUp", "RightButtonUp")
 	F.create_Backdrop(closebutton, 0, 0, 0, C.Color.Y1,0, C.Color.W1,0)
-	
-	local closebuttonicon = F.create_Font(closebutton, C.Font.NumOW, 21, nil, 0, "CENTER", "CENTER")
-	closebuttonicon: SetPoint("CENTER", closebutton, "CENTER", 0,0)
-	closebuttonicon: SetTextColor(F.Color(C.Color.W3))
+
+	local closebuttonicon = F.Create.Font(closebutton, "ARTWORK", C.Font.NumOW, 24, nil, C.Color.W3, 1, C.Color.W1, 0, {0,0}, "CENTER", "CENTER")
+	closebuttonicon: SetPoint("CENTER", closebutton, "CENTER")
 	closebuttonicon: SetText("X")
 	
 	closebutton: SetScript("OnClick", function(self, button)
@@ -1340,7 +1520,7 @@ local function Currency_Frame(f)
 		closebuttonicon: SetTextColor(F.Color(C.Color.Config.Back))
 	end)
 	closebutton: SetScript("OnLeave", function(self)
-		self.Bg: SetBackdropColor(F.Color(C.Color.Config.Exit,0))
+		self.Bg: SetBackdropColor(F.Color(C.Color.Y1,0))
 		closebuttonicon: SetTextColor(F.Color(C.Color.W3))
 	end)
 	
@@ -1349,9 +1529,7 @@ local function Currency_Frame(f)
 	menubutton: SetPoint("LEFT", currency, "LEFT", 2,0)
 	F.create_Backdrop(menubutton, 0, 0, 0, C.Color.Y1,0, C.Color.W1,0)
 	
-	local menubuttonicon = F.create_Texture(menubutton, "ARTWORK", "Bag_Menu", C.Color.W3, 1)
-	menubuttonicon: SetSize(24,30)
-	menubuttonicon: SetTexCoord(4/32,28/32, 1/32,31/32)
+	local menubuttonicon = F.Create.Texture(menubutton, "ARTWORK", 1, F.Path("Bag_Menu"), C.Color.W3, 1, {32,32})
 	menubuttonicon: SetPoint("CENTER", menubutton, "CENTER", 0,0)
 	
 	menubutton: SetScript("OnClick", function(self, button)
@@ -1372,10 +1550,16 @@ local function Currency_Frame(f)
 		menubuttonicon: SetVertexColor(F.Color(C.Color.W3))
 	end)
 
+	local RefreshButton = RefreshButton_Template(currency)
+	RefreshButton: SetPoint("CENTER", menubutton, "CENTER", 40, 0)
+
 	if F.IsClassic then
 		local KeyRingFrame = KeyRing_Template(currency)
-		KeyRingFrame: SetPoint("LEFT", menubutton, "RIGHT", 16, 0)
+		KeyRingFrame: SetPoint("CENTER", RefreshButton, "CENTER", 40, 0)
 	end
+
+	f.Currency.RefreshButton = RefreshButton
+	RefreshButton_Toggle(f)
 end
 
 local function BagExtra_Frame(f)
@@ -1644,6 +1828,11 @@ local function PlayerMoney_Update(frame)
 	end
 end
 
+local function UpdatePostion(frame, database)
+	frame:StopMovingOrSizing()
+	database[1], database[2], database[3], database[4], database[5] = frame:GetPoint()
+end
+
 local function Bag_Frame(frame)
 	local BagFrame = CreateFrame("Frame", "Quafe_BagFrame", frame)
 	BagFrame: SetFrameLevel(2)
@@ -1658,7 +1847,6 @@ local function Bag_Frame(frame)
 	
 	BagFrame: SetClampedToScreen(true)
 	BagFrame: SetMovable(true)
-	BagFrame: SetUserPlaced(true)
 
 	frame.BagFrame = BagFrame
 
@@ -1678,7 +1866,16 @@ local function Bag_Frame(frame)
 	frame.BagFrame.Currency: EnableMouse(true)
 	frame.BagFrame.Currency: RegisterForDrag("LeftButton","RightButton")
 	frame.BagFrame.Currency: SetScript("OnDragStart", function(self) frame.BagFrame:StartMoving() end)
-	frame.BagFrame.Currency: SetScript("OnDragStop", function(self) frame.BagFrame:StopMovingOrSizing() end)
+	frame.BagFrame.Currency: SetScript("OnDragStop", function(self)
+		UpdatePostion(frame.BagFrame, Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Container"].BagPos)
+	end)
+
+	frame.BagFrame.Currency.MoneyHold: EnableMouse(true)
+	frame.BagFrame.Currency.MoneyHold: RegisterForDrag("LeftButton","RightButton")
+	frame.BagFrame.Currency.MoneyHold: SetScript("OnDragStart", function(self) frame.BagFrame:StartMoving() end)
+	frame.BagFrame.Currency.MoneyHold: SetScript("OnDragStop", function(self)
+		UpdatePostion(frame.BagFrame, Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Container"].BagPos)
+	end)
 
 	local function Bag_Toggle()
 		if frame.BagFrame: IsShown() then
@@ -1725,8 +1922,17 @@ local function Bag_Frame(frame)
 			OpenBackpack = Bag_Open
 			CloseAllBags = Bag_Close
 			CloseBackpack = Bag_Close
-		elseif event == "PLAYER_ENTERING_WORLD" then
 			FullUpdate_BagItem(self)
+			C_Timer.After(2, function() FullUpdate_BagItem(self) end)
+			self.FullUpdate = true
+		elseif event == "PLAYER_ENTERING_WORLD" then
+			if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Manual" then
+				LimitedUpdate_BagItem(self)
+			elseif Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Closing" then
+				LimitedUpdate_BagItem(self)
+			elseif Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Always" then
+				FullUpdate_BagItem(self)
+			end
 			PlayerMoney_Update(self)
 		elseif event == "PLAYER_MONEY" then
 			PlayerMoney_Update(self)
@@ -1861,40 +2067,40 @@ end
 
 local function Pos_BankItem(frame, pos)
 	local x,y
-	local z = 0
+	local num = 0
 	local e = 0
 	local et = 0
 	local it = ""
 	BagGap_Reset(frame, ITEMCLASS)
 	for k,v in ipairs(Bank[0]) do
-		z = z + 1
+		num = num + 1
 		if v.itemType and it ~= v.itemType then
 			it = v.itemType
-			y = floor((z+config.bankperLine-1)/config.bankperLine) - 1
-			x = z - y * config.bankperLine - 1
+			y = floor((num+config.bankperLine-1)/config.bankperLine) - 1
+			x = num - y * config.bankperLine - 1
 			frame["BagIcon"..it]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
 			frame["BagIcon"..it]: Show()
-			z = z + 1
+			num = num + 1
 		end
-		y = floor((z+config.bankperLine-1)/config.bankperLine) - 1
-		x = z - y * config.bankperLine - 1
+		y = floor((num+config.bankperLine-1)/config.bankperLine) - 1
+		x = num - y * config.bankperLine - 1
 		frame["Bag"..v.bagID]["Slot"..v.slotID]: ClearAllPoints()
 		frame["Bag"..v.bagID]["Slot"..v.slotID]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
 		frame["Bag"..v.bagID]["Slot"..v.slotID]: SetAlpha(1)
 	end
 	
 	for k,v in ipairs(BankFree[0]) do
-		z = z + 1
+		num = num + 1
 		if k == 1 then
-			y = floor((z+config.bankperLine-1)/config.bankperLine) - 1
-			x = z - y * config.bankperLine - 1
+			y = floor((num+config.bankperLine-1)/config.bankperLine) - 1
+			x = num - y * config.bankperLine - 1
 			frame["BagIconFree"]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
 			frame["BagIconFreeText"]: SetText(SlotNum.BankFree)
 			frame["BagIconFree"]: Show()
-			z = z + 1
+			num = num + 1
 		end
-		y = floor((z+config.bankperLine-1)/config.bankperLine) - 1
-		x = z- y * config.bankperLine - 1
+		y = floor((num+config.bankperLine-1)/config.bankperLine) - 1
+		x = num- y * config.bankperLine - 1
 		frame["Bag"..v.bagID]["Slot"..v.slotID]: ClearAllPoints()
 		frame["Bag"..v.bagID]["Slot"..v.slotID]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
 		frame["Bag"..v.bagID]["Slot"..v.slotID]: SetAlpha(1)
@@ -1906,7 +2112,7 @@ local function Pos_BankItem(frame, pos)
 			e = ceil(e/config.bankperLine)*config.bankperLine
 			for k,v in ipairs(s) do
 				e = e + 1
-				y = floor((z+config.bankperLine-1)/config.bankperLine)+floor((e+config.bankperLine-1)/config.bankperLine) - 1
+				y = floor((num+config.bankperLine-1)/config.bankperLine)+floor((e+config.bankperLine-1)/config.bankperLine) - 1
 				x = e - (floor((e+config.bankperLine-1)/config.bankperLine)-1) * config.bankperLine - 1
 				frame["Bag"..v.bagID]["Slot"..v.slotID]: ClearAllPoints()
 				frame["Bag"..v.bagID]["Slot"..v.slotID]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border*(et+1)-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
@@ -1914,7 +2120,7 @@ local function Pos_BankItem(frame, pos)
 			end
 			for k,v in ipairs(BankFree[t]) do
 				e = e + 1
-				y = floor((z+config.bankperLine-1)/config.bankperLine)+floor((e+config.bankperLine-1)/config.bankperLine) - 1
+				y = floor((num+config.bankperLine-1)/config.bankperLine)+floor((e+config.bankperLine-1)/config.bankperLine) - 1
 				x = e - (floor((e+config.bankperLine-1)/config.bankperLine)-1) * config.bankperLine - 1
 				frame["Bag"..v.bagID]["Slot"..v.slotID]: ClearAllPoints()
 				frame["Bag"..v.bagID]["Slot"..v.slotID]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border*(et+1)-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
@@ -1923,33 +2129,33 @@ local function Pos_BankItem(frame, pos)
 		end
 	end
 
-	y = (config.buttonSize+config.buttonGap*2)*(ceil(z/config.bankperLine)+ceil(e/config.bankperLine))+config.border*(2+et)
+	y = (config.buttonSize+config.buttonGap*2)*(ceil(num/config.bankperLine)+ceil(e/config.bankperLine))+config.border*(2+et)
 	frame.Bags: SetHeight(y)
 	frame: SetHeight(y+48+2)
 end
 
 local function Pos_ReagentItem(f, pos)
 	local x,y
-	local z = 0
+	local num = 0
 	for k,v in ipairs(Reagent) do
-		z = z + 1
-		y = floor((z+config.reagentperLine-1)/config.reagentperLine) - 1
-		x = z - y * config.reagentperLine - 1
+		num = num + 1
+		y = floor((num+config.reagentperLine-1)/config.reagentperLine) - 1
+		x = num - y * config.reagentperLine - 1
 		f["Bag"..v.bagID]["Slot"..v.slotID]: ClearAllPoints()
 		f["Bag"..v.bagID]["Slot"..v.slotID]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
 		f["Bag"..v.bagID]["Slot"..v.slotID]: SetAlpha(1)
 	end
 	
 	for k,v in ipairs(ReagentFree) do
-		z = z + 1
-		y = floor((z+config.reagentperLine-1)/config.reagentperLine) - 1
-		x = z- y * config.reagentperLine - 1
+		num = num + 1
+		y = floor((num+config.reagentperLine-1)/config.reagentperLine) - 1
+		x = num- y * config.reagentperLine - 1
 		f["Bag"..v.bagID]["Slot"..v.slotID]: ClearAllPoints()
 		f["Bag"..v.bagID]["Slot"..v.slotID]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
 		f["Bag"..v.bagID]["Slot"..v.slotID]: SetAlpha(1)
 	end
 
-	pos: SetHeight((config.buttonSize+config.buttonGap*2)*ceil(z/config.reagentperLine)+config.border*2)
+	pos: SetHeight((config.buttonSize+config.buttonGap*2)*ceil(num/config.reagentperLine)+config.border*2)
 end
 
 local function Insert_BankItem(f)
@@ -2051,41 +2257,8 @@ local function Reagent_Frame(f)
 	local Reagent = CreateFrame("Frame", "Quafe_BankReagent", f)
 	Reagent: SetFrameLevel(5)
 	Reagent: SetSize((config.buttonSize+config.buttonGap*2)*config.reagentperLine + config.border*2, 48)
-	--Reagent: SetPoint("TOPLEFT", f, "TOPLEFT", 20, -68)
 	Reagent: SetPoint("TOP", f.Extra, "BOTTOM", 0,-2)
 	F.create_Backdrop(Reagent, 2, 8, 4, C.Color.Config.Back,0.9, C.Color.Config.Back,0.9)
-
-	--reagent: SetClampedToScreen(true)
-	--reagent: SetMovable(true)
-	--reagent: SetUserPlaced(true)
-	--reagent: EnableMouse(true)
-	--reagent: RegisterForDrag("LeftButton","RightButton")
-	--reagent: SetScript("OnDragStart", function(self) self:StartMoving() end)
-	--reagent: SetScript("OnDragStop", function(self) self:StopMovingOrSizing() end)
-	--[[
-	local closebutton = CreateFrame("Button", nil, reagent)
-	closebutton: SetSize(24,30)
-	closebutton: SetPoint("TOPRIGHT", reagent, "TOPRIGHT", -2,-6)
-	closebutton: RegisterForClicks("LeftButtonUp", "RightButtonUp")
-	F.create_Backdrop(closebutton, 0, 0, 0, C.Color.Config.Exit,0, C.Color.W1,0)
-	
-	local closebuttonicon = F.create_Font(closebutton, C.Font.NumOW, 21, nil, 0, "CENTER", "CENTER")
-	closebuttonicon: SetPoint("CENTER", closebutton, "CENTER", 0,0)
-	closebuttonicon: SetTextColor(F.Color(C.Color.W3))
-	closebuttonicon: SetText("X")
-	
-	closebutton: SetScript("OnClick", function(self, button)
-		reagent: Hide()
-	end)
-	closebutton: SetScript("OnEnter", function(self)
-		self.Bg: SetBackdropColor(F.Color(C.Color.Config.Exit,1))
-		closebuttonicon: SetTextColor(F.Color(C.Color.Config.Back))
-	end)
-	closebutton: SetScript("OnLeave", function(self)
-		self.Bg: SetBackdropColor(F.Color(C.Color.Config.Exit,0))
-		closebuttonicon: SetTextColor(F.Color(C.Color.W3))
-	end)
-	--]]
 
 	local RegentUnlockInfo = CreateFrame("Frame", "Quafe_BankReagent.UnlockInfo", Reagent)
 	RegentUnlockInfo: SetAllPoints(Reagent)
@@ -2127,7 +2300,7 @@ local function Reagent_Frame(f)
 				local gold = floor(abs(cost / 10000))
 				local silver = floor(abs(mod(cost / 100, 100)))
 				local copper = floor(abs(mod(cost, 100)))
-				local hexcolor = F.Hex(C.Color.Y2)
+				local hexcolor = F.Hex(C.Color.Y1)
 				RegentUnlockInfoCost: SetText(format("%s%s%s%s%s%s%s", COSTS_LABEL, gold, hexcolor.."G|r",silver, hexcolor.."S|r",copper, hexcolor.."C|r"))
 				RegentUnlockInfo: Show()
 			else
@@ -2257,9 +2430,8 @@ local function BankExtra_Frame(f)
 	closebutton: RegisterForClicks("LeftButtonUp", "RightButtonUp")
 	F.create_Backdrop(closebutton, 0, 0, 0, C.Color.Config.Exit,0, C.Color.W1,0)
 	
-	local closebuttonicon = F.create_Font(closebutton, C.Font.NumOW, 21, nil, 0, "CENTER", "CENTER")
+	local closebuttonicon = F.Create.Font(closebutton, "ARTWORK", C.Font.Big, 24, nil, C.Color.W3, 1, C.Color.W1, 0, {0,0}, "CENTER", "CENTER")
 	closebuttonicon: SetPoint("CENTER", closebutton, "CENTER", 0,0)
-	closebuttonicon: SetTextColor(F.Color(C.Color.W3))
 	closebuttonicon: SetText("X")
 	
 	closebutton: SetScript("OnClick", function(self, button)
@@ -2383,7 +2555,6 @@ local function Bank_Frame(f)
 	
 	bank: SetClampedToScreen(true)
 	bank: SetMovable(true)
-	bank: SetUserPlaced(true)
 	--bank: EnableMouse(true)
 	--bank: RegisterForDrag("LeftButton","RightButton")
 	--bank: SetScript("OnDragStart", function(self) self:StartMoving() end)
@@ -2409,7 +2580,9 @@ local function Bank_Frame(f)
 	f.Bank.Extra: EnableMouse(true)
 	f.Bank.Extra: RegisterForDrag("LeftButton","RightButton")
 	f.Bank.Extra: SetScript("OnDragStart", function(self) f.Bank:StartMoving() end)
-	f.Bank.Extra: SetScript("OnDragStop", function(self) f.Bank:StopMovingOrSizing() end)
+	f.Bank.Extra: SetScript("OnDragStop", function(self) f.Bank:StopMovingOrSizing()
+		UpdatePostion(f.Bank, Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Container"].BankPos)
+	end)
 	
 	f.Bank: RegisterEvent("BANKFRAME_OPENED")
 	f.Bank: RegisterEvent("BANKFRAME_CLOSED")
@@ -2476,7 +2649,13 @@ local function Quafe_Container_Load()
 	if F.IsAddonEnabled("EuiScript") then return end
 	if Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Container"].Enable then
 		Bag_Frame(Quafe_Container)
+		Quafe_Container.BagFrame: ClearAllPoints()
+		Quafe_Container.BagFrame: SetPoint(unpack(Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Container"].BagPos))
+
 		Bank_Frame(Quafe_Container)
+		Quafe_Container.Bank: ClearAllPoints()
+		Quafe_Container.Bank: SetPoint(unpack(Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Container"].BankPos))
+
 		CanIMogIt_Load()
 		--CIMI_LoadCheck()
 
@@ -2505,6 +2684,8 @@ local Quafe_Container_Config = {
 			Gold = {},
 			RefreshRate = "Closing", --Always, Closing, Manual
 			Scale = 1,
+			BagPos = {"RIGHT", UIParent, "RIGHT", -80,0},
+			BankPos = {"LEFT", UIParent, "LEFT", 20,0},
 		},
 	},
 
@@ -2555,18 +2736,21 @@ local Quafe_Container_Config = {
 						Text = L['手动刷新'],
 						Click = function(self, button) 
 							Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate = "Manual"
+							RefreshButton_Toggle(Quafe_Container.BagFrame)
 						end,
 					},
 					[2] = {
 						Text = L['关闭时刷新'],
 						Click = function(self, button) 
 							Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate = "Closing"
+							RefreshButton_Toggle(Quafe_Container.BagFrame)
 						end,
 					},
 					[3] = {
 						Text = L['实时刷新'],
 						Click = function(self, button) 
 							Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate = "Always"
+							RefreshButton_Toggle(Quafe_Container.BagFrame)
 						end,
 					},
 				},

@@ -5,28 +5,17 @@ local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
 --- ------------------------------------------------------------
 
 local _G = getfenv(0)
-local format = string.format
-local find = string.find
-
-local min = math.min
-local max = math.max
-local floor = math.floor
-local sqrt = math.sqrt
-local sin = math.sin
-local cos = math.cos
-local rad = math.rad
-local acos = math.acos
-local atan = math.atan
-local rad = math.rad
-local modf = math.modf
-
-local insert = table.insert
-local remove = table.remove
-local wipe = table.wipe
 
 local LibCastClassic = F.IsClassic and LibStub and LibStub('LibClassicCasterino', true)
 --> LibCastClassic:UnitCastingInfo(unit)
 --> LibCastClassic:UnitChannelInfo(unit)
+
+local UnitCastingInfo = UnitCastingInfo
+local UnitChannelInfo = UnitChannelInfo
+if F.IsClassic then
+    UnitCastingInfo = CastingInfo
+    UnitChannelInfo = ChannelInfo
+end
 
 ----------------------------------------------------------------
 --> CastBar
@@ -74,7 +63,7 @@ local function CastBar_OnEvent(frame, event, ...)
 
 	if ( event == "UNIT_SPELLCAST_START" ) then
 		local name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID
-		if F.IsClassic then
+		if F.IsClassic and LibCastClassic then
 			name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = LibCastClassic:UnitCastingInfo(unit);
 		else
 			name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible, spellID = UnitCastingInfo(unit);
@@ -142,7 +131,7 @@ local function CastBar_OnEvent(frame, event, ...)
 	elseif ( event == "UNIT_SPELLCAST_DELAYED" ) then
 		if ( frame:IsShown() ) then
 			local name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible
-			if F.IsClassic then
+			if F.IsClassic and LibCastClassic then
 				name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = LibCastClassic:UnitCastingInfo(unit);
 			else
 				name, text, texture, startTime, endTime, isTradeSkill, castID, notInterruptible = UnitCastingInfo(unit);
@@ -165,7 +154,7 @@ local function CastBar_OnEvent(frame, event, ...)
 		end
 	elseif ( event == "UNIT_SPELLCAST_CHANNEL_START" ) then
 		local name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID
-		if F.IsClassic then
+		if F.IsClassic and LibCastClassic then
 			name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID = LibCastClassic:UnitChannelInfo(unit);
 		else
 			name, text, texture, startTime, endTime, isTradeSkill, notInterruptible, spellID = UnitChannelInfo(unit);
@@ -197,7 +186,7 @@ local function CastBar_OnEvent(frame, event, ...)
 	elseif ( event == "UNIT_SPELLCAST_CHANNEL_UPDATE" ) then
 		if ( frame:IsShown() ) then
 			local name, text, texture, startTime, endTime, isTradeSkill
-			if F.IsClassic then
+			if F.IsClassic and LibCastClassic then
 				name, text, texture, startTime, endTime, isTradeSkill = LibCastClassic:UnitChannelInfo(unit);
 			else
 				name, text, texture, startTime, endTime, isTradeSkill = UnitChannelInfo(unit);
@@ -253,7 +242,7 @@ local function CastBar_OnShow(frame)
 	if ( frame.Unit ) then
 		local name, text, texture, startTime, endTime
 		if ( frame.Casting ) then
-			if F.IsClassic then
+			if F.IsClassic and LibCastClassic then
 				name, text, texture, startTime, endTime = LibCastClassic:UnitCastingInfo(frame.Unit);
 			else
 				name, text, texture, startTime, endTime = UnitCastingInfo(frame.Unit);
@@ -262,7 +251,7 @@ local function CastBar_OnShow(frame)
 				frame.Value = (GetTime() - (startTime / 1000));
 			end
 		else
-			if F.IsClassic then
+			if F.IsClassic and LibCastClassic then
 				name, text, texture, startTime, endTime = LibCastClassic:UnitChannelInfo(frame.Unit);
 			else
 				name, text, texture, startTime, endTime = UnitChannelInfo(frame.Unit);

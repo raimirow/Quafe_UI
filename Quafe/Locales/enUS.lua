@@ -141,6 +141,7 @@ LOCALE['SETUP_WIZARD'] = 'Setup wizard' --v57
 
 LOCALE['LOAD_MEKA_LAYOUT'] = 'Load MEKA layout' --v57
 LOCALE['LOAD_OVERWATCH_LAYOUT'] = 'Load Overwatch layout' --v57
+LOCALE['CUSTOM_LAYOUT'] = 'Custom layout' --v64
 
 --> 移动框体
 LOCALE['MOVE_FRAME'] = "Moving Frame"
@@ -153,6 +154,12 @@ LOCALE['FIX_SCALE'] = "Fix Scale"
 --> Color
 LOCALE['COLOR'] = "Color"
 LOCALE['User-Defined'] = "User-Defined"
+
+--> Font
+LOCALE['FONT'] = "Font" -- v64
+LOCALE['TEXT'] = "Text" -- v64
+LOCALE['NUM'] = "Number" -- v64
+LOCALE['BIG_TN'] = "Big text and number" -- v64
 
 --> Mouse
 LOCALE['MOUSE'] = "Mouse"

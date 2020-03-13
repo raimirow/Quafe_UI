@@ -140,6 +140,7 @@ LOCALE['SETUP_WIZARD'] = '设置向导' --v57
 
 LOCALE['LOAD_MEKA_LAYOUT'] = '载入MEKA界面配置' --v57
 LOCALE['LOAD_OVERWATCH_LAYOUT'] = '载入Overwatch界面配置' --v57
+LOCALE['CUSTOM_LAYOUT'] = '自定义界面配置' --v64
 
 --> 移动框体
 LOCALE['MOVE_FRAME'] = "移动框体"
@@ -152,6 +153,12 @@ LOCALE['FIX_SCALE'] = "修复缩放"
 --> Color
 LOCALE['COLOR'] = "颜色"
 LOCALE['User-Defined'] = "自定义"
+
+--> Font
+LOCALE['FONT'] = "字体" -- v64
+LOCALE['TEXT'] = "文字" -- v64
+LOCALE['NUM'] = "数字" -- v64
+LOCALE['BIG_TN'] = "大文字和数字" -- v64
 
 --> Mouse
 LOCALE['MOUSE'] = "鼠标"

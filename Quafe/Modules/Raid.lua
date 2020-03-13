@@ -525,7 +525,7 @@ local function Raid5Button_Template(frame, unit, name)
 	local NameBg = F.Create.Texture(Help, "BACKGROUND", 1, F.Path("StatusBar\\Raid"), C.Color.Main0, 0.3, {100,20})
 	NameBg: SetPoint("CENTER", button, "CENTER")
 
-	local Text = F.Create.Font(Help, "BORDER", C.Font.NumSmall, 14, nil, C.Color.W3,1, C.Color.Main0,1, {1,-1}, "CENTER", "CENTER")
+	local Text = F.Create.Font(Help, "BORDER", C.Font.Num, 14, nil, C.Color.W3,1, C.Color.Main0,1, {1,-1}, "CENTER", "CENTER")
 	Text: SetPoint("CENTER", button, "CENTER", 0, -13)
 
 	local GroupRoleIndicator = F.Create.Texture(Help, "ARTWORK", 1, F.Path("Raid_RoleIcon"), nil, 0.9, {16,16})

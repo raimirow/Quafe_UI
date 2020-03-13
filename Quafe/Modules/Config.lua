@@ -391,6 +391,7 @@ local function Dropdown_Menu_Artwork(frame, fontsize)
 	Text: SetShadowOffset(1,-1)
 	Text: SetTextColor(F.Color(C.Color.W3))
 	Text: SetJustifyH("CENTER")
+	Text: SetSize(frame:GetSize())
 	Text: SetPoint("CENTER", frame, "CENTER", 0, 0)
 	Text: SetText(L['INVALID'])
 
@@ -413,53 +414,74 @@ local function Dropdown_Menu_Artwork(frame, fontsize)
 	frame.Text = Text
 end
 
-local function Dropdown_Menu_Create(frame, bar, DB, scroll, configframe)
+local function Dropdown_Menu_Refresh(frame, bar, DB, scroll, configframe)
 	local MenuNum = 0
-	for k, v in ipairs(DB) do
+	if DB.DropdownRefresh then
+		DB.DropdownRefresh(DB.DropMenu, DB.DropMenuData)
+	end
+	for k, v in ipairs(DB.DropMenu) do
 		if v then
-			frame.Menu[k] = CreateFrame("Button", nil, frame)
-			frame.Menu[k]: SetHeight(button_size-4)
-			frame.Menu[k]: SetFrameLevel(frame:GetFrameLevel()+1)
-			frame.Menu[k]: SetBackdrop(backdrop)
-			frame.Menu[k]: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
-			frame.Menu[k]: SetBackdropColor(F.Color(C.Color.B1, 0))
-			if k == 1 then
-				frame.Menu[k]: SetPoint("TOPLEFT", frame, "TOPLEFT", 4,-4)
-				frame.Menu[k]: SetPoint("TOPRIGHT", frame, "TOPRIGHT", -4,-4)
-			else
-				frame.Menu[k]: SetPoint("TOPLEFT", frame.Menu[k-1], "BOTTOMLEFT", 0,-4)
-				frame.Menu[k]: SetPoint("TOPRIGHT", frame.Menu[k-1], "BOTTOMRIGHT", 0,-4)
-			end
-			Dropdown_Menu_Artwork(frame.Menu[k])
-
-			frame.Menu[k]: HookScript("OnLeave", function(self)
-				if not MouseIsOver(frame) then
-					frame: Hide()
+			if not frame.Menu[k] then
+				frame.Menu[k] = CreateFrame("Button", nil, frame)
+				frame.Menu[k]: SetHeight(button_size-4)
+				frame.Menu[k]: SetFrameLevel(frame:GetFrameLevel()+1)
+				frame.Menu[k]: SetBackdrop(backdrop)
+				frame.Menu[k]: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
+				frame.Menu[k]: SetBackdropColor(F.Color(C.Color.B1, 0))
+				if k == 1 then
+					frame.Menu[k]: SetPoint("TOPLEFT", frame, "TOPLEFT", 4,-4)
+					frame.Menu[k]: SetPoint("TOPRIGHT", frame, "TOPRIGHT", -4,-4)
+				else
+					frame.Menu[k]: SetPoint("TOPLEFT", frame.Menu[k-1], "BOTTOMLEFT", 0,-4)
+					frame.Menu[k]: SetPoint("TOPRIGHT", frame.Menu[k-1], "BOTTOMRIGHT", 0,-4)
 				end
-			end)
+				Dropdown_Menu_Artwork(frame.Menu[k], 14)
+
+				frame.Menu[k]: HookScript("OnLeave", function(self)
+					if not MouseIsOver(frame) then
+						frame: Hide()
+					end
+				end)
+
+				if v.Click then
+					frame.Menu[k]: SetScript("OnClick", function(self, button)
+						v.Click(self, button)
+						bar.Button.Text: SetText(v.Text)
+						if bar.Config and bar.Config.SubRefresh then
+							bar.Config.SubState = frame.Menu[k].State
+							ConfigSubBar_Refresh(bar, scroll, configframe, bar.Config.SubRefresh)
+							HoldHeight_Update(scroll)
+							SubBar_Fold(bar)
+						end
+						frame: Hide()
+					end)
+				end
+			else
+				frame.Menu[k]:Show()
+			end
 			if v.Text then
+				if v.Font then
+					local _, size, outline = frame.Menu[k].Text:GetFont()
+					frame.Menu[k].Text:SetFont(UNIT_NAME_FONT,size,outline) --> 修复字体第一次加载不显示问题
+					frame.Menu[k].Text:SetFont(v.Font,size,outline)
+				end
 				frame.Menu[k].Text: SetText(v.Text)
 			end
 			if v.State then
 				frame.Menu[k].State = v.State
 			end
-			if v.Click then
-				frame.Menu[k]: SetScript("OnClick", function(self, button)
-					v.Click(self, button)
-					bar.Button.Text: SetText(v.Text)
-					if bar.Config and bar.Config.SubRefresh then
-						bar.Config.SubState = frame.Menu[k].State
-						ConfigSubBar_Refresh(bar, scroll, configframe, bar.Config.SubRefresh)
-						HoldHeight_Update(scroll)
-						SubBar_Fold(bar)
-					end
-					frame: Hide()
-				end)
-			end
+			
 			MenuNum = MenuNum + 1
 		end
 	end
 	frame: SetHeight(button_size*MenuNum+4)
+	
+	local MenuNumOld = #frame.Menu
+	if MenuNumOld > MenuNum then
+		for i = MenuNum,MenuNumOld do
+			frame.Menu[i]: Hide()
+		end
+	end
 end
 
 ---------------------------------------------------------------
@@ -500,7 +522,7 @@ local function Slider_Create(frame)
 	Bg: SetAlpha(0.6)
 
 	local Text = SliderHold:CreateFontString(nil, "ARTWORK")
-	Text: SetFont(C.Font.NumSmall, 14, nil)
+	Text: SetFont(C.Font.Num, 14, nil)
 	Text: SetShadowColor(0,0,0,0)
 	Text: SetShadowOffset(1,-1)
 	Text: SetTextColor(F.Color(C.Color.W3))
@@ -706,7 +728,10 @@ local function ConfigSubBar_Create(frame, scroll, configframe, DB)
 			frame.SubBar[i].Button: SetScript("OnClick", function(self)
 				Dropdown_Toggle(frame.SubBar[i])
 			end)
-			Dropdown_Menu_Create(frame.SubBar[i].Dropdown, frame.SubBar[i], DB[i].DropMenu)
+			Dropdown_Menu_Refresh(frame.SubBar[i].Dropdown, frame.SubBar[i], DB[i])
+			frame.SubBar[i].Dropdown: HookScript("OnShow", function(self)
+				Dropdown_Menu_Refresh(frame.SubBar[i].Dropdown, frame.SubBar[i], DB[i])
+			end)
 		elseif DB[i].Click then
 			frame.SubBar[i].Button: SetScript("OnClick", DB[i].Click)
 		end
@@ -715,7 +740,11 @@ local function ConfigSubBar_Create(frame, scroll, configframe, DB)
 		end
 		if DB[i].Show then
 			configframe: HookScript("OnShow", function(self)
-				DB[i].Show(frame.SubBar[i].Button)
+				if frame.SubBar[i].Button then
+					DB[i].Show(frame.SubBar[i].Button)
+				else
+					DB[i].Show(frame.SubBar[i])
+				end
 			end)
 		end
 
@@ -791,7 +820,10 @@ local function ConfigBar_Create(frame, scroll, configframe)
 		frame.Button: SetScript("OnClick", function(self)
 			Dropdown_Toggle(frame)
 		end)
-		Dropdown_Menu_Create(frame.Dropdown, frame, Info.DropMenu, scroll, configframe)
+		Dropdown_Menu_Refresh(frame.Dropdown, frame, Info, scroll, configframe)
+		frame.Dropdown: HookScript("OnShow", function(self)
+			Dropdown_Menu_Refresh(frame.Dropdown, frame, Info, scroll, configframe)
+		end)
 	elseif (frame.Button) and Info.Click then
 		frame.Button: SetScript("OnClick", Info.Click)
 	end
@@ -800,7 +832,11 @@ local function ConfigBar_Create(frame, scroll, configframe)
 	end
 	if Info.Show then
 		configframe: HookScript("OnShow", function(self)
-			Info.Show(frame.Button)
+			if frame.Button then
+				Info.Show(frame.Button)
+			else
+				Info.Show(frame)
+			end
 		end)
 	end
 	if Info.Sub then
@@ -925,7 +961,6 @@ local function Button_Mouse(frame, configframe)
 					end
 				end,
 				Load = function(self)
-					self: RegisterEvent("PLAYER_ENTERING_WORLD")
 					self: RegisterEvent("CVAR_UPDATE")
 					self: SetScript("OnEvent", function(s, event, ...)
 						if tostring(GetCVar("rawMouseEnable") or 0) == "1" then
@@ -934,6 +969,11 @@ local function Button_Mouse(frame, configframe)
 							self.Button.Text:SetText(L["OFF"])
 						end
 					end)
+					if tostring(GetCVar("rawMouseEnable") or 0) == "1" then
+						self.Button.Text:SetText(L["ON"])
+					else
+						self.Button.Text:SetText(L["OFF"])
+					end
 				end,
 				Show = nil,
 			},
@@ -947,11 +987,11 @@ local function Button_Mouse(frame, configframe)
 					self.Slider: HookScript("OnValueChanged", function(s, value)
 						SetCVar("rawMouseRate", value)
 					end)
-					self: RegisterEvent("PLAYER_ENTERING_WORLD")
 					self: RegisterEvent("CVAR_UPDATE")
 					self: SetScript("OnEvent", function(s, event, ...)
 						self.Slider: SetValue(GetCVar("rawMouseRate") or 0)
 					end)
+					self.Slider: SetValue(GetCVar("rawMouseRate") or 0)
 				end,
 				Show = nil,
 			},
@@ -964,11 +1004,11 @@ local function Button_Mouse(frame, configframe)
 					self.Slider: HookScript("OnValueChanged", function(s, value)
 						SetCVar("rawMouseResolution", value)
 					end)
-					self: RegisterEvent("PLAYER_ENTERING_WORLD")
 					self: RegisterEvent("CVAR_UPDATE")
 					self: SetScript("OnEvent", function(s, event, ...)
 						self.Slider: SetValue(GetCVar("rawMouseResolution") or 0)
 					end)
+					self.Slider: SetValue(GetCVar("rawMouseResolution") or 0)
 				end,
 				Show = nil,
 			},
@@ -1025,7 +1065,7 @@ local function Aurawatch_Bar_Artwork(frame, scroll)
 	end)
 
 	local SnText = Sn:CreateFontString(nil, "ARTWORK")
-	SnText: SetFont(C.Font.NumSmall, 14, nil)
+	SnText: SetFont(C.Font.Num, 14, nil)
 	SnText: SetShadowColor(0,0,0,0)
 	SnText: SetShadowOffset(0,0)
 	SnText: SetTextColor(F.Color(C.Color.W3))
@@ -1388,7 +1428,7 @@ local function Aurawatch_AddNew_Tips(frame)
 	Dummy: SetSize(760,200)
 
 	local Bg = F.Create.Backdrop(Dummy, 2, true, 6, 6, C.Color.Config.Back, 0.95, C.Color.Config.Back, 0.95)
-	local Title = F.Create.Font(Dummy, "ARTWORK", C.Font.NumSmall, 20, nil, nil, nil, C.Color.Config.Back,1, {1,-1})
+	local Title = F.Create.Font(Dummy, "ARTWORK", C.Font.Num, 20, nil, nil, nil, C.Color.Config.Back,1, {1,-1})
 	Title: SetTextColor(F.Color(C.Color.W3, 0.4))
     Title: SetPoint("TOPLEFT", Dummy, "TOPLEFT", 10,-10)
 	Title: SetText("Tips")
@@ -1498,7 +1538,7 @@ local function AddNew_Dropdown_Menu_Create(frame, button, DB)
 				frame.Menu[k]: SetPoint("TOPLEFT", frame.Menu[k-1], "BOTTOMLEFT", 0,-2)
 				frame.Menu[k]: SetPoint("TOPRIGHT", frame.Menu[k-1], "BOTTOMRIGHT", 0,-2)
 			end
-			Dropdown_Menu_Artwork(frame.Menu[k])
+			Dropdown_Menu_Artwork(frame.Menu[k], 14)
 
 			frame.Menu[k]: HookScript("OnLeave", function(self)
 				if not MouseIsOver(frame) then
@@ -1546,7 +1586,7 @@ local function AddNew_Dropdown_Color_Create(frame, button, DB)
 				frame.Menu[k]: SetPoint("TOPLEFT", frame.Menu[k-1], "BOTTOMLEFT", 0,-2)
 				frame.Menu[k]: SetPoint("TOPRIGHT", frame.Menu[k-1], "BOTTOMRIGHT", 0,-2)
 			end
-			Dropdown_Menu_Artwork(frame.Menu[k])
+			Dropdown_Menu_Artwork(frame.Menu[k], 14)
 
 			frame.Menu[k].Icon = CreateFrame("Frame", nil, frame.Menu[k])
 			frame.Menu[k].Icon: SetPoint("BOTTOMLEFT", frame.Menu[k], "BOTTOMLEFT", 36,2)
@@ -1578,7 +1618,7 @@ local function IconButton_Frame(frame, pos)
 	TextIcon: SetPoint("LEFT", frame, "LEFT", 4,0)
 
 	local Text = frame: CreateFontString(nil, "ARTWORK")
-	Text: SetFont(C.Font.NumSmall, 14, nil)
+	Text: SetFont(C.Font.Num, 14, nil)
 	Text: SetShadowColor(0,0,0,0)
 	Text: SetShadowOffset(1,-1)
 	Text: SetTextColor(F.Color(C.Color.W3))
@@ -1761,7 +1801,7 @@ local function Aurawatch_AddNew_Buttons_GapTemplate(frame)
 	Gap: SetSize(2, 180)
 
 	local Text = frame:CreateFontString(nil, "ARTWORK")
-	Text: SetFont(C.Font.NumSmall, 20, nil)
+	Text: SetFont(C.Font.Num, 20, nil)
 	Text: SetShadowColor(0,0,0,0)
 	Text: SetShadowOffset(1,-1)
 	Text: SetTextColor(F.Color(C.Color.W3, 0.4))
@@ -2453,7 +2493,6 @@ end
 
 local function Hotkey_Create(frame, scroll, configframe)
 	frame: RegisterEvent("UPDATE_BINDINGS")
-	frame: RegisterEvent("PLAYER_ENTERING_WORLD")
 	local Info = frame.Config
 
 	local Bg = frame: CreateTexture(nil, "BACKGROUND", 1)
@@ -2506,11 +2545,11 @@ local function Hotkey_CommunicationMenu(frame, configframe)
 	frame.Bar[frame.Num] = Hotkey_Template(frame)
 	frame.Bar[frame.Num].Config = {
 		Name = L['COMMUNICATION_MENU'],
-		--Show = function(self, button)
-		--	local key1, key2 = GetBindingKey("QUAFE_COMMUNICATIONMENU")
-		--	self.Primary.Text: SetText(key1)
-		--	self.Alternate.Text: SetText(key2)
-		--end,
+		Show = function(self, button)
+			local key1, key2 = GetBindingKey("QUAFE_COMMUNICATIONMENU")
+			self.Primary.Text: SetText(key1)
+			self.Alternate.Text: SetText(key2)
+		end,
 	}
 	Hotkey_Create(frame.Bar[frame.Num], frame, configframe)
 	frame.Bar[frame.Num]: SetScript("OnEvent", function(self, event)
@@ -2988,7 +3027,7 @@ local function Tab_Template(frame, text, gap, gapleft)
 		Bg: Hide()
 
 		local Txt = frame: CreateFontString(nil, "ARTWORK")
-		Txt: SetFont(C.Font.NumSmall, 14, nil)
+		Txt: SetFont(C.Font.Num, 14, nil)
 		Txt: SetShadowColor(0,0,0,0)
 		Txt: SetShadowOffset(1,-1)
 		Txt: SetTextColor(F.Color(C.Color.W3))
@@ -3074,7 +3113,7 @@ local function Tab_Exit(frame)
 	Bg: Hide()
 	
 	local Txt = Exit: CreateFontString(nil, "ARTWORK")
-	Txt: SetFont(C.Font.NumSmall, 18, nil)
+	Txt: SetFont(C.Font.Num, 18, nil)
 	Txt: SetShadowColor(0,0,0,0)
 	Txt: SetShadowOffset(1,-1)
 	--Txt: SetTextColor(28/255, 28/255, 28/255)
@@ -3099,7 +3138,7 @@ local function Tab_Help(frame)
 	Tab_Template(Help, false, true, true)
 	
 	local Txt = Help:CreateFontString(nil, "ARTWORK")
-	Txt: SetFont(C.Font.NumSmall, 18, nil)
+	Txt: SetFont(C.Font.Num, 18, nil)
 	Txt: SetShadowColor(0,0,0,0)
 	Txt: SetShadowOffset(1,-1)
 	--Txt: SetTextColor(28/255, 28/255, 28/255)
@@ -3387,6 +3426,23 @@ end
 --- ------------------------------------------------------------
 
 local Quafe_Config = CreateFrame("Frame", "Quafe_Config", E)
+Quafe_Config.Init = false
+
+local function Quafe_Config_OnShow(frame)
+	if not frame.Init then
+		Create_Config(frame)
+		Tab_Bar(frame)
+		Create_Bars(frame)
+		
+		frame.Info.Tab = 1
+		frame.ConfigScroll: Show()
+		frame.TabBar.Config.Bg: Show()
+		frame.Init = true
+		frame: Hide()
+		frame: Show()
+	end
+end
+
 local function Quafe_Config_Load()
 	Quafe_Config: SetFrameStrata("HIGH")
 	Quafe_Config: SetSize(800, 560)
@@ -3394,22 +3450,15 @@ local function Quafe_Config_Load()
 	tinsert(UISpecialFrames, "Quafe_Config")
 
 	Quafe_Config.Info = {}
-	
-	Create_Config(Quafe_Config)
-	Tab_Bar(Quafe_Config)
-	Create_Bars(Quafe_Config)
 
 	Warning_Reload(Quafe_Config)
 	Warning_Reset(Quafe_Config)
 	Notice_Reload(Quafe_Config)
 	Notice_Reload(Quafe_Config)
 
-	Quafe_Config.Info.Tab = 1
-	Quafe_Config.ConfigScroll: Show()
-	Quafe_Config.TabBar.Config.Bg: Show()
-
 	Quafe_Config: HookScript("OnShow", function(self)
 		PlaySoundFile(F.Path("Sound\\Show.ogg"), "Master")
+		Quafe_Config_OnShow(self)
 	end)
 	Quafe_Config: HookScript("OnHide", function(self)
 		if RELOAD_UI == true then
@@ -3459,6 +3508,7 @@ local function Quafe_Config_Load()
 		self: Hide()
 	end)
 end
+
 Quafe_Config.Load = Quafe_Config_Load
 insert(E.Module, Quafe_Config)
 

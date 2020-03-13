@@ -73,28 +73,28 @@ local HideMainMenuBar = function()
 		frame: SetParent(hiddenFrame)
 	end
 
-	--]]
-
-	--F.HideFrame(MainMenuBar)
-	--MainMenuBar: RegisterEvent("CURRENCY_DISPLAY_UPDATE")
-	--F.HideFrame(MainMenuBarArtFrame, true)
-	--F.HideFrame(OverrideActionBar, true)
-	--F.HideFrame(MultiBarBottomLeft)
-	--F.HideFrame(MultiBarBottomRight)
-	--F.HideFrame(MultiBarLeft)
-	--F.HideFrame(MultiBarRight)
-
-	--ActionBarController: UnregisterAllEvents()
-	--ActionBarController: RegisterEvent("UPDATE_EXTRA_ACTIONBAR")
-
 	--ZoneAbilityFrame.SpellButton.Style: SetAlpha(0.75)
 
-	hook_ActionButton_ShowGrid = function(button)
+	local NormalTextureAlpha = function(button)
 		if ( button.NormalTexture ) then
 			button.NormalTexture: SetVertexColor(1.0, 1.0, 1.0, 1.0);
 		end
 	end
-	hooksecurefunc("ActionButton_ShowGrid", hook_ActionButton_ShowGrid)
+	local DoGrid = function(button)
+		button.noGrid = nil
+	end
+
+	local Hook_NormalTextureAlpha = NormalTextureAlpha
+	local Hook_DoGrid = DoGrid
+
+	hooksecurefunc("ActionButton_ShowGrid", function(button, reason)
+		Hook_NormalTextureAlpha(button)
+		Hook_DoGrid(button)
+	end)
+	hooksecurefunc("ActionButton_HideGrid", function(button, reason)
+		Hook_DoGrid(button)
+	end)
+	MultiActionBar_UpdateGridVisibility()
 end
 
 ----------------------------------------------------------------
@@ -178,7 +178,7 @@ local function ButtonTemplate(f, font_size)
 		_G[name.."FlyoutBorderShadow"]: SetPoint("BOTTOMRIGHT", 2,-2)
 	end
 	
-	ButtonSetFont(_G[name.."HotKey"], C.Font.NumSmall, font_size, "THINOUTLINE")
+	ButtonSetFont(_G[name.."HotKey"], C.Font.Num, font_size, "THINOUTLINE")
 	_G[name.."HotKey"]: ClearAllPoints()
 	_G[name.."HotKey"]: SetPoint("TOPLEFT", 2, -1)
 	_G[name.."HotKey"]: SetTextColor(1,1,1,1)
@@ -187,7 +187,7 @@ local function ButtonTemplate(f, font_size)
 	_G[name.."HotKey"]: SetJustifyH("LEFT")
 	_G[name.."HotKey"]: SetJustifyV("TOP")
 	
-	ButtonSetFont(_G[name.."Count"], C.Font.NumSmall, font_size, "THINOUTLINE")
+	ButtonSetFont(_G[name.."Count"], C.Font.Num, font_size, "THINOUTLINE")
 	_G[name.."Count"]: ClearAllPoints()
 	_G[name.."Count"]: SetPoint("BOTTOMRIGHT", 0, 0)
 	_G[name.."Count"]: SetTextColor(F.Color(C.Color.Y1, 1))
@@ -302,12 +302,12 @@ local function Button_Refresh_Squar(frame, style)
 
 	if style == 1 then
 		font_size = 12
-		ButtonSetFont(_G[name.."HotKey"], C.Font.NumSmall, font_size, "THINOUTLINE")
+		ButtonSetFont(_G[name.."HotKey"], C.Font.Num, font_size, "THINOUTLINE")
 		_G[name.."HotKey"]: SetPoint("TOPLEFT", 2, 0)
 		_G[name.."HotKey"]: SetJustifyH("LEFT")
 		_G[name.."HotKey"]: SetJustifyV("TOP")
 
-		ButtonSetFont(_G[name.."Count"], C.Font.NumSmall, font_size, "THINOUTLINE")
+		ButtonSetFont(_G[name.."Count"], C.Font.Num, font_size, "THINOUTLINE")
 		_G[name.."Count"]: SetPoint("BOTTOMRIGHT", 0, 0)
 		_G[name.."Count"]: SetJustifyH("RIGHT")
 		_G[name.."Count"]: SetJustifyV("BOTTOM")
@@ -317,12 +317,12 @@ local function Button_Refresh_Squar(frame, style)
 		_G[name.."Name"]: SetJustifyH("CENTER")
 	elseif style == 3 then
 		font_size = 12
-		ButtonSetFont(_G[name.."HotKey"], C.Font.NumSmall, font_size, "THINOUTLINE")
+		ButtonSetFont(_G[name.."HotKey"], C.Font.Num, font_size, "THINOUTLINE")
 		_G[name.."HotKey"]: SetPoint("TOPLEFT", 2, -1)
 		_G[name.."HotKey"]: SetJustifyH("LEFT")
 		_G[name.."HotKey"]: SetJustifyV("TOP")
 
-		ButtonSetFont(_G[name.."Count"], C.Font.NumSmall, font_size, "THINOUTLINE")
+		ButtonSetFont(_G[name.."Count"], C.Font.Num, font_size, "THINOUTLINE")
 		_G[name.."Count"]: SetPoint("BOTTOMRIGHT", 0, 0)
 		_G[name.."Count"]: SetJustifyH("RIGHT")
 		_G[name.."Count"]: SetJustifyV("BOTTOM")
@@ -458,7 +458,7 @@ local function Button_Refresh_Ring1(frame)
 		_G[name.."FlyoutBorderShadow"]: SetPoint("BOTTOMRIGHT", 2,-2)
 	end
 	
-	ButtonSetFont(_G[name.."HotKey"], C.Font.NumSmall, font_size, "THINOUTLINE")
+	ButtonSetFont(_G[name.."HotKey"], C.Font.Num, font_size, "THINOUTLINE")
 	_G[name.."HotKey"]: ClearAllPoints()
 	_G[name.."HotKey"]: SetPoint("TOP", 0,-2)
 	_G[name.."HotKey"]: SetTextColor(1,1,1,1)
@@ -467,7 +467,7 @@ local function Button_Refresh_Ring1(frame)
 	_G[name.."HotKey"]: SetJustifyH("CENTER")
 	_G[name.."HotKey"]: SetJustifyV("TOP")
 	
-	ButtonSetFont(_G[name.."Count"], C.Font.NumSmall, font_size, "THINOUTLINE")
+	ButtonSetFont(_G[name.."Count"], C.Font.Num, font_size, "THINOUTLINE")
 	_G[name.."Count"]: ClearAllPoints()
 	_G[name.."Count"]: SetPoint("BOTTOM", 0, 2)
 	_G[name.."Count"]: SetTextColor(F.Color(C.Color.Y1, 1))
@@ -892,7 +892,7 @@ local PetBar_Frame = function(f)
 			
 			local name = f.PetBar["Button"..i]:GetName()
 			_G[name.."Icon"]: SetTexCoord(0,1, (size_x-size_y)*0.5/size_x,(size_x+size_y)*0.5/size_x)
-			_G[name.."HotKey"]: SetFont(C.Font.NumSmall, 10, "THINOUTLINE")
+			_G[name.."HotKey"]: SetFont(C.Font.Num, 10, "THINOUTLINE")
 		end
 	end
 	SlidingActionBarTexture0:SetTexture(nil)
@@ -929,7 +929,7 @@ local StanceBar_Frame = function(f)
 			ButtonTemplate(f.StanceBar["Button"..i])
 			local name = f.StanceBar["Button"..i]:GetName()
 			_G[name.."Icon"]: SetTexCoord(0,1, (size_x-size_y)*0.5/size_x,(size_x+size_y)*0.5/size_x)
-			_G[name.."HotKey"]: SetFont(C.Font.NumSmall, 10, "THINOUTLINE")
+			_G[name.."HotKey"]: SetFont(C.Font.Num, 10, "THINOUTLINE")
 		end
 	end
 	StanceBarLeft:SetTexture(nil)

@@ -278,6 +278,7 @@ end
 
 local function Hook_PaperDollSlotButton(self, unit)
 	local slotID = self:GetID()
+	if not PosSlot[slotID] then return end
 	local ItemLevel, ItemLink, ItemQuality, CurDura, MaxDura
 	
 	ItemLink = GetInventoryItemLink(unit, slotID)
@@ -310,7 +311,7 @@ local function Hook_PaperDollSlotButton(self, unit)
 		ItemFrame: SetAllPoints(self)
 		
 		self.ItemFrame = ItemFrame
-		self.ItemFrame.Level = F.create_Font(self.ItemFrame, C.Font.NumSmall, 12, "OUTLINE", 0, "CENTER", "CENTER")
+		self.ItemFrame.Level = F.create_Font(self.ItemFrame, C.Font.Num, 12, "OUTLINE", 0, "CENTER", "CENTER")
 		self.ItemFrame.Level: SetTextColor(F.Color(C.Color.W4))
 		self.ItemFrame.Level: SetAlpha(0.9)
 		self.ItemFrame.Level: SetPoint("CENTER", self.ItemFrame, "CENTER", 1,0)
@@ -321,23 +322,21 @@ local function Hook_PaperDollSlotButton(self, unit)
 		DuraBar: SetRotatesTexture(true)
 		if PosSlot[slotID] == "Right" then
 			DuraBar: SetOrientation("VERTICAL")
-			DuraBar: SetPoint("BOTTOMLEFT", self.ItemFrame, "BOTTOMRIGHT", 1,1)
-			DuraBar: SetPoint("TOPRIGHT", self.ItemFrame, "TOPRIGHT", 5,-1)
+			DuraBar: SetPoint("BOTTOMLEFT", self.ItemFrame, "BOTTOMRIGHT", 2,2)
+			DuraBar: SetPoint("TOPRIGHT", self.ItemFrame, "TOPRIGHT", 5,-2)
 		elseif PosSlot[slotID] == "Left" then
 			DuraBar: SetOrientation("VERTICAL")
-			DuraBar: SetPoint("BOTTOMLEFT", self.ItemFrame, "BOTTOMLEFT", -5,1)
-			DuraBar: SetPoint("TOPRIGHT", self.ItemFrame, "TOPLEFT", -1,-1)
+			DuraBar: SetPoint("BOTTOMLEFT", self.ItemFrame, "BOTTOMLEFT", -5,2)
+			DuraBar: SetPoint("TOPRIGHT", self.ItemFrame, "TOPLEFT", -2,-2)
 		elseif PosSlot[slotID] == "Top" then
 			DuraBar: SetOrientation("HORIZONTAL")
-			DuraBar: SetPoint("BOTTOMLEFT", self.ItemFrame, "TOPLEFT", 1,1)
-			DuraBar: SetPoint("TOPRIGHT", self.ItemFrame, "TOPRIGHT", -1,5)
+			DuraBar: SetPoint("BOTTOMLEFT", self.ItemFrame, "TOPLEFT", 2,2)
+			DuraBar: SetPoint("TOPRIGHT", self.ItemFrame, "TOPRIGHT", -2,5)
 		end
 		DuraBar: SetMinMaxValues(0, 1)
 		DuraBar: SetValue(0)
 		self.ItemFrame.DuraBar = DuraBar
-		
-		self.ItemFrame.DuraBarBg = F.create_Texture(self.ItemFrame, "BACKGROUND", "White", C.Color.W1, 0.9)
-		self.ItemFrame.DuraBarBg: SetAllPoints(self.ItemFrame.DuraBar)
+		self.ItemFrame.DuraBarBg = F.Create.Backdrop(self.ItemFrame.DuraBar, 3, false, 6, 0, C.Color.W1, 1, C.Color.W2, 1)
 	end
 	if ItemLevel and (ItemLevel > 0) then
 		self.ItemFrame.Level: SetText(ItemLevel)
@@ -345,7 +344,18 @@ local function Hook_PaperDollSlotButton(self, unit)
 		self.ItemFrame.Level: SetText("")
 	end
 	if MaxDura then
-		self.ItemFrame.DuraBar: SetValue(CurDura/(MaxDura+F.Debug))
+		local DuraPercent = CurDura/(MaxDura+F.Debug)
+		if DuraPercent > 0.7 then
+			self.ItemFrame.DuraBar:SetStatusBarColor(F.Color(C.Color.G2))
+			self.ItemFrame.DuraBarBg:SetBackdropBorderColor(F.Color(C.Color.G2))
+		elseif DuraPercent > 0.4 then
+			self.ItemFrame.DuraBar:SetStatusBarColor(F.Color(C.Color.Y1))
+			self.ItemFrame.DuraBarBg:SetBackdropBorderColor(F.Color(C.Color.Y1))
+		else
+			self.ItemFrame.DuraBar:SetStatusBarColor(F.Color(C.Color.R3))
+			self.ItemFrame.DuraBarBg:SetBackdropBorderColor(F.Color(C.Color.R3))
+		end
+		self.ItemFrame.DuraBar: SetValue(DuraPercent)
 		self.ItemFrame.DuraBar: Show()
 	else
 		self.ItemFrame.DuraBar: Hide()
@@ -378,7 +388,7 @@ local function Hook_EquipmentFlyout_DisplayButton(button, paperDollItemSlot)
 		ItemFrame: SetAllPoints(button)
 		
 		button.ItemFrame = ItemFrame
-		button.ItemFrame.Level = F.create_Font(button.ItemFrame, C.Font.NumSmall, 12, "OUTLINE", 0, "CENTER", "CENTER")
+		button.ItemFrame.Level = F.create_Font(button.ItemFrame, C.Font.Num, 12, "OUTLINE", 0, "CENTER", "CENTER")
 		button.ItemFrame.Level: SetTextColor(F.Color(C.Color.W4))
 		button.ItemFrame.Level: SetAlpha(0.9)
 		button.ItemFrame.Level: SetPoint("CENTER", button.ItemFrame, "CENTER", 1,0)
@@ -397,9 +407,7 @@ local function Quafe_CharacterFrame_Load()
 	hooksecurefunc("PaperDollItemSlotButton_Update", function(self)
 		Hook_PaperDollSlotButton(self, "player")
 	end)
-	if F.IsClassic then
-		
-	else
+	if not F.IsClassic then
 		hooksecurefunc("EquipmentFlyout_DisplayButton", function(button, paperDollItemSlot)
 			Hook_EquipmentFlyout_DisplayButton(button, paperDollItemSlot)
 		end)

@@ -316,7 +316,7 @@ local function PartyMember_Template(frame, unit, name)
 	Name: SetSize(104,10)
 	Name: SetPoint("TOP", button, "TOP", 0, -34)
 
-	local Percent = F.Create.Font(Portrait, "OVERLAY", C.Font.NumSmall, 14, nil, C.Color.Main1,1, C.Color.Main0,1, {1,-1})
+	local Percent = F.Create.Font(Portrait, "OVERLAY", C.Font.Num, 14, nil, C.Color.Main1,1, C.Color.Main0,1, {1,-1})
 	Percent: SetPoint("BOTTOMLEFT", button, "BOTTOMLEFT", 4, 34)
 
 	local Help = CreateFrame("Frame", nil, Portrait)
