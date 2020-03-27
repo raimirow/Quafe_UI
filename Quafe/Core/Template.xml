@@ -11,7 +11,7 @@
 	</Frame>
 	
 	<Button name = "Quafe_AuraButtonTemplate" inherits = "SecureActionButtonTemplate" virtual="true">
-		<Size x="26" y="26"/>
+		<Size x="30" y="30"/>
 		<Attributes>
 			<Attribute name="type2" value="cancelaura"/>
 		</Attributes>
@@ -28,6 +28,12 @@
 			<OnLeave function="GameTooltip_Hide"/>
 		</Scripts>
 	</Button>
+
+	<Button name='Quafe_AuraButtonTemplate26' inherits='Quafe_AuraButtonTemplate' virtual='true'><Size x='26' y='26'/></Button>
+	<Button name='Quafe_AuraButtonTemplate28' inherits='Quafe_AuraButtonTemplate' virtual='true'><Size x='28' y='28'/></Button>
+	<Button name='Quafe_AuraButtonTemplate30' inherits='Quafe_AuraButtonTemplate' virtual='true'><Size x='30' y='30'/></Button>
+	<Button name='Quafe_AuraButtonTemplate32' inherits='Quafe_AuraButtonTemplate' virtual='true'><Size x='32' y='32'/></Button>
+	<Button name='Quafe_AuraButtonTemplate34' inherits='Quafe_AuraButtonTemplate' virtual='true'><Size x='34' y='34'/></Button>
 
 	<Frame name = "Quafe_GarrisonNotificationTemplate"  hidden="true" virtual="true">
 		<Animations>

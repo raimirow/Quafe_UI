@@ -1,8 +1,4 @@
 <Ui>
-	<Script file="Color.lua"/>
-	<Script file="Font.lua"/>
-	<Script file="Config.lua"/>
-
 	<Script file="AuraWatcherList.lua"/>
 	<Script file="AuraWatcherListClassic.lua"/>
 	<Script file="Aura.lua"/>
@@ -41,5 +37,6 @@
 	<!-- <Include file="CornerIndicator.xml"/>
 	<Script file="CornerIndicator.lua"/> -->
 	<Script file="InitLayout.lua"/>
+	<Script file="Changelog.lua"/>
 	<Script file="SharedMedia.lua"/>
 </Ui>

@@ -862,7 +862,11 @@ local PetBar_Frame = function(f)
 	f.PetBar = CreateFrame("Frame", "Quafe_ActionPetBar", f, "SecureHandlerStateTemplate")
 	f.PetBar.name = "PetActionButton"
 	f.PetBar.num = NUM_PET_ACTION_SLOTS
-	f.PetBar.visibility = "[petbattle][overridebar][vehicleui][possessbar][shapeshift]hide; [pet]show; hide"
+	if F.IsClassic then
+		f.PetBar.visibility = "[@pet,exists,nopossessbar]show;hide"
+	else
+		f.PetBar.visibility = "[petbattle][overridebar][vehicleui][possessbar][shapeshift]hide; [pet]show; hide"
+	end
 	f.PetBar.blizzardBar = PetActionBarFrame
 	f.PetBar.ButtonSize = 24
 

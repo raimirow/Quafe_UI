@@ -19,6 +19,9 @@ local remove = table.remove
 local wipe = table.wipe
 
 local find = string.find
+
+local BUTTON_SIZE = 30
+local FONT_SIZE = 14
  
 --- ------------------------------------------------------------
 --> 
@@ -165,19 +168,21 @@ local function OnAttributeChanged(button, attribute, value)
 end
 
 local function Icon_Art(button)
+	--button: SetSize(BUTTON_SIZE,BUTTON_SIZE)
+
 	button.Icon = button:CreateTexture(nil, "BORDER")
 	button.Icon: SetTexCoord(0.08, 0.92, 0.08, 0.92)
 	button.Icon: SetAllPoints(button)
 
 	button.CD = button:CreateFontString(nil, "OVERLAY")
-	button.CD: SetFont(C.Font.Num, 12, "OUTLINE")--"THINOUTLINE,MONOCHROME"
+	button.CD: SetFont(C.Font.Num, FONT_SIZE, "OUTLINE")--"THINOUTLINE,MONOCHROME"
 	button.CD: SetShadowColor(0,0,0,0.25)
 	button.CD: SetShadowOffset(1,-1)
 	button.CD: SetJustifyH("CENTER")
 	button.CD: SetPoint("TOP", button, "BOTTOM", 0,-2)
 
 	button.Ct = button:CreateFontString(nil, "OVERLAY")
-	button.Ct: SetFont(C.Font.Num, 12, "OUTLINE")
+	button.Ct: SetFont(C.Font.Num, FONT_SIZE, "OUTLINE")
 	button.Ct: SetShadowColor(0,0,0,0.25)
 	button.Ct: SetShadowOffset(1,1)
 	button.Ct: SetJustifyH("CENTER")
@@ -199,8 +204,8 @@ end
 
 local Buff_Create = function(f)
 	f.Buff = CreateFrame("Frame", "Quafe_BuffFrame.Buff", f, "SecureAuraHeaderTemplate")
-	f.Buff.size = 26
-	f.Buff.fontsize = 12
+	f.Buff.size = BUTTON_SIZE
+	f.Buff.fontsize = FONT_SIZE
 
 	f.Buff: SetAttribute("unit", "player")
 	f.Buff: SetAttribute("filter", "HELPFUL")
@@ -211,21 +216,21 @@ local Buff_Create = function(f)
 	f.Buff: SetAttribute("consolidateTo", 0)
 	f.Buff: SetAttribute("point", "TOPRIGHT")
 	f.Buff: SetAttribute("minWidth", f.Buff.size)
-	f.Buff: SetAttribute("minHeight", f.Buff.size)
+	f.Buff: SetAttribute("minHeight", f.Buff.size+20)
 	f.Buff: SetAttribute("xOffset", -(f.Buff.size+6))
 	f.Buff: SetAttribute("wrapAfter", 0)
 	f.Buff: SetAttribute("maxWraps", 0)
-	f.Buff: SetAttribute("template", "Quafe_AuraButtonTemplate")
-	f.Buff: SetAttribute("weaponTemplate", "Quafe_AuraButtonTemplate")
+	f.Buff: SetAttribute("template", "Quafe_AuraButtonTemplate30")
+	f.Buff: SetAttribute("weaponTemplate", "Quafe_AuraButtonTemplate30")
 	RegisterStateDriver(f.Buff, "visibility", "[petbattle] hide; show")
-	f.Buff: SetSize(f.Buff.size,f.Buff.size)
+	f.Buff: SetSize(f.Buff.size,f.Buff.size+20)
 	f.Buff: SetPoint("TOPRIGHT", f, "TOPRIGHT", 0,0)
 end
 
 local Debuff_Create = function(f)
 	f.Debuff = CreateFrame("Frame", "Quafe_BuffFrame.Debuff", f, "SecureAuraHeaderTemplate")
-	f.Debuff.size = 26
-	f.Debuff.fontsize = 12
+	f.Debuff.size = BUTTON_SIZE
+	f.Debuff.fontsize = FONT_SIZE
 
 	f.Debuff: SetAttribute("unit", "player")
 	f.Debuff: SetAttribute("filter", "HARMFUL")
@@ -236,30 +241,34 @@ local Debuff_Create = function(f)
 	f.Debuff: SetAttribute("consolidateTo", 0)
 	f.Debuff: SetAttribute("point", "TOPRIGHT")
 	f.Debuff: SetAttribute("minWidth", f.Debuff.size)
-	f.Debuff: SetAttribute("minHeight", f.Debuff.size)
+	f.Debuff: SetAttribute("minHeight", f.Debuff.size+20)
 	f.Debuff: SetAttribute("xOffset", -(f.Debuff.size+6))
 	f.Debuff: SetAttribute("wrapAfter", 0)
 	f.Debuff: SetAttribute("maxWraps", 0)
-	f.Debuff: SetAttribute("template", "Quafe_AuraButtonTemplate")
+	f.Debuff: SetAttribute("template", "Quafe_AuraButtonTemplate30")
 	RegisterStateDriver(f.Debuff, "visibility", "[petbattle] hide; show")
-	f.Debuff: SetSize(f.Debuff.size,f.Debuff.size)
-	f.Debuff: SetPoint("TOPRIGHT", f.Buff, "BOTTOMRIGHT", 0,-70)
+	f.Debuff: SetSize(f.Debuff.size,f.Debuff.size+20)
+	f.Debuff: SetPoint("TOPRIGHT", f.Buff, "BOTTOMRIGHT", 0,-10)
 end
---[[
-local BuffFrame_Create = function(f)
-	f.BuffFrame = CreateFrame("Frame", "Qot.BuffFrame", f)
-	f.BuffFrame: SetSize(10,10)
-	f.BuffFrame: SetPoint("TOPRIGHT", UIParent, "TOPRIGHT", -30, -30)
-	Buff_Create(f.BuffFrame)
-	Debuff_Create(f.BuffFrame)
+
+local function Header_Update(frame)
+	--[[
+	local DB = {}
+	if frame:GetAttribute('filter') == 'HELPFUL' then
+		frame: SetAttribute("weaponTemplate", format("Quafe_AuraButtonTemplate%d",DB.Size))
+	end
+	frame: SetAttribute("minWidth", f.Debuff.size)
+	frame: SetAttribute("minHeight", f.Debuff.size)
+	frame: SetAttribute("wrapAfter", 0)
+	frame: SetAttribute("template", format("Quafe_AuraButtonTemplate%d",DB.Size))
+	--]]
 end
-]]--
 
 ----------------------------------------------------------------
 --> Load
 ----------------------------------------------------------------
 
-local Quafe_BuffFrame = CreateFrame("Frame", "Quafe_Default_BuffFrame", E)
+local Quafe_BuffFrame = CreateFrame("Frame", nil, E)
 Quafe_BuffFrame: SetSize(300,100)
 --Quafe_BuffFrame: SetPoint("TOPRIGHT", UIParent, "TOPRIGHT", -30, -30)
 Quafe_BuffFrame.Init = false
@@ -321,8 +330,8 @@ local Quafe_BuffFrame_Config = {
 	Database = {
 		["Quafe_BuffFrame"] = {
 			["Enable"] = true,
-			["PosX"] = -30,
-			["PosY"] = -30,
+			["PosX"] = -20,
+			["PosY"] = -20,
 		},
 	},
 

@@ -2580,7 +2580,7 @@ local function Bank_Frame(f)
 	f.Bank.Extra: EnableMouse(true)
 	f.Bank.Extra: RegisterForDrag("LeftButton","RightButton")
 	f.Bank.Extra: SetScript("OnDragStart", function(self) f.Bank:StartMoving() end)
-	f.Bank.Extra: SetScript("OnDragStop", function(self) f.Bank:StopMovingOrSizing()
+	f.Bank.Extra: SetScript("OnDragStop", function(self)
 		UpdatePostion(f.Bank, Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Container"].BankPos)
 	end)
 	

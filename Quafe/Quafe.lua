@@ -205,13 +205,13 @@ local function Quafe_InterfaceOptions()
 	local QuafeInterfaceOptionsFrame = CreateFrame("Frame", nil, InterfaceOptionsFrame)
 	QuafeInterfaceOptionsFrame: SetSize(396,400)
 
-	local LogoText = F.Create.Font(QuafeInterfaceOptionsFrame, "ARTWORK", C.Font.NumOW, 52, nil, C.Color.Y1,1)
+	local LogoText = F.Create.Font(QuafeInterfaceOptionsFrame, "ARTWORK", C.Font.NumOW, 60, nil, C.Color.Y1,1)
 	LogoText: SetPoint("TOPLEFT", QuafeInterfaceOptionsFrame, "TOPLEFT", 24,-28)
 	LogoText: SetText("Quafe UI")
 	LogoText: SetAlpha(1)
 
-	local VersionText = F.Create.Font(QuafeInterfaceOptionsFrame, "ARTWORK", C.Font.NumOW, 20, nil, C.Color.W3,1)
-	VersionText: SetPoint("BOTTOMLEFT", LogoText, "BOTTOMRIGHT", 10,9)
+	local VersionText = F.Create.Font(QuafeInterfaceOptionsFrame, "ARTWORK", C.Font.NumOW, 22, nil, C.Color.W3,1)
+	VersionText: SetPoint("BOTTOMLEFT", LogoText, "BOTTOMRIGHT", 30,14)
 	local ver = gsub(GetAddOnMetadata("Quafe", "Version"), "%d+%p", "") or ""
 	VersionText: SetText("Version: "..ver)
 	VersionText: SetAlpha(1)

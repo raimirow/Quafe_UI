@@ -1591,7 +1591,7 @@ end
 local function ExpBar_UpdateValue(frame, value)
 	frame._OldValue = value
 	frame.Bar: SetValue(value)
-	frame.Value: SetText(format("%d / %d", value, frame._MaxValue))
+	frame.Value: SetText(format("%s / %s", BreakUpLargeNumbers(value), BreakUpLargeNumbers(frame._MaxValue)))
 end
 
 local function ExpBar_UpdateMaxValue(frame, min_value, max_value)

@@ -4,5 +4,6 @@
 	<Include file="Libraries\Libraries.xml"/>
 	<Include file="Core\Core.xml"/>
 	<Include file="Locales\Locales.xml"/>
+	<Include file="Options\Config.xml"/>
 	<Include file="Modules\Modules.xml"/>
 </Ui>

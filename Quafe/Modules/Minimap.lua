@@ -169,25 +169,20 @@ local function DungeonDifficulty_Artwork(frame)
 
 	local Text1 = F.Create.Font(frame, "ARTWORK", C.Font.Txt, 16, nil, C.Color.W3,1, nil,1, {1,-1}, "LEFT", "CENTER")
 	Text1: SetAlpha(1)
-	Text1: SetPoint("BOTTOMLEFT", Border, "RIGHT", 10,-1)
+	Text1: SetPoint("BOTTOMLEFT", Border, "RIGHT", 10,0)
 
 	local Text2 =  F.Create.Font(frame, "ARTWORK", C.Font.Txt, 12, nil, C.Color.W3,1, nil,1, {1,-1}, "LEFT", "CENTER")
 	Text2: SetAlpha(0)
-	Text2: SetPoint("TOPLEFT", Border, "RIGHT", 10,-3)
+	Text2: SetPoint("TOPLEFT", Border, "RIGHT", 10,-4)
 
 	local Text3 =  F.Create.Font(frame, "ARTWORK", C.Font.Txt, 12, nil, C.Color.W3,1, nil,1, {1,-1}, "LEFT", "CENTER")
 	Text3: SetAlpha(1)
-	Text3: SetPoint("TOPLEFT", Border, "RIGHT", 12,-3)
-	Text3: SetText("XY ")
-
-	local Text4 =  F.Create.Font(frame, "ARTWORK", C.Font.Txt, 12, nil, C.Color.W3,1, nil,1, {1,-1}, "LEFT", "CENTER")
-	Text4: SetAlpha(1)
-	Text4: SetPoint("LEFT", Text3, "RIGHT", 0,0)
+	Text3: SetPoint("TOPLEFT", Border, "RIGHT", 10,-4)
+	Text3: SetText(L['COORD'])
 
 	frame.Text1 = Text1
 	frame.Text2 = Text2
 	frame.Text3 = Text3
-	frame.Text4 = Text4
 end
 
 local function Location_Update(frame)
@@ -227,7 +222,7 @@ end
 local function MapPos_Update(frame)
 	----local px,py = GetPlayerMapPosition("player")
 	local PlayerUiMapID = C_Map.GetBestMapForUnit("player")
-	frame.Text3:SetText(format("XY   %.1f , %.1f", GetPlayerMapPos(PlayerUiMapID)))
+	frame.Text3:SetText(format("%s   %.1f , %.1f", L['COORD'], GetPlayerMapPos(PlayerUiMapID)))
 end
 
 local function Difficulty_Update(frame)

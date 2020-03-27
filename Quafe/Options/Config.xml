@@ -1,0 +1,5 @@
+﻿<Ui>
+    <Script file="Color.lua"/>
+	<Script file="Font.lua"/>
+	<Script file="Config.lua"/>
+</Ui>

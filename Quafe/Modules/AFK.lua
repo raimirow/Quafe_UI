@@ -30,7 +30,7 @@ local camSpeed = 0.05
 
 local function ToggleAwayMode(afk)
 	if afk then
-		--SetView(4)
+		SaveView(5)
 		MoveViewLeftStart(camSpeed)
 	end
 	if not afk then
