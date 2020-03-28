@@ -31,6 +31,8 @@ LOCALE['EDIT'] = '编辑'
 LOCALE['SHOW'] = '显示'
 LOCALE['HIDE'] = '隐藏'
 
+LOCALE['UNFINISHED'] = ' (未完成)'
+
 LOCALE['ALIGN_CENTER'] = '居中对齐' --8.3.0.52
 
 --- ------------------------------------------------------------
@@ -133,7 +135,7 @@ LOCALE['BUFF_FRAME'] = '增益减益栏'
 LOCALE['CHAT_FRAME'] = '聊天栏'
 LOCALE['MINI_MAP'] = '小地图'
 
-LOCALE['ULTIMATE_FRAME'] = '终极技能充能(能量条)' --8.3.0.52
+LOCALE['ULTIMATE_FRAME'] = '终极技能充能 (能量条)' --8.3.0.52
 LOCALE['ALPHA_OUTCOMBAT'] = '脱战透明度' --8.3.0.52
 LOCALE['SYNC_WITH_PLAYERFRAME'] = '与玩家框体同步' --8.3.0.52
 
@@ -267,6 +269,11 @@ LOCALE['MINIMAPICON_LEFT_CLICK'] = '左键点击: 打开设置界面'
 
 --> Clique
 LOCALE['CLIQUE_SUPPORT'] = 'Clique 点击施法支持'
+
+LOCALE['SHOW_HEAD_SLOT'] = '头像显示头部装备'
+LOCALE['SHOW_SHOULDER_SLOT'] = '头像显示肩甲'
+LOCALE['SHOW_CHEST_SLOT'] = '头像显示胸甲'
+LOCALE['SHOW_WAIST_SLOT'] = '头像显示腰带'
 
 ---------------------------------------------------------------
 --> 经典怀旧服

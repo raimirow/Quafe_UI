@@ -31,6 +31,8 @@ LOCALE['EDIT'] = 'Edit'
 LOCALE['SHOW'] = 'Show'
 LOCALE['HIDE'] = 'Hide'
 
+LOCALE['UNFINISHED'] = ' (unfinished)'
+
 LOCALE['ALIGN_CENTER'] = 'Align Center' --8.3.0.52
 
 --- ------------------------------------------------------------
@@ -268,6 +270,11 @@ LOCALE['MINIMAPICON_LEFT_CLICK'] = 'Left click: Open settings'
 
 --> Clique
 LOCALE['CLIQUE_SUPPORT'] = 'Clique click-casting support'
+
+LOCALE['SHOW_HEAD_SLOT'] = 'Show head slot in portrait'
+LOCALE['SHOW_SHOULDER_SLOT'] = 'Show shoulder slot in portrait'
+LOCALE['SHOW_CHEST_SLOT'] = 'Show chest slot in portrait'
+LOCALE['SHOW_WAIST_SLOT'] = 'Show waist slot in portrait'
 
 ---------------------------------------------------------------
 --> 经典怀旧服
