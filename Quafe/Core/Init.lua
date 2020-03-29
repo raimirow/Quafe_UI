@@ -124,7 +124,7 @@ SLASH_CALENDAR2 = "/calendar"
 --> Clear Focus
 SlashCmdList.CLEARFOCUS = ClearFocus
 
---> C.Color.Pink Config Frame
+--> Config Frame
 SlashCmdList["QUAFE"] = function(msg)
 	msg = msg:lower()
 	if msg == "reset" then
@@ -135,20 +135,15 @@ SlashCmdList["QUAFE"] = function(msg)
 		Quafe_DB.Global.AuraWatch = E.Aurawatch
 		DEFAULT_CHAT_FRAME:AddMessage("Quafe AuraWatch has be reset")
 		Quafe_WarningReload()
+	elseif msg == "locale debug" then
+		if F.Locale_Debug then
+			F.Locale_Debug()
+		end
 	else
 		if _G["Quafe_Config"] then _G["Quafe_Config"]: Show() end
+		DEFAULT_CHAT_FRAME:AddMessage("/quafe reset\n>>>Reset quafe savedvariables")
+		DEFAULT_CHAT_FRAME:AddMessage("/quafe aurawatch reset\n>>>Reset quafe aurawatch savedvariables")
 	end
 end
 SLASH_QUAFE1 = "/quafe"
 SLASH_QUAFE2 = "/qf"
-
-
---[[
-
-SET overrideArchive "0" --和谐
-
-SetCVar("cameraDistanceMaxZoomFactor", 2.6) --视野距离 默认1.9，最大2.6。
-
---]]
-
-
