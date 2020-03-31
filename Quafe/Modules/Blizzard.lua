@@ -38,6 +38,9 @@ local function Load()
 	end
 	if Quafe_DB.Profile[Quafe_DBP.Profile].Blizzard.TargetFrame == false then
 		F.HideUnitFrame("TargetFrame", true)
+		if F.IsClassic then
+			F.HideFrame(ComboFrame)
+		end
 	end
 	if Quafe_DB.Profile[Quafe_DBP.Profile].Blizzard.FocusFrame == false then
 		F.HideUnitFrame("FocusFrame")
@@ -98,6 +101,9 @@ local BlizzardFrameHide_Config = {
 						Quafe_DB.Profile[Quafe_DBP.Profile].Blizzard.TargetFrame = false
 						self.Text:SetText(L["OFF"])
 						F.HideUnitFrame("TargetFrame")
+						if F.IsClassic then
+							F.HideFrame(ComboFrame)
+						end
 					else
 						Quafe_DB.Profile[Quafe_DBP.Profile].Blizzard.TargetFrame = true
 						self.Text:SetText(L["ON"])

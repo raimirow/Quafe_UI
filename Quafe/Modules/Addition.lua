@@ -339,3 +339,64 @@ fPA:SetScript("OnEvent", function()
 	PlayerPowerBarAlt:SetPoint("TOP","oUF_BrethrenRFBossPower","TOP")	
 end)
 --]]
+--[[
+local AlterCursor = CreateFrame("Frame", nil, UIParent)
+AlterCursor: SetFrameStrata("TOOLTIP")
+AlterCursor: SetSize(8,8)
+
+local AlterCursorIcon = F.Create.Texture(AlterCursor, "OVERLAY", 1, F.Path("Icons\\MB_Guild"), nil, nil, {32,32})
+AlterCursorIcon: SetPoint("CENTER")
+
+local function Anchor_Cursor()
+	local x, y = GetCursorPosition()
+    local scale = AlterCursor:GetEffectiveScale()
+    AlterCursor:ClearAllPoints()
+    AlterCursor:SetPoint("CENTER", UIParent, "BOTTOMLEFT", floor(x/scale), floor(y/scale))
+end
+
+AlterCursor: SetScript("OnUpdate", Anchor_Cursor)
+
+
+hooksecurefunc("CameraOrSelectOrMoveStart", function() Anchor_Cursor() end)
+hooksecurefunc("TurnOrActionStart", function() Anchor_Cursor() end)
+hooksecurefunc("MouselookStart", function() Anchor_Cursor() end)
+hooksecurefunc("MoveAndSteerStart", function() Anchor_Cursor() end)
+--]]
+
+--[[
+mouseFrame.moveWithMouse = function()
+	local scale = 1 / UIParent:GetEffectiveScale();
+	local x, y =  GetCursorPosition();
+	mouseFrame:SetPoint("CENTER", UIParent, "BOTTOMLEFT", x * scale, y * scale);
+end
+
+local function show(n)
+	cursor[n] = false
+	local x, y = GetCursorPosition()
+	local scale = cursor.scale
+	cursor:SetPoint("TOPLEFT", UIParent, "BOTTOMLEFT", x / scale, y / scale)
+	cursor:Show()
+end
+
+local function hide(n)
+	if n == 3 then
+		cursor[1] = true
+		cursor[2] = true
+		cursor[3] = true
+	else
+		cursor[n] = true
+	end
+	if cursor[1] and cursor[2] and cursor[3] then cursor:Hide() end
+end
+
+
+hooksecurefunc("CameraOrSelectOrMoveStart", function() show(1) end)
+hooksecurefunc("CameraOrSelectOrMoveStop", function() hide(1) end)
+hooksecurefunc("TurnOrActionStart", function() show(2) end)
+hooksecurefunc("TurnOrActionStop", function() hide(2) end)
+hooksecurefunc("MouselookStart", function() show(2) end)
+hooksecurefunc("MouselookStop", function() hide(2) end)
+hooksecurefunc("MoveAndSteerStart", function() show(3) end)
+hooksecurefunc("MoveAndSteerStop", function() hide(3) end)
+MovieFrame:HookScript("OnMovieFinished", function() hide(3) end)
+--]]
