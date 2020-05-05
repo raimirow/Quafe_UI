@@ -1,5 +1,5 @@
 ## Interface: 80300
-## Version: 8.3.0.68
+## Version: 8.3.0.69
 ## Author: Raimirow (voidiver)
 ## Title: Quafe
 ## Notes: Quafe

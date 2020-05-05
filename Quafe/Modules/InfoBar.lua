@@ -837,7 +837,7 @@ local function Friend_ListRefresh(frame)
 	end
 end
 
-local function Frient_ListUpdate_Retail(frame)
+local function Friend_ListUpdate_Retail(frame)
 	local MAX_LINES = 30
 	local nameText, nameColor
 	local i,j = 1,1
@@ -928,7 +928,7 @@ local function Frient_ListUpdate_Retail(frame)
 	frame: SetHeight((i-1)*24+2)
 end
 
-local function Frient_ListUpdate_Classic(frame)
+local function Friend_ListUpdate_Classic(frame)
 	local MAX_LINES = 30
 	local nameText, nameColor
 	local i,j = 1,1
@@ -992,7 +992,7 @@ local function Frient_ListUpdate_Classic(frame)
 			if friendInfo and friendInfo.connected then
 				if not frame.List[i] then
 					frame.List[i] = CreateFrame("Button", nil, f)
-					Friend_ListTemplate(f.List[i])
+					Friend_ListTemplate(frame.List[i])
 					if i == 1 then
 						frame.List[i]: SetPoint("TOP", f, "TOP", 0,-2)
 					else
@@ -1025,9 +1025,9 @@ end
 local function Friend_ListUpdate(frame)
 	Friend_ListRefresh(frame)
 	if F.IsClassic then
-		Frient_ListUpdate_Classic(frame)
+		Friend_ListUpdate_Classic(frame)
 	else
-		Frient_ListUpdate_Retail(frame)
+		Friend_ListUpdate_Retail(frame)
 	end
 end
 
