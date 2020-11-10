@@ -77,7 +77,7 @@ local function PartyMember_Template(frame)
 	local Percent = F.Create.Font(button, "OVERLAY", C.Font.Num, 14, nil, C.Color.Main1,1, C.Color.Main0,1, {1,-1})
 	Name: SetPoint("BOTTOMLEFT", button, "BOTTOMLEFT", 4, 34)
 
-	local help = CreateFrame("Frame", nil, Portrait)
+	local help = CreateFrame("Frame", nil, Portrait, "BackdropTemplate")
 	help: SetPoint("TOPLEFT", -2,2)
 	help: SetPoint("BOTTOMRIGHT", 2,-2)
 	help: SetBackdrop({
@@ -164,7 +164,7 @@ function PartyButton_OnLoad(self)
 	end)
 	self: SetScript("OnLeave", F.UnitFrame_OnLeave)
 
-	local help = CreateFrame("Frame", nil, self.Portrait)
+	local help = CreateFrame("Frame", nil, self.Portrait, "BackdropTemplate")
 	help: SetPoint("TOPLEFT", -2,2)
 	help: SetPoint("BOTTOMRIGHT", 2,-2)
 	help: SetBackdrop({

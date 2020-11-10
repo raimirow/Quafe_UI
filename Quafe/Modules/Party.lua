@@ -154,7 +154,7 @@ local function UnitFrame_UpdateUnitEvents(frame)
 	end
 	frame: RegisterUnitEvent("UNIT_MAXHEALTH", unit, displayedUnit);
 	frame: RegisterUnitEvent("UNIT_HEALTH", unit, displayedUnit);
-	frame: RegisterUnitEvent("UNIT_HEALTH_FREQUENT", unit, displayedUnit);
+	--frame: RegisterUnitEvent("UNIT_HEALTH_FREQUENT", unit, displayedUnit);
 	frame: RegisterUnitEvent("UNIT_MAXPOWER", unit, displayedUnit);
 	frame: RegisterUnitEvent("UNIT_POWER_UPDATE", unit, displayedUnit);
 	frame: RegisterUnitEvent("UNIT_AURA", unit, displayedUnit);
@@ -319,7 +319,7 @@ local function PartyMember_Template(frame, unit, name)
 	local Percent = F.Create.Font(Portrait, "OVERLAY", C.Font.Num, 14, nil, C.Color.Main1,1, C.Color.Main0,1, {1,-1})
 	Percent: SetPoint("BOTTOMLEFT", button, "BOTTOMLEFT", 4, 34)
 
-	local Help = CreateFrame("Frame", nil, Portrait)
+	local Help = CreateFrame("Frame", nil, Portrait, "BackdropTemplate")
 	Help: SetPoint("TOPLEFT", -2,2)
 	Help: SetPoint("BOTTOMRIGHT", 2,-2)
 	Help: SetBackdrop({

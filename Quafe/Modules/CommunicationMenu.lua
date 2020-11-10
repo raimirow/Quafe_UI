@@ -583,20 +583,21 @@ local function Currency_BarArtwork(f)
 end
 
 local TokenList = {}
+local CurrencyInfo = {}
 local function Currency_Update(f)
-	local listSize = GetCurrencyListSize()
+	local listSize = C_CurrencyInfo.GetCurrencyListSize()
 	local listing = 0
 	wipe(TokenList)
+	wipe(CurrencyInfo)
 	for i = 1, listSize do
-		local name, isHeader, isExpanded, isUnused, isWatched, count, icon, maximum, hasWeeklyLimit, currentWeeklyAmount, unknown = GetCurrencyListInfo(i)
-		if isHeader then
+		CurrencyInfo = C_CurrencyInfo.GetCurrencyListInfo(i)
+		if CurrencyInfo.isHeader then
 			listing = listing + 1
 		end
-		if (not isHeader) and (not isUnused) then
-			if (listing == 1) then
-				insert(TokenList, {name, i, isExpanded, isUnused, isWatched, count, icon, maximum, hasWeeklyLimit, currentWeeklyAmount})
-			elseif isWatched then
-				insert(TokenList, {name, i, isExpanded, isUnused, isWatched, count, icon, maximum, hasWeeklyLimit, currentWeeklyAmount})
+		if (not CurrencyInfo.isHeader) and (not CurrencyInfo.isTypeUnused) then
+			if (listing == 1) or CurrencyInfo.isShowInBackpack then
+				--insert(TokenList, {name, i, isExpanded, isUnused, isWatched, count, icon, maximum, hasWeeklyLimit, currentWeeklyAmount})
+				insert(TokenList, {i, CurrencyInfo})
 			end
 		end
 	end
@@ -622,13 +623,13 @@ local function Currency_Update(f)
 			end)
 		end
 		f.Token[i]:Show()
-		f.Token[i].ID = TokenList[i][2]
-		f.Token[i].Icon: SetTexture(TokenList[i][7])
-		f.Token[i].Name: SetText(TokenList[i][1])
-		if TokenList[i][8] and (TokenList[i][8] > 0) then
-			f.Token[i].Num: SetText(format("%s%s/%s|r", TokenList[i][6],F.Hex(C.Color.B1),TokenList[i][8]))
+		f.Token[i].ID = TokenList[i][1]
+		f.Token[i].Icon: SetTexture(TokenList[i][2].iconFileID)
+		f.Token[i].Name: SetText(TokenList[i][2].name)
+		if TokenList[i][2].maxQuantity and (TokenList[i][2].maxQuantity > 0) then
+			f.Token[i].Num: SetText(format("%s%s/%s|r", TokenList[i][2].quantity,F.Hex(C.Color.B1),TokenList[i][2].maxQuantity))
 		else
-			f.Token[i].Num: SetText(TokenList[i][6])
+			f.Token[i].Num: SetText(TokenList[i][2].quantity)
 		end
 		if (floor(i/2) == i/2) then
 			f.Token[i].Bg: SetVertexColor(F.Color(C.Color.W4))
@@ -754,7 +755,7 @@ local function EquipSet_Update(f)
 	local EquipmentSetIDs = C_EquipmentSet.GetEquipmentSetIDs()
 	for i,v in ipairs(EquipmentSetIDs) do
 		if not f.Set[i] then
-			f.Set[i] = CreateFrame("Button", nil, f)
+			f.Set[i] = CreateFrame("Button", nil, f, "BackdropTemplate")
 			f.Set[i]: SetSize(160,32)
 			
 			EquipSet_Template(f.Set[i])
@@ -925,7 +926,7 @@ end
 local function Spec_ButtonUpdate(f)
 	for i = 1, f.SpecNum do
 		if not f.Button[i] then
-			f.Button[i] = CreateFrame("Button", nil, f)
+			f.Button[i] = CreateFrame("Button", nil, f, "BackdropTemplate")
 			f.Button[i]: SetSize(160,44)
 			
 			local id, name, description, icon, background = GetSpecializationInfo(i)

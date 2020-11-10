@@ -36,7 +36,7 @@ local create_Backdrop = function(f)
 	local d1 = 2
 	local d2 = 8
 	if f.Shadow then return end
-	f.Shadow = CreateFrame("Frame", nil, f)
+	f.Shadow = CreateFrame("Frame", nil, f, "BackdropTemplate")
 	f.Shadow: SetFrameLevel(f:GetFrameLevel()-1)
 	f.Shadow: SetFrameStrata(f:GetFrameStrata())
 	f.Shadow:SetPoint("TOPLEFT", -d1, d1)
@@ -58,7 +58,7 @@ local function create_Border(f)
 	local d1 = -2
 	local d2 = 2
 	if f.Beyond then return end
-	f.Beyond = CreateFrame("Frame", nil, f)
+	f.Beyond = CreateFrame("Frame", nil, f, "BackdropTemplate")
 	f.Beyond: SetFrameLevel(f:GetFrameLevel()+1)
 	f.Beyond: SetFrameStrata(f:GetFrameStrata())
 	f.Beyond: SetPoint("TOPLEFT", -d1, d1)

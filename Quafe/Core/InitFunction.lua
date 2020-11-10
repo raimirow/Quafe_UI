@@ -626,7 +626,7 @@ F.Smooth_Update = function(frame)
 end
 
 function F.create_Backdrop(f, d1, d2, d3, color1,alpha1, color2,alpha2)
-	local bg = CreateFrame("Frame", nil, f)
+	local bg = CreateFrame("Frame", nil, f, BackdropTemplateMixin and "BackdropTemplate")
 	bg: SetFrameLevel(f:GetFrameLevel()-1)
 	bg: SetFrameStrata(f:GetFrameStrata())
 	bg:SetPoint("TOPLEFT", -d1, d1)
@@ -640,7 +640,6 @@ function F.create_Backdrop(f, d1, d2, d3, color1,alpha1, color2,alpha2)
 		edgeSize = d2,
 		insets = { left = d3, right = d3, top = d3, bottom = d3 }
 	})
-	
 	bg: SetBackdropColor(F.Color(color1, alpha1))
 	bg: SetBackdropBorderColor(F.Color(color2, alpha2))
 	f.Bg = bg
@@ -733,7 +732,7 @@ function F.Create.Font(frame, layer, fontname, fontsize, outline, textcolor, tex
 end
 
 function F.Create.Backdrop(frame, d1, circular, d2, d3, color1, alpha1, color2, alpha2)
-	local Backdrop = CreateFrame("Frame", nil, frame)
+	local Backdrop = CreateFrame("Frame", nil, frame, BackdropTemplateMixin and "BackdropTemplate")
 	Backdrop: SetFrameLevel(frame:GetFrameLevel()-1)
 	Backdrop: SetFrameStrata(frame:GetFrameStrata())
 	d1 = d1 or 0
@@ -767,7 +766,7 @@ function F.Create.Backdrop(frame, d1, circular, d2, d3, color1, alpha1, color2, 
 end
 
 function F.create_StatusBar(f, texture, orientation, rotate)
-	local sb = CreateFrame("StatusBar", nil, f)
+	local sb = CreateFrame("StatusBar", nil, f, BackdropTemplateMixin and "BackdropTemplate")
 	if texture then
 		sb: SetStatusBarTexture(F.Path(texture))
 	end

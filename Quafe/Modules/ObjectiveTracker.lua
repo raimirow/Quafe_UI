@@ -40,7 +40,7 @@ local function ObjectiveTracker_Frame(frame)
 				ObjectiveTrackerFrame.MODULES[i].Header.Text: SetShadowColor(0, 0, 0, 1)
 				ObjectiveTrackerFrame.MODULES[i].Header.Text: SetShadowOffset(1, 1)
 			end
-			local numEntries, numQuests = GetNumQuestLogEntries()
+			local numEntries, numQuests = C_QuestLog.GetNumQuestLogEntries()
 			ObjectiveTrackerBlocksFrame.QuestHeader.Text:SetText(TRACKER_HEADER_QUESTS.."  "..numQuests.."/"..MAX_QUESTS)
 		end
 	end

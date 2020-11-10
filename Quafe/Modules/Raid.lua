@@ -136,7 +136,7 @@ local function UnitFrame_UpdateUnitEvents(frame)
 	end
 	frame: RegisterUnitEvent("UNIT_MAXHEALTH", unit, displayedUnit);
 	frame: RegisterUnitEvent("UNIT_HEALTH", unit, displayedUnit);
-	frame: RegisterUnitEvent("UNIT_HEALTH_FREQUENT", unit, displayedUnit);
+	--frame: RegisterUnitEvent("UNIT_HEALTH_FREQUENT", unit, displayedUnit);
 	frame: RegisterUnitEvent("UNIT_MAXPOWER", unit, displayedUnit);
 	frame: RegisterUnitEvent("UNIT_POWER_UPDATE", unit, displayedUnit);
 	frame: RegisterUnitEvent("UNIT_AURA", unit, displayedUnit);
@@ -228,7 +228,7 @@ local function CenterStatusIcon_Update(frame)
 			frame.centerStatusIcon: SetAtlas("Raid-Icon-SummonDeclined")
 			frame.centerStatusIcon: Show()
 		end
-	elseif (not F.IsClassic) and (not UnitInPhase(frame.Unit) or UnitIsWarModePhased(frame.Unit)) then
+	elseif (not F.IsClassic) and UnitPhaseReason(frame.Unit) then
 		frame.CenterStatusIcon: SetTexture(F.Path("Raid_Phasing"))
 		frame.CenterStatusIcon: Show()
 	else
@@ -394,7 +394,7 @@ local function Raid5Button_OnEvent(self, event, ...)
 		GroupLeaderIndicator_Update(self)
 	elseif event == "UNIT_ENTERED_VEHICLE" or event == "UNIT_EXITED_VEHICLE" then
 		Raid5Button_UpdateAll(self)
-	elseif event == "UNIT_HEALTH_FREQUENT" then
+	elseif event == "UNIT_HEALTH" then
 		Raid5_Health_Update(self, self.DisplayedUnit)
 	elseif event == "UNIT_MAXHEALTH" then
 		Raid5_MaxHealth_Update(self, self.DisplayedUnit)
@@ -491,7 +491,7 @@ local function Raid5Button_Template(frame, unit, name)
 	local PpBarBg = F.Create.Texture(button, "BORDER", 1, F.Path("Party\\Raid_P"), C.Color.W2, 0.5, {100,50}, {78/256,178/256, 7/64,57/64})
 	PpBarBg: SetPoint("LEFT", button, "LEFT", 0,0)
 
-	local Bar1 = CreateFrame("StatusBar", nil, button)
+	local Bar1 = CreateFrame("StatusBar", nil, button, "BackdropTemplate")
 	Bar1: SetStatusBarTexture(F.Path("StatusBar\\Raid"), "ARTWORK")
 	Bar1: SetSize(100,4)
 	Bar1: SetPoint("CENTER")
@@ -589,6 +589,7 @@ end
 local function Quafe_Raid5_Load()
 	if Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_PartyRaid"].Raid5 then
 		RegisterStateDriver(Quafe_Raid5, "visibility", "[@raid6,exists]hide;[@party1,exists]show;hide")
+		--RegisterStateDriver(Quafe_Raid5, "visibility", "show")
 		local Party = {}
 		for i = 1,5 do
 			if i == 1 then
@@ -628,6 +629,7 @@ local function Quafe_Raid5_Toggle(arg)
 		else
 			if not Quafe_Raid5:IsForbidden() then
 				RegisterStateDriver(Quafe_Raid5, "visibility", "[@raid6,exists]hide;[@party1,exists]show;hide")
+				--RegisterStateDriver(Quafe_Raid5, "visibility", "show")
 				for i = 1,5 do
 					Raid5Button_RgEvent(Quafe_Raid5.Party[i])
 				end
@@ -639,7 +641,9 @@ local function Quafe_Raid5_Toggle(arg)
 			UnregisterStateDriver(Quafe_Raid5, "visibility")
 			Quafe_Raid5: Hide()
 			for i = 1,5 do
-				Quafe_Raid5.Party[i]: UnregisterAllEvents()
+				if Quafe_Raid5.Party then
+					Quafe_Raid5.Party[i]: UnregisterAllEvents()
+				end
 			end
 		end
 		--Quafe_NoticeReload()

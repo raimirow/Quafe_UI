@@ -81,7 +81,7 @@ local function QuafeChatMenu_SetShown(frame, editbox)
 end
 
 local function MenuButton_Template(frame, editbox)
-	local MenuButton = CreateFrame("Button", frame:GetName().."MenuButton", frame)
+	local MenuButton = CreateFrame("Button", frame:GetName().."MenuButton", frame, "BackdropTemplate")
 	MenuButton: SetFrameLevel(frame:GetFrameLevel()+1)
 	MenuButton: SetWidth(28)
 	MenuButton: SetPoint("TOPRIGHT", editbox, "TOPLEFT", -4,-3)
@@ -193,7 +193,7 @@ local function Quafe_ChatFrame_Skin_Event(f, event)
 			Tab.noMouseAlpha = 0
 			ChatFrame: SetClampedToScreen(true)
 			
-			local FrameBack = CreateFrame("Frame", frameName.."_Backdrop", ChatFrame)
+			local FrameBack = CreateFrame("Frame", frameName.."_Backdrop", ChatFrame, "BackdropTemplate")
 			FrameBack: SetFrameLevel(ChatFrame:GetFrameLevel()-1)
 			if i == 2 then
 				FrameBack: SetPoint("TOPLEFT", ChatFrame, "TOPLEFT", -4-28,26)
@@ -295,7 +295,7 @@ local function Quafe_ChatFrame_Skin_Event(f, event)
 			EditBox: SetPoint("TOPLEFT", ChatFrame, "BOTTOMLEFT", 0, -4)
 			EditBox: SetPoint("TOPRIGHT", ChatFrame, "BOTTOMRIGHT", -26, -4)
 
-			local EditBoxBack = CreateFrame("Frame", nil, EditBox)
+			local EditBoxBack = CreateFrame("Frame", nil, EditBox, "BackdropTemplate")
 			EditBoxBack: SetFrameLevel(EditBox:GetFrameLevel()-1)
 			EditBoxBack: SetPoint("TOPLEFT", EditBox, "TOPLEFT", 0, -3)
 			EditBoxBack: SetPoint("BOTTOMRIGHT", EditBox, "BOTTOMRIGHT", 4+26, 3)
@@ -457,7 +457,7 @@ local function ChatMenu_ChannelOnClick(frame, button, chattype, index)
 end
 
 local function ChatMenu_ChatFrame(frame)
-	local ChatFrame = CreateFrame("Frame", nil, frame)
+	local ChatFrame = CreateFrame("Frame", nil, frame, "BackdropTemplate")
 	ChatFrame: SetSize(150,10+22*10)
 	ChatFrame: SetBackdrop({
 		bgFile = F.Path("White"),
@@ -471,7 +471,7 @@ local function ChatMenu_ChatFrame(frame)
 
 	local Channels = {}
 	for k,v in ipairs(CHAT_CHANNEL) do
-		Channels[k] = CreateFrame("Button", nil, ChatFrame)
+		Channels[k] = CreateFrame("Button", nil, ChatFrame, "BackdropTemplate")
 		Channels[k]: SetSize(138, 20)
 		if k == 1 then
 			Channels[k]: SetPoint("BOTTOM", ChatFrame, "BOTTOM", 0,6)
@@ -505,7 +505,7 @@ local function ChatMenu_ChatFrame(frame)
 end
 
 local function ChatMenu_ChannelFrame(frame)
-	local ChannelFrame = CreateFrame("Frame", nil, frame)
+	local ChannelFrame = CreateFrame("Frame", nil, frame, "BackdropTemplate")
 	ChannelFrame: SetSize(200,10+22*10)
 	ChannelFrame: SetBackdrop({
 		bgFile = F.Path("White"),
@@ -519,7 +519,7 @@ local function ChatMenu_ChannelFrame(frame)
 
 	local Channels = {}
 	for k = 1,10 do
-		Channels[k] = CreateFrame("Button", nil, ChannelFrame)
+		Channels[k] = CreateFrame("Button", nil, ChannelFrame, "BackdropTemplate")
 		Channels[k]: SetSize(188, 20)
 		if k == 1 then
 			Channels[k]: SetPoint("BOTTOM", ChannelFrame, "BOTTOM", 0,6)
@@ -580,7 +580,7 @@ local function ChatMenu_ChannelFrame(frame)
 end
 
 local function ChatMenu_LanguageFrame(frame)
-	local LanguageFrame = CreateFrame("Frame", nil, frame)
+	local LanguageFrame = CreateFrame("Frame", nil, frame, "BackdropTemplate")
 	LanguageFrame: SetSize(150,10+22*2)
 	LanguageFrame: SetBackdrop({
 		bgFile = F.Path("White"),
@@ -594,7 +594,7 @@ local function ChatMenu_LanguageFrame(frame)
 
 	local Languages = {}
 	for k = 1,2 do
-		Languages[k] = CreateFrame("Button", nil, LanguageFrame)
+		Languages[k] = CreateFrame("Button", nil, LanguageFrame, "BackdropTemplate")
 		Languages[k]: SetSize(138, 20)
 		if k == 1 then
 			Languages[k]: SetPoint("BOTTOM", LanguageFrame, "BOTTOM", 0,6)
@@ -729,7 +729,7 @@ local CHATMENU_LIST = {
 }
 
 local function Quafe_ChatMenu(frame)
-	local ChatMenuFrame = CreateFrame("Frame", "QuafeChatMenu", frame)
+	local ChatMenuFrame = CreateFrame("Frame", "QuafeChatMenu", frame, "BackdropTemplate")
 	ChatMenuFrame: SetSize(100,10+22*4)
 	ChatMenuFrame: SetBackdrop({
 		bgFile = F.Path("White"),
@@ -743,7 +743,7 @@ local function Quafe_ChatMenu(frame)
 
 	local Menus = {}
 	for k,v in ipairs(CHATMENU_LIST) do
-		Menus[k] = CreateFrame("Button", nil, ChatMenuFrame)
+		Menus[k] = CreateFrame("Button", nil, ChatMenuFrame, "BackdropTemplate")
 		Menus[k]: SetSize(88, 20)
 		if k == 1 then
 			Menus[k]: SetPoint("BOTTOM", ChatMenuFrame, "BOTTOM", 0,6)

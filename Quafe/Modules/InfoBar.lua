@@ -73,7 +73,7 @@ local MICROMENU_BUTTONS = {
 }
 
 local function MicroMenu_Frame(f)
-	local MicroMenu = CreateFrame("Button", "Quafe_InfoBar.MicroMenuButton", f, "SecureHandlerEnterLeaveTemplate")
+	local MicroMenu = CreateFrame("Button", "Quafe_InfoBar.MicroMenuButton", f, "SecureHandlerEnterLeaveTemplate, BackdropTemplate")
 	MicroMenu: SetSize(32,26)
 	MicroMenu: SetPoint("BOTTOMLEFT", f, "BOTTOMLEFT", 0,0)
 	--MicroMenu: SetAlpha(1)
@@ -89,7 +89,7 @@ local function MicroMenu_Frame(f)
 	Icon: SetSize(16,16)
 	Icon: SetPoint("CENTER", MicroMenu, "CENTER", 0,0)
 
-	local MenuContainer = CreateFrame("Frame", nil, MicroMenu, "SecureHandlerEnterLeaveTemplate")
+	local MenuContainer = CreateFrame("Frame", nil, MicroMenu, "SecureHandlerEnterLeaveTemplate, BackdropTemplate")
 	MenuContainer: SetFrameStrata("HIGH")
 	MenuContainer: SetSize(44,10+22*(#MICROMENU_BUTTONS))
 	MenuContainer: SetPoint("BOTTOMLEFT", MicroMenu, "TOPLEFT", 0,4)
@@ -141,7 +141,7 @@ local function MicroMenu_Frame(f)
 			self[7].factionGroup = nil
 		end
 
-		if ( IsTrialAccount() or (IsVeteranTrialAccount() and not IsInGuild()) or factionGroup == "Neutral" or F.IsClassic or IsKioskModeEnabled() ) then
+		if ( IsTrialAccount() or (IsVeteranTrialAccount() and not IsInGuild()) or factionGroup == "Neutral" or F.IsClassic or (IsKioskModeEnabled and IsKioskModeEnabled()) ) then
 			self[6]:Disable()
 		else
 			if ( IsInGuild() ) then
@@ -153,17 +153,17 @@ local function MicroMenu_Frame(f)
 			end
 		end
 
-		if ( playerLevel < self[7].minLevel or factionGroup == "Neutral" ) then
+		--if ( playerLevel < self[7].minLevel or factionGroup == "Neutral" ) then
 			--self[7]:Disable();
-		else
+		--else
 			--self[7]:Enable();
-			self[7]:SetButtonState("NORMAL");
-		end
+		--	self[7]:SetButtonState("NORMAL");
+		--end
 	end
 
 	local Button = {}
 	for i = 1,#MICROMENU_BUTTONS do
-		Button[i] = CreateFrame("Button", nil, MenuContainer, "SecureActionButtonTemplate")
+		Button[i] = CreateFrame("Button", nil, MenuContainer, "SecureActionButtonTemplate, BackdropTemplate")
 		Button[i]: SetSize(32,20)
 		Button[i]: SetBackdrop(MicroMenuBackdrop)
 		Button[i]: SetBackdropColor(F.Color(C.Color.W2, 0.8))
@@ -256,7 +256,7 @@ local function MicroMenu_Frame(f)
 	--Button[6].tooltipText = MicroButtonTooltipText(LOOKINGFORGUILD, "TOGGLEGUILDTAB")
 	--> LFDMicroButton
 	--Button[7].tooltipText = MicroButtonTooltipText(DUNGEONS_BUTTON, "TOGGLEGROUPFINDER")
-	Button[7].minLevel = math.min(SHOW_LFD_LEVEL, SHOW_PVP_LEVEL)
+	--Button[7].minLevel = SHOW_SPEC_LEVEL
 	--> EJMicroButton
 	--Button[8].tooltipText = MicroButtonTooltipText(ENCOUNTER_JOURNAL, "TOGGLEENCOUNTERJOURNAL")
 	--> CollectionsMicroButton
@@ -271,7 +271,8 @@ local function MicroMenu_Frame(f)
 		MicroMenuButton_Update(Button)
 	end)
 
-	MicroMenu: SetFrameRef("Menu", MenuContainer)
+	--MicroMenu: SetFrameRef("Menu", MenuContainer)
+	SecureHandlerSetFrameRef(MicroMenu, "Menu", MenuContainer)
 	MicroMenu: SetAttribute("_onenter", [[
 		local Menu = self:GetFrameRef("Menu")
 		Menu:Show()
@@ -314,7 +315,7 @@ local function Hook_TimeManagerFrame()
 end
 
 local function Time_Frame(f)
-	f.TimeFrame = CreateFrame("Button", nil, f)
+	f.TimeFrame = CreateFrame("Button", nil, f, "BackdropTemplate")
 	f.TimeFrame: SetSize(48,26)
 	f.TimeFrame: SetPoint("BOTTOMLEFT", f.MicroMenu, "BOTTOMRIGHT", 0,0)
 	f.TimeFrame: RegisterForClicks("LeftButtonUp", "RightButtonUp")
@@ -350,8 +351,12 @@ local function Time_Frame(f)
 	f.TimeFrame: SetScript("OnEnter", function(self)
 		-- weekday, month, day, year = CalendarGetDate()
 		local date, weekday, month, day
-		date = C_DateAndTime.GetTodaysDate()
-		day = date.day
+		--date = C_DateAndTime.GetTodaysDate()
+		date = C_DateAndTime.GetCurrentCalendarTime()
+		--for k,v in pairs(date) do
+		--	print(k,v)
+		--end
+		day = date.monthDay
 		weekday = date.weekDay
 		month = date.month
 
@@ -417,7 +422,7 @@ local function Network_OnEnter(self)
 end
 
 local function Network_Frame(f)
-	local network = CreateFrame("Button", nil, f)
+	local network = CreateFrame("Button", nil, f, "BackdropTemplate")
 	network: SetSize(32,26)
 	network: SetPoint("BOTTOMLEFT", f.TimeFrame, "BOTTOMRIGHT", 0,0)
 	network: RegisterForClicks("LeftButtonUp", "RightButtonUp")
@@ -658,7 +663,7 @@ end
 local function MBC_Frame(f)
 	local MBCC_TimeToHide = 0
 	--local MBCFrame = CreateFrame("Button", nil, f, "SecureHandlerEnterLeaveTemplate")
-	local MBCFrame = CreateFrame("Button", nil, f)
+	local MBCFrame = CreateFrame("Button", nil, f, "BackdropTemplate")
 	MBCFrame: SetSize(32,26)
 	MBCFrame: SetPoint("BOTTOMLEFT", f.Network, "BOTTOMRIGHT", 0,0)
 	MBCFrame: RegisterForClicks("LeftButtonUp", "RightButtonUp")
@@ -674,7 +679,7 @@ local function MBC_Frame(f)
 	Icon: SetPoint("CENTER", MBCFrame, "CENTER", 0,0)
 	
 	--local MBContainer = CreateFrame("Frame", "Quafe_InfoBar.MBCC", MBCFrame, "SecureHandlerEnterLeaveTemplate")
-	local MBContainer = CreateFrame("Frame", "Quafe_InfoBar.MBCC", MBCFrame)
+	local MBContainer = CreateFrame("Frame", "Quafe_InfoBar.MBCC", MBCFrame, "BackdropTemplate")
 	MBContainer: SetFrameStrata("HIGH")
 	MBContainer: SetPoint("BOTTOMLEFT", MBCFrame, "TOPLEFT", 0,4)
 	MBContainer: SetBackdrop(backdrop)
@@ -1032,7 +1037,7 @@ local function Friend_ListUpdate(frame)
 end
 
 local function Friend_Frame(f)
-	local Friend = CreateFrame("Button", nil, f)
+	local Friend = CreateFrame("Button", nil, f, "BackdropTemplate")
 	Friend: SetSize(48,26)
 	Friend: SetPoint("BOTTOMLEFT", f.MBCFrame, "BOTTOMRIGHT", 0,0)
 	Friend: RegisterForClicks("LeftButtonUp", "RightButtonUp")
@@ -1052,7 +1057,7 @@ local function Friend_Frame(f)
 	Num: SetPoint("CENTER", Friend, "RIGHT", -14,0)
 	Num: SetText("00")
 
-	local ListHold = CreateFrame("Frame", nil, Friend)
+	local ListHold = CreateFrame("Frame", nil, Friend, "BackdropTemplate")
 	ListHold: SetFrameStrata("TOOLTIP")
 	ListHold: SetWidth(244)
 	ListHold: SetPoint("BOTTOMLEFT", Friend, "TOPLEFT", 0,4)
@@ -1134,7 +1139,7 @@ local function Guild_Artwork(frame)
 	FlashGlow: SetAlpha(0.5)
 	FlashGlow: SetAllPoints(frame)
 
-	local ListHold = CreateFrame("Frame", nil, frame)
+	local ListHold = CreateFrame("Frame", nil, frame, "BackdropTemplate")
 	ListHold: SetFrameStrata("TOOLTIP")
 	ListHold: SetWidth(244)
 	ListHold: SetPoint("BOTTOMLEFT", frame, "TOPLEFT", 0,4)
@@ -1189,7 +1194,7 @@ local function Guild_Event(self, event, ...)
 end
 
 local function Guild_Frame(frame)
-	local Guild = CreateFrame("Button", nil, frame)
+	local Guild = CreateFrame("Button", nil, frame, "BackdropTemplate")
 	Guild: SetSize(48,26)
 	Guild: SetPoint("BOTTOMLEFT", frame.Friend, "BOTTOMRIGHT", 0,0)
 	Guild: RegisterForClicks("LeftButtonUp", "RightButtonUp")
@@ -1218,7 +1223,12 @@ local function Guild_Frame(frame)
 	end
 	Guild: SetScript("OnEvent", Guild_Event)
 
-	GuildRoster()
+	if F.IsClassic then 
+		GuildRoster()
+	else
+		C_GuildInfo.GuildRoster()
+	end
+	
 	GuildMember_Update(Guild)
 	GuildNotification_Update(Guild)
 
@@ -1255,7 +1265,7 @@ end
 --- ------------------------------------------------------------
 
 local function MeetingStone_Frame(f)
-	f.MeetingStone = CreateFrame("Button", nil, f)
+	f.MeetingStone = CreateFrame("Button", nil, f, "BackdropTemplate")
 	f.MeetingStone: SetSize(48,26)
 	f.MeetingStone: SetPoint("BOTTOMLEFT", f.Guild, "BOTTOMRIGHT", 0,0)
 	f.MeetingStone: RegisterForClicks("LeftButtonUp", "RightButtonUp")
@@ -1345,7 +1355,7 @@ local function ToggleWIM(parent)
 end
 
 local function WIM_Frame(f)
-	local WIM = CreateFrame("Button", nil, f)
+	local WIM = CreateFrame("Button", nil, f, "BackdropTemplate")
 	WIM: SetSize(32,26)
 	WIM: SetPoint("BOTTOMLEFT", f.MeetingStone, "BOTTOMRIGHT", 0,0)
 	WIM: RegisterForClicks("LeftButtonUp", "RightButtonUp")

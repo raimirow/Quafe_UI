@@ -105,11 +105,16 @@ local function TalkingHead_RePos(f)
 		
 		f.Style = true
 	end
-	local displayInfo, cameraID, vo, duration, lineNumber, numLines, name, text, isNewTalkingHead, textureKitID = C_TalkingHead.GetCurrentLineInfo();
+	--local displayInfo, cameraID, vo, duration, lineNumber, numLines, name, text, isNewTalkingHead, textureKitID = C_TalkingHead.GetCurrentLineInfo();
+	local displayInfo, cameraID, vo, duration, lineNumber, numLines, name, text, isNewTalkingHead, textureKit = C_TalkingHead.GetCurrentLineInfo();
 	if ( displayInfo and displayInfo ~= 0 ) then
-		local textureKit
-		if ( textureKitID ~= 0 ) then
-			textureKit = GetUITextureKitInfo(textureKitID);
+		--local textureKit
+		--if ( textureKitID ~= 0 ) then
+		--	textureKit = GetUITextureKitInfo(textureKitID);
+		--else
+		--	textureKit = "Normal";
+		--end
+		if textureKit then
 		else
 			textureKit = "Normal";
 		end

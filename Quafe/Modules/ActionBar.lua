@@ -87,13 +87,14 @@ local HideMainMenuBar = function()
 	local Hook_NormalTextureAlpha = NormalTextureAlpha
 	local Hook_DoGrid = DoGrid
 
-	hooksecurefunc("ActionButton_ShowGrid", function(button, reason)
-		Hook_NormalTextureAlpha(button)
-		Hook_DoGrid(button)
-	end)
-	hooksecurefunc("ActionButton_HideGrid", function(button, reason)
-		Hook_DoGrid(button)
-	end)
+	--hooksecurefunc("ActionButton_ShowGrid", function(button, reason)
+	--	Hook_NormalTextureAlpha(button)
+	--	Hook_DoGrid(button)
+	--end)
+
+	--hooksecurefunc("ActionButton_HideGrid", function(button, reason)
+	--	Hook_DoGrid(button)
+	--end)
 	MultiActionBar_UpdateGridVisibility()
 end
 
@@ -217,7 +218,7 @@ local function ButtonTemplate(f, font_size)
 		_G[name.."NormalTexture"]:SetPoint("BOTTOMRIGHT", 0,0)
 	end
 
-	f.Bg = CreateFrame("Frame", nil, f)
+	f.Bg = CreateFrame("Frame", nil, f, "BackdropTemplate")
 	f.Bg: SetFrameLevel(f:GetFrameLevel()-1)
 	SetPointTemplate(f.Bg)
 	f.Bg: SetBackdrop(backdrop)
@@ -334,7 +335,7 @@ local function Button_Refresh_Squar(frame, style)
 
 	--_G[name.."Icon"]: SetTexCoord(0.08,0.92, 0.08,0.92)
 	
-	frame.Bg = CreateFrame("Frame", nil, frame)
+	frame.Bg = CreateFrame("Frame", nil, frame, "BackdropTemplate")
 	frame.Bg: SetFrameLevel(frame:GetFrameLevel()-1)
 	SetPointTemplate(frame.Bg)
 	frame.Bg: SetBackdrop(backdrop)
@@ -973,12 +974,12 @@ local function ZoneAbility_Frame(f)
 	
 	ZoneAbilityFrame: SetParent(f.ZoneAbility)
 	ZoneAbilityFrame: EnableMouse(false)
-	ZoneAbilityFrameNormalTexture: SetAlpha(0)
-	ZoneAbilityFrame.SpellButton.Style: SetAlpha(0)
-	f.ZoneAbility.Button = ZoneAbilityFrame.SpellButton
-	f.ZoneAbility.Button: SetSize(36,36)
-	f.ZoneAbility.Button: ClearAllPoints()
-	f.ZoneAbility.Button: SetPoint("CENTER", f.ZoneAbility, "CENTER", 0,0)
+	--ZoneAbilityFrameNormalTexture: SetAlpha(0)
+	--ZoneAbilityFrame.SpellButton.Style: SetAlpha(0)
+	--f.ZoneAbility.Button = ZoneAbilityFrame.SpellButton
+	--f.ZoneAbility.Button: SetSize(36,36)
+	--f.ZoneAbility.Button: ClearAllPoints()
+	--f.ZoneAbility.Button: SetPoint("CENTER", f.ZoneAbility, "CENTER", 0,0)
 end
 
 local VehicleExit_Frame = function(f)
@@ -1006,7 +1007,9 @@ local VehicleExit_Frame = function(f)
 			GameTooltip:AddLine(TAXI_CANCEL_DESCRIPTION, NORMAL_FONT_COLOR.r, NORMAL_FONT_COLOR.g, NORMAL_FONT_COLOR.b, true)
 			GameTooltip:Show()
 		else
-			GameTooltip_AddNewbieTip(self, LEAVE_VEHICLE, 1.0, 1.0, 1.0, nil)
+			GameTooltip:SetOwner(self, "ANCHOR_RIGHT")
+			GameTooltip:SetText(LEAVE_VEHICLE, 1, 1, 1)
+			--GameTooltip_SetTitle(GameTooltip, LEAVE_VEHICLE)
 		end
 	end)
 	f.VehicleExit.Button: SetScript("OnLeave", function(self, event)

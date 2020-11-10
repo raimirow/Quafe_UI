@@ -32,7 +32,7 @@ local create_Backdrop = function(f)
 	local d1 = 4
 	local d2 = 8
 	if f.Shadow then return end
-	f.Shadow = CreateFrame("Frame", nil, f)
+	f.Shadow = CreateFrame("Frame", nil, f, "BackdropTemplate")
 	f.Shadow: SetFrameLevel(0)
 	f.Shadow: SetFrameStrata(f:GetFrameStrata())
 	f.Shadow:SetPoint("TOPLEFT", -d1, d1)

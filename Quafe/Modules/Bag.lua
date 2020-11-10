@@ -18,6 +18,10 @@ local insert = table.insert
 local GetItemClassInfo = _G.GetItemClassInfo
 local GetItemSubClassInfo = _G.GetItemSubClassInfo
 
+local MAX_CONTAINER_ITEMS = 36
+local NUM_CONTAINER_COLUMNS = 4
+local BACKPACK_BASE_SIZE = 16
+
 --- ------------------------------------------------------------
 --> Bag
 --- ------------------------------------------------------------
@@ -420,7 +424,7 @@ local function Init_BagGap(f, classtable, p, bank)
 		parent = f
 	end
 	for k, v in pairs(classtable) do
-		local frame = CreateFrame("Button", nil, parent)
+		local frame = CreateFrame("Button", nil, parent, "BackdropTemplate")
 		frame: SetSize(config.buttonSize, config.buttonSize)
 
 		local icon = frame:CreateTexture(nil, "ARTWORK")
@@ -453,7 +457,7 @@ local function Init_BagGap(f, classtable, p, bank)
 	end
 
 	--> NewItem
-	local NewItem = CreateFrame("Button", nil, parent)
+	local NewItem = CreateFrame("Button", nil, parent, "BackdropTemplate")
 	NewItem: SetSize(config.buttonSize, config.buttonSize)
 
 	local NewItemIcon = NewItem:CreateTexture(nil, "ARTWORK")
@@ -571,7 +575,7 @@ local function Create_BagItemButton(f, bagID, slotID)
 
 	local slotName = button: GetName()
 
-	button.Border = CreateFrame("Frame", nil, button)
+	button.Border = CreateFrame("Frame", nil, button, "BackdropTemplate")
 	button.Border: SetFrameLevel(button:GetFrameLevel()+1)
 	button.Border: SetAllPoints(button)
 
@@ -1658,7 +1662,7 @@ local function BagExtra_Frame(f)
 		button.icon: SetAllPoints(button)
 		button.icon: SetTexCoord(0.1,0.9, 0.1,0.9)
 		
-		button.Border = CreateFrame("Frame", nil, button)
+		button.Border = CreateFrame("Frame", nil, button, "BackdropTemplate")
 		button.Border: SetFrameLevel(button:GetFrameLevel()+1)
 		button.Border: SetAllPoints(button)
 
@@ -2471,7 +2475,7 @@ local function BankExtra_Frame(f)
 		button.icon: SetAllPoints(button)
 		button.icon: SetTexCoord(0.1,0.9, 0.1,0.9)
 		
-		button.Border = CreateFrame("Frame", nil, button)
+		button.Border = CreateFrame("Frame", nil, button, "BackdropTemplate")
 		button.Border: SetFrameLevel(button:GetFrameLevel()+1)
 		button.Border: SetAllPoints(button)
 

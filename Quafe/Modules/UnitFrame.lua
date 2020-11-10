@@ -132,14 +132,14 @@ local function BGU_Player_Event(frame, event, ...)
 			BGU_UpdateManaMax(frame.Mana, frame)
 			BGU_UpdateMana(frame.Mana, frame, "Player", "MN")
 		end
-	elseif event == "UNIT_HEALTH_FREQUENT" then
+	elseif event == "UNIT_HEALTH" then
 		BGU_UpdateHealth(frame.Health, frame, "Player", "HP")
 	elseif event == "UNIT_MAXHEALTH" then
 		BGU_UpdateHealthMax(frame.Health, frame)
 		BGU_UpdateHealth(frame.Health, frame, "Player", "HP")
 		BGU_UpdateHealthMax(frame.Absorb, frame)
 		BGU_UpdateAbsorb(frame.Absorb, frame, "Player", "AS")
-	elseif event == "UNIT_POWER_FREQUENT" then
+	elseif event == "UNIT_POWER_UPDATE" then
 		BGU_UpdatePower(frame.Power, frame, "Player", "PP")
 		if frame.ShowMana == "Show" then
 			BGU_UpdateMana(frame.Mana, frame, "Player", "MN")
@@ -158,9 +158,9 @@ end
 
 local function BGU_Player_RegEvent(frame)
 	frame: RegisterEvent("PLAYER_ENTERING_WORLD")
-	frame: RegisterUnitEvent("UNIT_HEALTH_FREQUENT", "player", "vehicle")
+	frame: RegisterUnitEvent("UNIT_HEALTH", "player", "vehicle")
 	frame: RegisterUnitEvent("UNIT_MAXHEALTH", "player", "vehicle")
-	frame: RegisterUnitEvent("UNIT_POWER_FREQUENT", "player", "vehicle")
+	frame: RegisterUnitEvent("UNIT_POWER_UPDATE", "player", "vehicle")
 	frame: RegisterUnitEvent("UNIT_MAXPOWER", "player", "vehicle")
 	if not F.IsClassic then
 		frame: RegisterUnitEvent("UNIT_ABSORB_AMOUNT_CHANGED", "player", "vehicle")
@@ -335,14 +335,14 @@ local function BGU_Target_Event(frame, event, ...)
 			--BGU_UpdateManaMax(frame.Mana, frame)
 			--BGU_UpdateMana(frame.Mana, frame, "Target", "MN")
 		end
-	elseif event == "UNIT_HEALTH_FREQUENT" then
+	elseif event == "UNIT_HEALTH" then
 		BGU_UpdateHealth(frame.Health, frame, "Target", "HP")
 	elseif event == "UNIT_MAXHEALTH" then
 		BGU_UpdateHealthMax(frame.Health, frame)
 		BGU_UpdateHealth(frame.Health, frame, "Target", "HP")
 		BGU_UpdateHealthMax(frame.Absorb, frame)
 		BGU_UpdateAbsorb(frame.Absorb, frame, "Target", "AS")
-	elseif event == "UNIT_POWER_FREQUENT" then
+	elseif event == "UNIT_POWER_UPDATE" then
 		BGU_UpdatePower(frame.Power, frame, "Target", "PP")
 		if frame.ShowMana == "Show" then
 			--BGU_UpdateMana(frame.Mana, frame, "Target", "MN")
@@ -362,9 +362,9 @@ end
 local function BGU_Target_RegEvent(frame)
 	frame: RegisterEvent("PLAYER_ENTERING_WORLD")
 	frame: RegisterEvent("PLAYER_TARGET_CHANGED")
-	frame: RegisterUnitEvent("UNIT_HEALTH_FREQUENT", "target")
+	frame: RegisterUnitEvent("UNIT_HEALTH", "target")
 	frame: RegisterUnitEvent("UNIT_MAXHEALTH", "target")
-	frame: RegisterUnitEvent("UNIT_POWER_FREQUENT", "target")
+	frame: RegisterUnitEvent("UNIT_POWER_UPDATE", "target")
 	frame: RegisterUnitEvent("UNIT_MAXPOWER", "target")
 	if not F.IsClassic then
 		frame: RegisterUnitEvent("UNIT_ABSORB_AMOUNT_CHANGED", "target")
