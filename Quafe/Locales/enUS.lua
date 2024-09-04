@@ -167,6 +167,7 @@ LOCALE['BIG_TN'] = "Big text and number" -- v64
 --> Mouse
 LOCALE['MOUSE'] = "Mouse"
 LOCALE['RAW_MOUSE'] = "Raw Mouse"
+LOCALE['RAW_MOUSE_ACCELERATION'] = "Raw Mouse Acceleration"
 LOCALE['MOUSE_POLLING'] = "Mouse Polling（Hz）"
 LOCALE['MOUSE_RESOLUTION'] = "Mouse Resolution（DPI）"
 

@@ -164,7 +164,7 @@ end
 
 local function Setupwizard_Artwork(frame)
     local Backdrop = F.Create.Backdrop(frame, 2, true, 6, 6, C.Color.Main0, 0.9, C.Color.Main0, 0.9)
-    local TiTle = F.Create.Font(frame, "ARTWORK", C.Font.Txt, 20, nil, C.Color.W3,1, C.Color.Config.Back,1, {1,-1}, "LEFT", "CENTER")
+    local TiTle = F.Create.Font(frame, "ARTWORK", C.Font.Txt, 20, nil, C.Color.W3,1, C.Color.Config.Back,1, {1,-1}, "LEFT", "MIDDLE")
     TiTle: SetText("Quafe UI "..L['SETUP_WIZARD'])
     TiTle: SetPoint("CENTER", frame, "TOP", 0,-60)
 	local Line = F.Create.Texture(frame, "ARTWORK", 1, F.Path("White"), C.Color.W3, 0.25, {360,2})

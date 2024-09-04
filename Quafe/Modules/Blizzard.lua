@@ -31,13 +31,19 @@ local MAX_BOSS_FRAMES = MAX_BOSS_FRAMES or 5
 --> sourced from FrameXML/PartyMemberFrame.lua
 local MAX_PARTY_MEMBERS = MAX_PARTY_MEMBERS or 4
 
+local hookedNameplates = {}
+local isArenaHooked = false
+local isBossHooked = false
+local isPartyHooked = false
+
 local BlizzardFrameHide = CreateFrame("Frame", nil, E)
 local function Load()
 	if Quafe_DB.Profile[Quafe_DBP.Profile].Blizzard.PlayerFrame == false then
 		F.HideUnitFrame("PlayerFrame")
+		F.HideUnitFrame("PetFrame")
 	end
 	if Quafe_DB.Profile[Quafe_DBP.Profile].Blizzard.TargetFrame == false then
-		F.HideUnitFrame("TargetFrame", true)
+		F.HideUnitFrame("TargetFrame", false, true)
 		if F.IsClassic then
 			F.HideFrame(ComboFrame)
 		end
@@ -46,13 +52,28 @@ local function Load()
 		F.HideUnitFrame("FocusFrame")
 	end
 	if Quafe_DB.Profile[Quafe_DBP.Profile].Blizzard.PartyFrame == false then
-		for i = 1, MAX_PARTY_MEMBERS do
-			F.HideUnitFrame(string.format('PartyMemberFrame%d', i))
+		if(not isPartyHooked) then
+			isPartyHooked = true
+			--for i = 1, MAX_PARTY_MEMBERS do
+			--	F.HideUnitFrame(string.format('PartyMemberFrame%d', i))
+			--end
+			F.HideUnitFrame(PartyFrame)
+			for frame in PartyFrame.PartyMemberFramePool:EnumerateActive() do
+				F.HideUnitFrame(frame, true)
+			end
+
+			for i = 1, MEMBERS_PER_RAID_GROUP do
+				F.HideUnitFrame('CompactPartyFrameMember' .. i)
+			end
 		end
 	end
 	if Quafe_DB.Profile[Quafe_DBP.Profile].Blizzard.BossFrame == false then
-		for i = 1, MAX_BOSS_FRAMES do
-			F.HideUnitFrame(string.format('Boss%dTargetFrame', i))
+		if(not isBossHooked) then
+			isBossHooked = true
+			F.HideUnitFrame(BossTargetFrameContainer)
+			for i = 1, MAX_BOSS_FRAMES do
+				F.HideUnitFrame(string.format('Boss%dTargetFrame', i), true)
+			end
 		end
 	end
 end

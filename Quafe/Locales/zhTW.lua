@@ -166,6 +166,7 @@ LOCALE['BIG_TN'] = "大文字和數字" -- v64
 --> Mouse
 LOCALE['MOUSE'] = "滑鼠"
 LOCALE['RAW_MOUSE'] = "原生滑鼠（Raw Mouse）"
+LOCALE['RAW_MOUSE_ACCELERATION'] = "滑鼠移动加速"
 LOCALE['MOUSE_POLLING'] = "滑鼠數據更新頻率（Hz）"
 LOCALE['MOUSE_RESOLUTION'] = "滑鼠移動的每英寸點數（DPI）"
 

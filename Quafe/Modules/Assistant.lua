@@ -145,8 +145,8 @@ end
 
 local function SkinOrderHall_Load()
 	if F.IsClassic then return end
-	if (not IsAddOnLoaded("Blizzard_OrderHallUI")) then
-		LoadAddOn("Blizzard_OrderHallUI")
+	if (not C_AddOns.IsAddOnLoaded("Blizzard_OrderHallUI")) then
+		C_AddOns.LoadAddOn("Blizzard_OrderHallUI")
 	end
 	Quafe_SkinOrderHall.Info.Alpha = OrderHallCommandBar.Background:GetAlpha()
 	Quafe_SkinOrderHall.Info.Texture = OrderHallCommandBar.Background:GetTexture()
@@ -181,7 +181,7 @@ local function Get_ItemGem(itemLink)
 	if not itemLink then return end
 	local num = 0
 	local gems = {}
-	local stats = GetItemStats(itemLink)
+	local stats = C_Item.GetItemStats(itemLink)
 	if stats then
 		for k, v in pairs(stats) do
 			if find(k, "EMPTY_SOCKET_") then
@@ -191,7 +191,7 @@ local function Get_ItemGem(itemLink)
 	end
 	if num > 0 then
 		for i = 1, num do
-			local name, link = GetItemGem(itemLink, i)
+			local name, link = C_Item.GetItemGem(itemLink, i)
 			insert(gems, {Name = name, Link = link})
 		end
 	end
@@ -311,9 +311,10 @@ local function Hook_PaperDollSlotButton(self, unit)
 		ItemFrame: SetAllPoints(self)
 		
 		self.ItemFrame = ItemFrame
-		self.ItemFrame.Level = F.create_Font(self.ItemFrame, C.Font.Num, 12, "OUTLINE", 0, "CENTER", "CENTER")
-		self.ItemFrame.Level: SetTextColor(F.Color(C.Color.W4))
-		self.ItemFrame.Level: SetAlpha(0.9)
+		--self.ItemFrame.Level = F.create_Font(self.ItemFrame, C.Font.Num, 12, "OUTLINE", 0, "CENTER", "CENTER")
+		self.ItemFrame.Level = F.Create.Font(self.ItemFrame, "ARTWORK", C.Font.Num, 12, "OUTLINE", C.Color.W4, 0.9, nil, nil, nil, "CENTER", "MIDDLE")
+		--self.ItemFrame.Level: SetTextColor(F.Color(C.Color.W4))
+		--self.ItemFrame.Level: SetAlpha(0.9)
 		self.ItemFrame.Level: SetPoint("CENTER", self.ItemFrame, "CENTER", 1,0)
 		
 		local DuraBar = CreateFrame("StatusBar", nil, self.ItemFrame)
@@ -374,7 +375,7 @@ local function Hook_EquipmentFlyout_DisplayButton(button, paperDollItemSlot)
 	end
 	local itemLink,itemLevel
 	if bags then
-		itemLink = GetContainerItemLink(bagID, slotID)
+		itemLink = C_Container.GetContainerItemLink(bagID, slotID)
 	else
 		itemLink = GetInventoryItemLink("player", slotID)
 	end
@@ -388,9 +389,10 @@ local function Hook_EquipmentFlyout_DisplayButton(button, paperDollItemSlot)
 		ItemFrame: SetAllPoints(button)
 		
 		button.ItemFrame = ItemFrame
-		button.ItemFrame.Level = F.create_Font(button.ItemFrame, C.Font.Num, 12, "OUTLINE", 0, "CENTER", "CENTER")
-		button.ItemFrame.Level: SetTextColor(F.Color(C.Color.W4))
-		button.ItemFrame.Level: SetAlpha(0.9)
+		--button.ItemFrame.Level = F.create_Font(button.ItemFrame, C.Font.Num, 12, "OUTLINE", 0, "CENTER", "CENTER")
+		button.ItemFrame.Level = F.Create.Font(button.ItemFrame, "ARTWORK", C.Font.Num, 12, "OUTLINE", C.Color.W4, 0.9, nil, nil, nil, "CENTER", "MIDDLE")
+		--button.ItemFrame.Level: SetTextColor(F.Color(C.Color.W4))
+		--button.ItemFrame.Level: SetAlpha(0.9)
 		button.ItemFrame.Level: SetPoint("CENTER", button.ItemFrame, "CENTER", 1,0)
 	end
 	if itemLevel  and (itemLevel > 0) then

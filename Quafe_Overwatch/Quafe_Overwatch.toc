@@ -1,0 +1,12 @@
+## Interface: 100207, 110002
+## Version: 11.10
+## Author: Raimirow (voidiver)
+## Title: Quafe |cffFEFEFFOVERWATCH|r
+## Notes: Quafe_Overwatch
+## Notes-zhCN: Quafe 守望先锋风格
+
+## IconTexture: Interface\Addons\Quafe\Media\Minimap\MinimapButton_Icon
+
+## RequiredDeps: Quafe
+
+Quafe_Overwatch.xml

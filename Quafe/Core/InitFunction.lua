@@ -42,18 +42,29 @@ local function CheckClassic()
 	end
 end
 
+--- WOW PROJECT ID
+--- 1	WOW_PROJECT_MAINLINE					Retail
+--- 2	WOW_PROJECT_CLASSIC						Classic Era
+--- 3	WOW_PROJECT_WOWLABS						Plunderstorm
+--- 5	WOW_PROJECT_BURNING_CRUSADE_CLASSIC		Burning Crusade Classic
+--- 11	WOW_PROJECT_WRATH_CLASSIC				Wrath Classic
+--- 14	WOW_PROJECT_CATACLYSM_CLASSIC			Cataclysm Classic
+
+F.IsRetail = (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE)
 F.IsClassic = (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC)
+F.IsCata = (WOW_PROJECT_ID == WOW_PROJECT_CATACLYSM_CLASSIC)
+
 local function Get_WoW_Project()
 	if (WOW_PROJECT_ID == WOW_PROJECT_MAINLINE) then
 		return 1 --> Retail
 	elseif (WOW_PROJECT_ID == WOW_PROJECT_CLASSIC) then
 		return 2 --> Classic
 	else
-		return 3 --> Other
+		return 0 --> Other
 	end
 end
 F.Project = Get_WoW_Project()
---> WOW_PROJECT_ID == WOW_PROJECT_MAINLINE == 1 -- for BfA / main line / retail
+--> WOW_PROJECT_ID == WOW_PROJECT_MAINLINE == 1 -- for main line / retail
 --> WOW_PROJECT_ID == WOW_PROJECT_CLASSIC == 2 -- for WoW Classic
 
 ----------------------------------------------------------------
@@ -655,6 +666,9 @@ function F.create_Font(f, name, size, outline, alpha, horizon, vertical)
 		fs:SetJustifyH(horizon)
 	end
 	if vertical then
+		if vertical == "CENTER" then
+			vertical = "MIDDLE"
+		end
 		fs:SetJustifyV(vertical)
 	end
 	return fs
@@ -677,24 +691,46 @@ end
 F.Create = {}
 
 function F.Create.Texture(frame, layer, sublayer, texture, color, alpha, size, coord)
-	local Dummy = frame:CreateTexture(nil, layer, nil, sublayer)
-	if texture then
-		Dummy: SetTexture(texture)
+	if type(layer) == "table" then
+		local Info = layer
+		Info.layer = Info.layer or "ARTWORK"
+		Info.sublayer = Info.sublayer or 0  --[-8, 7] = 0
+		local Dummy = frame:CreateTexture(Info.name, Info.layer, Info.template, Info.sublayer)
+		if Info.texture then
+			Dummy: SetTexture(Info.texture)
+		end
+		if Info.color then
+			Dummy: SetVertexColor(F.Color(Info.color))
+		end
+		if Info.alpha then
+			Dummy: SetAlpha(Info.alpha)
+		end
+		if Info.size then
+			Dummy: SetSize(Info.size[1], Info.size[2])
+		end
+		if Info.coord then
+			Dummy: SetTexCoord(Info.coord[1],Info.coord[2],Info.coord[3],Info.coord[4])
+		end
+		return Dummy
+	else
+		local Dummy = frame:CreateTexture(nil, layer, nil, sublayer)
+		if texture then
+			Dummy: SetTexture(texture)
+		end
+		if color then
+			Dummy: SetVertexColor(F.Color(color))
+		end
+		if alpha then
+			Dummy: SetAlpha(alpha)
+		end
+		if size then
+			Dummy: SetSize(unpack(size))
+		end
+		if coord then
+			Dummy: SetTexCoord(unpack(coord))
+		end
+		return Dummy
 	end
-	if color then
-		Dummy: SetVertexColor(F.Color(color))
-	end
-	if alpha then
-		Dummy: SetAlpha(alpha)
-	end
-	if size then
-		Dummy: SetSize(unpack(size))
-	end
-	if coord then
-		Dummy: SetTexCoord(unpack(coord))
-	end
-
-	return Dummy
 end
 
 function F.Create.MaskTexture(frame, texture, size)
@@ -711,57 +747,141 @@ end
 
 function F.Create.Font(frame, layer, fontname, fontsize, outline, textcolor, textalpha, sdcolor, sdalpha, sdoffset, horizon, vertical)
 	if not frame then return end
-	local Dummy = frame:CreateFontString(nil, layer)
-	Dummy: SetFont(fontname, fontsize, outline)
-	if textcolor then
-		Dummy: SetTextColor(F.Color(textcolor, textalpha))
+	local DEFAULT = {
+		layer = "ARTWORK",
+		fontname= C.Font.Txt,
+		fontsize = 14,
+		outline = "",
+		textcolor = nil,
+		textalpha = 1,
+		sdcolor = nil,
+		sdalpha = 1,
+		sdoffset = {0,0},
+		horizon = nil,
+		vertical = nil,
+	}
+	local Info = {}
+	if not layer then
+		Info = DEFAULT
+	elseif type(layer) == "table" then
+		Info = layer
+		Info.layer = Info.layer or DEFAULT.layer
+		Info.fontname = Info.fontname or DEFAULT.fontname
+		Info.fontsize = Info.fontsize or DEFAULT.fontsize
+		Info.outline = Info.outline or DEFAULT.outline
+	else
+		Info.layer = layer or DEFAULT.layer
+		Info.fontname = fontname or DEFAULT.fontname
+		Info.fontsize = fontsize or DEFAULT.fontsize
+		Info.outline = outline or DEFAULT.outline
+		Info.textcolor = textcolor or DEFAULT.textcolor
+		Info.textalpha = textalpha or DEFAULT.textalpha
+		Info.sdcolor = sdcolor or DEFAULT.sdcolor
+		Info.sdalpha = sdalpha or DEFAULT.sdalpha
+		Info.sdoffset = sdoffset or DEFAULT.sdoffset
+		Info.horizon = horizon or DEFAULT.horizon
+		Info.vertical = vertical or DEFAULT.vertical
 	end
-	if sdcolor then
-		Dummy: SetShadowColor(F.Color(sdcolor, sdalpha))
+	local Dummy = frame:CreateFontString(nil, Info.layer, nil)
+	Dummy: SetFont(Info.fontname, Info.fontsize, Info.outline)
+	if Info.textcolor then
+		Dummy: SetTextColor(F.Color(Info.textcolor, Info.textalpha))
 	end
-	if sdoffset then
-		Dummy: SetShadowOffset(unpack(sdoffset))
+	if Info.sdcolor then
+		Dummy: SetShadowColor(F.Color(Info.sdcolor, Info.sdalpha))
 	end
-	if horizon then
-		Dummy: SetJustifyH(horizon)
+	if Info.sdoffset then
+		Dummy: SetShadowOffset(unpack(Info.sdoffset))
 	end
-	if vertical then
-		Dummy: SetJustifyV(vertical)
+	if Info.horizon then
+		Dummy: SetJustifyH(Info.horizon)
+	end
+	if Info.vertical then
+		if Info.vertical == "CENTER" then
+			Info.vertical = "MIDDLE"
+		end
+		Dummy: SetJustifyV(Info.vertical) --TOP, MIDDLE, BOTTOM
 	end
 	return Dummy
 end
 
 function F.Create.Backdrop(frame, d1, circular, d2, d3, color1, alpha1, color2, alpha2)
 	local Backdrop = CreateFrame("Frame", nil, frame, BackdropTemplateMixin and "BackdropTemplate")
-	Backdrop: SetFrameLevel(frame:GetFrameLevel()-1)
-	Backdrop: SetFrameStrata(frame:GetFrameStrata())
-	d1 = d1 or 0
-	Backdrop:SetPoint("TOPLEFT", -d1, d1)
-	Backdrop:SetPoint("BOTTOMLEFT", -d1, -d1)
-	Backdrop:SetPoint("TOPRIGHT", d1, d1)
-	Backdrop:SetPoint("BOTTOMRIGHT", d1, -d1)
-	if circular then
+	local DEFAULT = {
+		wide = 0,
+		round = false,
+		border = false,
+		edge = 0,
+		inset = 0,
+		cBg = C.Color.Config.Back,
+		aBg = 1,
+		cBd = C.Color.Config.Back,
+		aBd = 1,
+	}
+	local Info = {}
+	if not d1 then
+		Info = DEFAULT
+	elseif type(d1) == "table" then
+		Info = d1
+		Info.wide = Info.wide or DEFAULT.wide
+		Info.round = Info.round or DEFAULT.round
+		Info.border = Info.border or DEFAULT.border
+		Info.edge = Info.edge or DEFAULT.edge
+		Info.inset = Info.inset or DEFAULT.inset
+		Info.cBg = Info.cBg or DEFAULT.cBg
+		Info.aBg = Info.aBg or DEFAULT.aBg
+		Info.cBd = Info.cBd or DEFAULT.cBd
+		Info.aBd = Info.aBd or DEFAULT.aBd
+	else
+		Info.wide = d1 or DEFAULT.wide
+		Info.round = circular or DEFAULT.round
+		Info.edge = d2 or DEFAULT.edge
+		Info.inset = d3 or DEFAULT.inset
+		Info.cBg = color1 or DEFAULT.cBg
+		Info.aBg = alpha1 or DEFAULT.aBg
+		Info.cBd = color2 or DEFAULT.cBd
+		Info.aBd = alpha2 or DEFAULT.aBd
+	end
+	if Info.border == true then
+		Backdrop: SetFrameLevel(frame:GetFrameLevel()+1)
+	else
+		Backdrop: SetFrameLevel(max(frame:GetFrameLevel()-1,0))
+	end
+	--Backdrop: SetFrameStrata(frame:GetFrameStrata())
+	if Info.border == true then
+		Backdrop: SetAllPoints(frame)
+	else
+		Backdrop: SetPoint("TOPLEFT", -Info.wide, Info.wide)
+		Backdrop: SetPoint("BOTTOMLEFT", -Info.wide, -Info.wide)
+		Backdrop: SetPoint("TOPRIGHT", Info.wide, Info.wide)
+		Backdrop: SetPoint("BOTTOMRIGHT", Info.wide, -Info.wide)
+	end
+
+	if Info.round == true then
 		Backdrop: SetBackdrop({
 			bgFile = F.Path("White"),
 			edgeFile = F.Path("EdgeFile\\EdgeFile_Circular"), 
-			edgeSize = d2,
-			insets = { left = d3, right = d3, top = d3, bottom = d3 }
+			edgeSize = Info.edge,
+			insets = { left = Info.inset, right = Info.inset, top = Info.inset, bottom = Info.inset }
+		})
+	elseif Info.border == true then
+		Backdrop: SetBackdrop({
+			bgFile = F.Path("White"),
+			edgeFile = F.Path("White"),
+			edgeSize = Info.edge,
+			insets = { left = Info.inset, right = Info.inset, top = Info.inset, bottom = Info.inset }
 		})
 	else
 		Backdrop: SetBackdrop({
 			bgFile = F.Path("White"),
 			edgeFile = F.Path("EdgeFile\\EdgeFile_Backdrop"), 
-			edgeSize = d2,
-			insets = { left = d3, right = d3, top = d3, bottom = d3 }
+			edgeSize = Info.edge,
+			insets = { left = Info.inset, right = Info.inset, top = Info.inset, bottom = Info.inset }
 		})
 	end
-	if color1 and alpha1 then
-		Backdrop: SetBackdropColor(F.Color(color1, alpha1))
-	end
-	if color2 and alpha2 then
-		Backdrop: SetBackdropBorderColor(F.Color(color2, alpha2))
-	end
-	
+	Backdrop: SetBackdropColor(F.Color(Info.cBg, Info.aBg))
+	Backdrop: SetBackdropBorderColor(F.Color(Info.cBd, Info.aBd))
+
 	return Backdrop
 end
 
@@ -848,10 +968,24 @@ end
 ----------------------------------------------------------------
 
 --> from oUF
-local HiddenParent = CreateFrame("Frame")
-HiddenParent:Hide()
+local hookedFrames = {}
 
-local HandleFrame = function(baseName, show_alt)
+local HiddenParent = CreateFrame("Frame", nil, UIParent)
+HiddenParent:SetAllPoints()
+HiddenParent:Hide()
+--HiddenParent.unit = "player"
+
+local function insecureHide(self)
+	self:Hide()
+end
+
+local function resetParent(self, parent)
+	if(parent ~= HiddenParent) then
+		self:SetParent(HiddenParent)
+	end
+end
+
+local HandleFrame = function(baseName, doNotReparent, show_alt)
 	local frame
 	if(type(baseName) == 'string') then
 		frame = _G[baseName]
@@ -863,33 +997,70 @@ local HandleFrame = function(baseName, show_alt)
 		frame:UnregisterAllEvents()
 		frame:Hide()
 
-		-- Keep frame hidden without causing taint
-		frame:SetParent(HiddenParent)
+		if(not doNotReparent) then
+			frame:SetParent(HiddenParent)
 
-		local health = frame.healthbar
+			if(not hookedFrames[frame]) then
+				hooksecurefunc(frame, 'SetParent', resetParent)
+
+				hookedFrames[frame] = true
+			end
+		end
+
+		local health = frame.healthBar or frame.healthbar or frame.HealthBar
 		if(health) then
 			health:UnregisterAllEvents()
 		end
 
-		local power = frame.manabar
+		local power = frame.manabar or frame.ManaBar
 		if(power) then
 			power:UnregisterAllEvents()
 		end
 
-		local spell = frame.spellbar
+		local spell = frame.castBar or frame.spellbar or frame.CastingBarFrame
 		if(spell) then
 			spell:UnregisterAllEvents()
 		end
 
-		local altpowerbar = frame.powerBarAlt
+		local altpowerbar = frame.powerBarAlt or frame.PowerBarAlt
 		if (not show_alt) and (altpowerbar) then
 			altpowerbar:UnregisterAllEvents()
+		end
+
+		local buffFrame = frame.BuffFrame
+		if(buffFrame) then
+			buffFrame:UnregisterAllEvents()
+		end
+
+		local petFrame = frame.petFrame or frame.PetFrame
+		if(petFrame) then
+			petFrame:UnregisterAllEvents()
+		end
+
+		local totFrame = frame.totFrame
+		if(totFrame) then
+			totFrame:UnregisterAllEvents()
+		end
+
+		local classPowerBar = frame.classPowerBar
+		if(classPowerBar) then
+			classPowerBar:UnregisterAllEvents()
+		end
+
+		local ccRemoverFrame = frame.CcRemoverFrame
+		if(ccRemoverFrame) then
+			ccRemoverFrame:UnregisterAllEvents()
+		end
+
+		local debuffFrame = frame.DebuffFrame
+		if(debuffFrame) then
+			debuffFrame:UnregisterAllEvents()
 		end
 	end
 end
 
 function F.HideUnitFrame(frame, show_alt)
-	HandleFrame(frame, show_alt)
+	HandleFrame(frame, false, show_alt)
 end
 
 local function RemoveAnchor(f)
@@ -904,6 +1075,10 @@ end
 function F.HideFrame(frame, unrevent, unanchor)
 	if type(frame) == "string" then
 		frame = _G[frame]
+	end
+
+	if not frame then
+		return
 	end
 
 	if frame.UnregisterAllEvents then
@@ -921,21 +1096,21 @@ function F.HideFrame(frame, unrevent, unanchor)
 end
 
 function F.IsAddonEnabled(name)
-	local enabled
-	for i = 1,GetNumAddOns() do
-		local addon, title, notes, loadable, reason, security, newVersion = GetAddOnInfo(i)
+	local state
+	for i = 1,C_AddOns.GetNumAddOns() do
+		local addon, title, notes, loadable, reason, security, updateAvailable = C_AddOns.GetAddOnInfo(i)
 		if addon == name then
-			enabled = (GetAddOnEnableState(UnitName("player"), i)) or 0
-			if enabled == 0 then
-				enabled = nil
+			state = (C_AddOns.GetAddOnEnableState(i, UnitName("player"))) or 0
+			if state == 0 then
+				state = nil
 			end
-			if (reason and (reason == "DISABLED" or reason == "DEP_DISABLED")) then 
-				enabled = nil
+			if (reason and (reason == "DISABLED" or reason == "DEP_DISABLED")) then
+				state = nil
 			end
 		end
 	end
 
-	return enabled
+	return state
 end
 
 ----------------------------------------------------------------

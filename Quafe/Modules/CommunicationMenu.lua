@@ -148,7 +148,8 @@ local function Exp_Bar(frame)
 	ExpBar: RegisterEvent("PLAYER_UPDATE_RESTING");
 	ExpBar: SetScript("OnEvent", function(self, event, ...)
 		local newLevel = UnitLevel("player")
-		frame.ShowExp = (newLevel < MAX_PLAYER_LEVEL) and (F.IsClassic or (not IsXPUserDisabled()));
+		local PLAYER_MAX_LEVEL = MAX_PLAYER_LEVEL or GetMaxLevelForPlayerExpansion()
+		frame.ShowExp = (newLevel < PLAYER_MAX_LEVEL) and (F.IsClassic or (not IsXPUserDisabled()));
 		if frame.ShowExp then
 			local d, dMax, dPer, dLv, dEx, dExPer = 0,0,0,0,0,0
 			d = UnitXP("player")
@@ -202,7 +203,7 @@ local function Exp_Bar(frame)
 				end
 			end
 		end
-		GameTooltip_AddNewbieTip(self, label, 1.0, 1.0, 1.0, NEWBIE_TOOLTIP_XPBAR, 1)
+		--GameTooltip_AddNewbieTip(self, label, 1.0, 1.0, 1.0, NEWBIE_TOOLTIP_XPBAR, 1)
 
 		local level,maxlevel = UnitLevel("Player"),GetMaxPlayerLevel()
 		local XP, maxXP = UnitXP("player"), UnitXPMax("player")
@@ -249,6 +250,36 @@ local function Exp_Bar(frame)
 	frame.ExpBar = ExpBar
 end
 
+local function Reputation_GetMaxLevel(frame)
+	local watchedFactionData = C_Reputation.GetWatchedFactionData();
+	if not watchedFactionData or watchedFactionData.factionID == 0 then
+		return nil;
+	end
+	local factionID = watchedFactionData.factionID;
+	if C_Reputation.IsFactionParagon(factionID) then
+		return nil;
+	end
+	if C_Reputation.IsMajorFaction(factionID) then
+		local renownLevelsInfo = C_MajorFactions.GetRenownLevels(factionID);
+		return renownLevelsInfo[#renownLevelsInfo].level;
+	end
+	local reputationInfo = C_GossipInfo.GetFriendshipReputation(factionID);
+	local friendshipID = reputationInfo.friendshipFactionID;
+	if friendshipID > 0 then
+		local repRankInfo = C_GossipInfo.GetFriendshipReputationRanks(factionID);
+		return repRankInfo.maxLevel;
+	end
+	return MAX_REPUTATION_REACTION;
+end
+
+local function Reputation_Update(frame)
+	local WatchedFactionData = C_Reputation.GetWatchedFactionData()
+	if not WatchedFactionData or WatchedFactionData.factionID == 0 then
+		return;
+	end
+	
+end
+
 local function Faction_Bar(frame)
 	local FactionBar =  CreateFrame("Button", nil, frame)
 	FactionBar:SetSize(319, frame.NormalHeight)
@@ -259,10 +290,77 @@ local function Faction_Bar(frame)
 	FactionBar: RegisterEvent("UPDATE_FACTION")
 	--FactionBar: RegisterEvent("CVAR_UPDATE")
 	FactionBar: SetScript("OnEvent", function(self, event, ...)
-		local FactionName, FactionStanding, FactionLvMin, FactionLvMax, FactionValue, FactionID = GetWatchedFactionInfo()
-		frame.ShowFaction = FactionName
-		self.FactionName = FactionName
+		--local FactionName, FactionStanding, FactionLvMin, FactionLvMax, FactionValue, FactionID = GetWatchedFactionInfo()
+		local WatchedFactionData = C_Reputation.GetWatchedFactionData()
+		if not WatchedFactionData or WatchedFactionData.factionID == 0 then
+			return;
+		end
+		--frame.ShowFaction = FactionName
+		frame.ShowFaction = WatchedFactionData.name
+		--self.FactionName = FactionName
+		self.FactionName = WatchedFactionData.name
+
+		local barAtlasIndex = WatchedFactionData.reaction;
+		local overrideUseBlueBarAtlases = false;
+		local factionID = WatchedFactionData.factionID;
+		local isShowingNewFaction = self.FactionID ~= factionID;
+		if isShowingNewFaction then
+			self.FactionID = factionID;
+			local reputationInfo = C_GossipInfo.GetFriendshipReputation(factionID);
+			self.FriendshipID = reputationInfo.friendshipFactionID
+		end
+
+		local level;
+		local maxLevel = Reputation_GetMaxLevel(self);
+
+		local minBar = WatchedFactionData.currentReactionThreshold
+		local maxBar = WatchedFactionData.nextReactionThreshold
+		local value =  WatchedFactionData.currentStanding
+		local gender = UnitSex("player")
+		--local reputationStandingtext = GetText("FACTION_STANDING_LABEL" .. WatchedFactionData.reaction, gender)
+
+		if C_Reputation.IsFactionParagon(factionID) then
+			local currentValue, threshold, _, hasRewardPending = C_Reputation.GetFactionParagonInfo(factionID);
+			minBar, maxBar  = 0, threshold;
+			value = currentValue % threshold;
+			level = maxLevel;
+			if hasRewardPending then
+				value = value + threshold;
+			end
+			if C_Reputation.IsMajorFaction(factionID) then
+				overrideUseBlueBarAtlases = true;
+			end
+		elseif C_Reputation.IsMajorFaction(factionID) then
+			local majorFactionData = C_MajorFactions.GetMajorFactionData(factionID);
+			minBar, maxBar = 0, majorFactionData.renownLevelThreshold;
+			level = RENOWN_LEVEL_LABEL .. majorFactionData.renownLevel;
+			overrideUseBlueBarAtlases = true;
+		elseif self.friendshipID and self.friendshipID > 0 then
+			local repInfo = C_GossipInfo.GetFriendshipReputation(factionID);
+			local repRankInfo = C_GossipInfo.GetFriendshipReputationRanks(factionID);
+			--level = repRankInfo.currentLevel;
+			level = repRankInfo.reaction
+			if repInfo.nextThreshold then
+				minBar, maxBar, value = repInfo.reactionThreshold, repInfo.nextThreshold, repInfo.standing;
+			else
+				-- max rank, make it look like a full bar
+				minBar, maxBar, value = 0, 1, 1;
+			end
+			barAtlasIndex = 5; -- Friendships always use same
+		else
+			level = GetText("FACTION_STANDING_LABEL" .. WatchedFactionData.reaction, gender);
+		end
+
+		local ValueBar = value - minBar
+		local TotalBar = maxBar - minBar
+		local PercentBar = ValueBar/TotalBar
+		self.Bar: SetSize(319*PercentBar+F.Debug,7)
+		self.Bar: SetTexCoord(0/512,319*PercentBar/512, 0/8,7/8)
+		self.Num: SetText(F.Hex(C.Color.W3)..BreakUpLargeNumbers(ValueBar).."|r"..F.Hex(C.Color.B1).." / "..BreakUpLargeNumbers(TotalBar)..format(" / %.2f", PercentBar*100).."%".."|r")
+		self.Txt: SetText(F.Hex(C.Color.W3)..level.."|r")
+		--[[
 		if frame.ShowFaction then
+			local FactionStanding = WatchedFactionData.reaction
 			local d, dMax, dPer, dLv, dEx, dExPer = 0,0,0,0,0,0
 			if F.IsClassic then
 				d = FactionValue - FactionLvMin
@@ -274,21 +372,26 @@ local function Faction_Bar(frame)
 				end
 				dLv = L.FactionStandingID[FactionStanding]
 			else
-				local friendID = GetFriendshipReputation(FactionID) 
-				if friendID then
-					local _, friendRep, friendMaxRep, friendName, friendText, friendTexture, friendTextLevel, friendThreshold, nextFriendThreshold = GetFriendshipReputation(FactionID)
-					if ( nextFriendThreshold ) then
-						d = friendRep - friendThreshold
-						dMax = nextFriendThreshold - friendThreshold
+				--local reputationInfo = GetFriendshipReputation(watchedFactionData.factionID)
+				local ReputationInfo = C_GossipInfo.GetFriendshipReputation(WatchedFactionData.factionID);
+				local FriendshipID = ReputationInfo.friendshipFactionID;
+				if FriendshipID then
+					--local _, friendRep, friendMaxRep, friendName, friendText, friendTexture, friendTextLevel, friendThreshold, nextFriendThreshold = GetFriendshipReputation(FactionID)
+					local RepRankInfo = C_GossipInfo.GetFriendshipReputationRanks(WatchedFactionData.factionID);
+
+					if ( ReputationInfo.nextThreshold ) then
+						--ReputationInfo.reactionThreshold, ReputationInfo.nextThreshold, ReputationInfo.standing
+						d = ReputationInfo.standing - ReputationInfo.reactionThreshold
+						dMax = ReputationInfo.nextThreshold - ReputationInfo.reactionThreshold
 						dPer = min(d/dMax, 1)
-						dLv = friendTextLevel
+						dLv = RepRankInfo.currentLevel
 						dEx = 0
 						dExPer = 0
 					else
 						d = 0
 						dMax = 0
 						dPer = 1
-						dLv = friendTextLevel
+						dLv = RepRankInfo.currentLevel
 						dEx = 0
 						dExPer = 0
 					end
@@ -301,8 +404,9 @@ local function Faction_Bar(frame)
 					dEx = 0
 					dExPer = 0
 				else
-					d = FactionValue - FactionLvMin
-					dMax = FactionLvMax - FactionLvMin
+					--d = FactionValue - FactionLvMin
+					d = WatchedFactionData.currentStanding - WatchedFactionData.currentReactionThreshold
+					dMax = WatchedFactionData.nextReactionThreshold - WatchedFactionData.currentReactionThreshold
 					if FactionStanding == MAX_REPUTATION_REACTION then
 						dPer = 1
 					else
@@ -316,6 +420,7 @@ local function Faction_Bar(frame)
 			self.Num: SetText(F.Hex(C.Color.W3)..BreakUpLargeNumbers(d).."|r"..F.Hex(C.Color.B1).." / "..BreakUpLargeNumbers(dMax)..format(" / %.2f", dPer*100).."%".."|r")
 			self.Txt: SetText(F.Hex(C.Color.W3)..dLv.."|r")
 		end
+		--]]
 		if event == "PLAYER_ENTERING_WORLD" or event == "UPDATE_FACTION" then
 			--XpBar_Update(frame)
 			local AlreadyShown = self:IsShown()
@@ -329,10 +434,12 @@ local function Faction_Bar(frame)
 		end
 	end)
 	FactionBar: SetScript("OnEnter", function(self)
-		GameTooltip:SetOwner(self, "ANCHOR_NONE", 0,0)
-		GameTooltip:SetPoint("LEFT", self, "RIGHT", 8,2)
-		GameTooltip: SetText(self.FactionName)
-		GameTooltip:Show();
+		if self.FactionName then
+			GameTooltip:SetOwner(self, "ANCHOR_NONE", 0,0)
+			GameTooltip:SetPoint("LEFT", self, "RIGHT", 8,2)
+			GameTooltip: SetText(self.FactionName)
+			GameTooltip:Show();
+		end
 	end)
 	FactionBar: SetScript("OnLeave", function(self)
 		GameTooltip: Hide()
@@ -479,8 +586,13 @@ local function Azerite_Bar(frame)
 	AzeriteBar: SetScript("OnEvent", function(self, event, ...)
 		local azeriteItemLocation = C_AzeriteItem.FindActiveAzeriteItem();
 		if azeriteItemLocation then
-			self.xp, self.totalLevelXP = C_AzeriteItem.GetAzeriteItemXPInfo(azeriteItemLocation);
-			self.currentLevel = C_AzeriteItem.GetPowerLevel(azeriteItemLocation); 
+			if AzeriteUtil.IsAzeriteItemLocationBankBag(azeriteItemLocation) then
+				self.xp, self.totalLevelXP = 0, 1;
+				self.currentLevel = -1;
+			else
+				self.xp, self.totalLevelXP = C_AzeriteItem.GetAzeriteItemXPInfo(azeriteItemLocation);
+				self.currentLevel = C_AzeriteItem.GetPowerLevel(azeriteItemLocation); 
+			end
 			self.xpToNextLevel = self.totalLevelXP - self.xp;
 			dPer = min(self.xp/self.totalLevelXP, 1)
 			self.Bar: SetSize(319*dPer+F.Debug,7)
@@ -1005,25 +1117,23 @@ local function Location_Artwork(frame)
 	Border: SetSize(6,36)
 	Border: SetPoint("LEFT")
 
-	local Text1 =  F.create_Font(frame, C.Font.Txt, 16, nil, 0, "LEFT", "CENTER")
-	Text1: SetTextColor(F.Color(C.Color.W3))
-	Text1: SetAlpha(1)
+	--local Text1 = F.create_Font(frame, C.Font.Txt, 16, nil, 0, "LEFT", "CENTER")
+	local Text1 = F.Create.Font(frame, "ARTWORK", C.Font.Txt, 16, nil, C.Color.W3, 1, C.Color.Config.Back, 1, {1,-1}, "LEFT", "MIDDLE")
+	--Text1: SetTextColor(F.Color(C.Color.W3))
+	--Text1: SetAlpha(1)
 	Text1: SetPoint("BOTTOMLEFT", Border, "RIGHT", 10,-1)
 
-	local Text2 =  F.create_Font(frame, C.Font.Txt, 16, nil, 0, "LEFT", "CENTER")
-	Text2: SetTextColor(F.Color(C.Color.W3))
-	Text2: SetAlpha(1)
+	--local Text2 = F.create_Font(frame, C.Font.Txt, 16, nil, 0, "LEFT", "CENTER")
+	local Text2 = F.Create.Font(frame, "ARTWORK", C.Font.Txt, 16, nil, C.Color.W3, 1, C.Color.Config.Back, 1, {1,-1}, "LEFT", "MIDDLE")
 	Text2: SetPoint("LEFT", Text1, "RIGHT", 0,0)
 
-	local Text3 =  F.create_Font(frame, C.Font.Txt, 12, nil, 0, "LEFT", "CENTER")
-	Text3: SetTextColor(F.Color(C.Color.W3))
-	Text3: SetAlpha(1)
+	--local Text3 =  F.create_Font(frame, C.Font.Txt, 12, nil, 0, "LEFT", "CENTER")
+	local Text3 = F.Create.Font(frame, "ARTWORK", C.Font.Txt, 16, nil, C.Color.W3, 1, C.Color.Config.Back, 1, {1,-1}, "LEFT", "MIDDLE")
 	Text3: SetPoint("TOPLEFT", Border, "RIGHT", 12,-3)
 	Text3: SetText("XY ")
 
-	local Text4 =  F.create_Font(frame, C.Font.Txt, 12, nil, 0, "LEFT", "CENTER")
-	Text4: SetTextColor(F.Color(C.Color.W3))
-	Text4: SetAlpha(1)
+	--local Text4 =  F.create_Font(frame, C.Font.Txt, 12, nil, 0, "LEFT", "CENTER")
+	local Text4 = F.Create.Font(frame, "ARTWORK", C.Font.Txt, 16, nil, C.Color.W3, 1, C.Color.Config.Back, 1, {1,-1}, "LEFT", "MIDDLE")
 	Text4: SetPoint("LEFT", Text3, "RIGHT", 0,0)
 
 	frame.Text1 = Text1

@@ -1144,6 +1144,6 @@ local Quafe_ActionBar_Config = {
 
 Quafe_ActionBar.Load = Quafe_ActionBar_Load
 Quafe_ActionBar.Config = Quafe_ActionBar_Config
-tinsert(E.Module, Quafe_ActionBar)
+--tinsert(E.Module, Quafe_ActionBar)
 
 

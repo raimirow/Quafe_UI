@@ -195,20 +195,28 @@
 	</Button>
 
 	<!--Bag and Bank-->
-	<ItemButton name="Quafe_BackpackButtonTemplate" mixin="BagSlotMixin" inherits="ItemAnimTemplate" virtual="true">
+	<!--ItemButton name="Quafe_BackpackButtonTemplate" mixin="BagSlotMixin" inherits="ItemAnimTemplate" virtual="true"-->
+	<ItemButton name="Quafe_BackpackButtonTemplate" mixin="BaseBagSlotButtonMixin" inherits="QuickKeybindButtonTemplate, CircularItemButtonTemplate" virtual="true">
 		<Layers>
 			<Layer level="OVERLAY">
 				<Texture parentKey="SlotHighlightTexture" alphaMode="ADD" file="Interface\Buttons\CheckButtonHilight" setAllPoints="true" hidden="true"/>
 			</Layer>
 		</Layers>
 		<Scripts>
+			<OnClick method="BagSlotOnClick" inherit="append"/>
+      		<OnDragStart method="BagSlotOnDragStart"/>
+      		<OnReceiveDrag method="BagSlotOnReceiveDrag"/>
+			<!--
 			<OnClick>
 				PutItemInBackpack()
 			</OnClick>
 			<OnReceiveDrag>
 				PutItemInBackpack()
 			</OnReceiveDrag>
-			<OnEnter>
+			-->
+			<OnEnter method="BagSlotOnEnter" inherit="append"/>
+      		<OnLeave method="BagSlotOnLeave" inherit="append"/>
+			<!-- OnEnter>
 				GameTooltip:SetOwner(self, "ANCHOR_LEFT");
 				GameTooltip:SetText(BACKPACK_TOOLTIP, 1.0, 1.0, 1.0);
 				local keyBinding = GetBindingKey("TOGGLEBACKPACK");
@@ -217,7 +225,7 @@
 				end
 				GameTooltip:Show();
 			</OnEnter>
-			<OnLeave function="GameTooltip_Hide"/>
+			<OnLeave function="GameTooltip_Hide"/ -->
 			<OnEvent>
 				ItemAnim_OnEvent(self, event, ...)
 			</OnEvent>
@@ -274,8 +282,15 @@
 			</OnLeave>
 		</Scripts>
 	</CheckButton>
-	<ItemButton name="Quafe_BagSlotButtonTemplate" inherits="BagSlotButtonTemplate" virtual="true">
+	<!--ItemButton name="Quafe_BagSlotButtonTemplate" inherits="BagSlotButtonTemplate" virtual="true"-->
+	<ItemButton name="Quafe_BagSlotButtonTemplate" mixin="BaseBagSlotButtonMixin" inherits="QuickKeybindButtonTemplate, CircularItemButtonTemplate" virtual="true">
 		<Scripts>
+			<OnClick method="BagSlotOnDragStart" inherit="append"/>
+			<OnDragStart method="BagSlotOnDragStart"/>
+      		<OnReceiveDrag method="BagSlotOnReceiveDrag"/>
+			<OnEnter method="BagSlotOnEnter" inherit="append"/>
+      		<OnLeave method="BagSlotOnLeave" inherit="append"/>
+			<!--
 			<OnClick>
 				if ( IsModifiedClick() ) then
 					BagSlotButton_OnModifiedClick(self, button);
@@ -285,16 +300,13 @@
 					local hadItem = PutItemInBag(id);
 					if ( not hadItem ) then
 						if button == "LeftButton" then
-							BagSlotButton_OnDrag(self, button)
+							PickupBagFromSlot(self:GetID())
 						else
 							ToggleBag(translatedID);
 						end
 					end
 				end
 			</OnClick>
-			<OnDragStart>
-				BagSlotButton_OnDrag(self, button);
-			</OnDragStart>
 			<OnReceiveDrag>
 				local id = self:GetID();
 				local translatedID = self:GetBagID();
@@ -307,13 +319,14 @@
 					end
 				end
 			</OnReceiveDrag>
-			<OnEnter>
+			<OnEnter methon>
 				BagSlotButton_OnEnter(self, motion);
 			</OnEnter>
 			<OnLeave>
 				GameTooltip:Hide();
 				ResetCursor();
 			</OnLeave>
+			-->
 		</Scripts>
 	</ItemButton>
 	<CheckButton name="Quafe_BagSlotButtonClassicTemplate" inherits="BagSlotButtonTemplate" virtual="true">

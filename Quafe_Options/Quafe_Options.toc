@@ -1,0 +1,10 @@
+## Interface: 100207, 110002
+## Title: Quafe [Options]
+## Notes: Options module for Quafe
+## Author: Raminrow
+## RequiredDeps: Quafe
+## LoadOnDemand: 1
+
+## IconTexture: Interface\Addons\Quafe\Media\Minimap\MinimapButton_Icon
+
+../Quafe/Options/Options.xml

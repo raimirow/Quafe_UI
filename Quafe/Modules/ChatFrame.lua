@@ -20,7 +20,6 @@ local acos = math.acos
 local atan = math.atan
 local rad = math.rad
 local modf = math.modf
-
 local insert = table.insert
 local remove = table.remove
 local wipe = table.wipe
@@ -214,16 +213,15 @@ local function Quafe_ChatFrame_Skin_Event(f, event)
 			FrameSlider: SetFrameLevel(FrameBack:GetFrameLevel()+2)
 			FrameSlider: SetOrientation("VERTICAL")
 			FrameSlider: SetThumbTexture(F.Path("Config_Slider"), "ARTWORK")
-			FrameSlider: SetSize(18,0)
+			FrameSlider: SetSize(18,18)
 			--FrameSlider: SetPoint("TOPRIGHT", FrameBack, "TOPRIGHT", -3,-8)
 			--FrameSlider: SetPoint("BOTTOMRIGHT", FrameBack, "BOTTOMRIGHT", -3,8)
 			FrameSlider: SetPoint("TOPLEFT", FrameBack, "TOPLEFT", 5,-8)
 			FrameSlider: SetPoint("BOTTOMLEFT", FrameBack, "BOTTOMLEFT", 5,8)
 			FrameSlider: SetMinMaxValues(1, 2)
-			FrameSlider: SetObeyStepOnDrag(true)
-			FrameSlider: SetValueStep(1)
-			FrameSlider: Enable()
 			FrameSlider: SetValue(1)
+			FrameSlider: SetValueStep(1)
+			FrameSlider: SetObeyStepOnDrag(true)
 			FrameSlider: SetAlpha(0.4)
 			
 			FrameSlider: SetScript("OnValueChanged", function(self, value)
@@ -234,12 +232,13 @@ local function Quafe_ChatFrame_Skin_Event(f, event)
 			ChatFrame.Slider = FrameSlider
 
 			local function Slider_Update(self)
-				local numMessages = self:GetNumMessages();
+				local numMessages = ChatFrame:GetNumMessages()
+				local Scroll_Offset = ChatFrame:GetScrollOffset()
 				local isShown = numMessages > 1;
 				if isShown then
+					numMessages = max(1,numMessages);
 					self.Slider:SetMinMaxValues(1, numMessages);
-					self.Slider:SetValue(numMessages - self:GetScrollOffset());
-			
+					self.Slider:SetValue(numMessages - Scroll_Offset);
 					-- If the chat frame was already faded in, and something caused the scrollbar to show
 					-- it also needs to update fading in addition to showing.
 					--if (self.hasBeenFaded) then
@@ -248,21 +247,29 @@ local function Quafe_ChatFrame_Skin_Event(f, event)
 				end
 			end
 			ChatFrame.Slider: RegisterEvent("PLAYER_ENTERING_WORLD")
-			ChatFrame.Slider: SetScript("OnEvent", function(self, event)
-				local numMessages = ChatFrame:GetNumMessages();
-				local offset = ChatFrame:GetScrollOffset()
-				local isShown = numMessages > 1;
-				if isShown then
-					self:SetMinMaxValues(1, numMessages);
-					self:SetValue(1)
-					self:SetValue(numMessages - offset);
+			--ChatFrame.Slider: RegisterEvent("VARIABLES_LOADED")
+			ChatFrame.Slider: SetScript("OnEvent", function(self, event, isLogin, isReload)
+				if isLogin or isReload then
+					C_Timer.After(1, function() 
+						local numMessages = ChatFrame:GetNumMessages();
+						--local Scroll_Offset = ChatFrame:GetScrollOffset()
+						local isShown = numMessages > 1;
+						if isShown then
+							numMessages = max(2,numMessages);
+							--self: SetMinMaxValues(1, numMessages);
+							--self: SetValue(numMessages);
+							--self: SetValue(1);
+							--ChatFrame_ScrollToBottom()
+							print("")
+						end
+					end)
 				end
 				--self: UnregisterEvent("PLAYER_ENTERING_WORLD")
 			end)
 			ChatFrame:SetOnScrollChangedCallback(function(messageFrame, offset)
 				messageFrame.Slider:SetValue(messageFrame:GetNumMessages() - offset);
 			end);
-			ChatFrame:SetOnDisplayRefreshedCallback(Slider_Update);
+			ChatFrame:AddOnDisplayRefreshedCallback(Slider_Update);
 			
 			local FrameSliderHelp = CreateFrame("Frame", nil, ChatFrame)
 			FrameSliderHelp: SetFrameLevel(FrameBack:GetFrameLevel()+1)

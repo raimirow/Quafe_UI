@@ -24,7 +24,7 @@ if F.IsClassic then return end
 --> 
 --- ------------------------------------------------------------
 
-local function ObjectiveTracker_Frame(frame)
+local function ObjectiveTracker_Frame(frame) --待改
 	frame.Blocks = ObjectiveTrackerBlocksFrame
 	frame.Blocks: SetParent(frame)
 	frame.Blocks: ClearAllPoints()
@@ -107,7 +107,7 @@ local function ObjectiveTracker_Load()
 		Quafe_ObjectiveTracker.Joystick.postUpdate = Joystick_Update
 		
 		Quafe_ObjectiveTracker: Show()
-		ObjectiveTracker_Frame(Quafe_ObjectiveTracker)
+		--ObjectiveTracker_Frame(Quafe_ObjectiveTracker)
 		Quafe_ObjectiveTracker.Init = true
 	end
 end
@@ -161,4 +161,4 @@ local Quafe_ObjectiveTracker_Config = {
 
 Quafe_ObjectiveTracker.Load = ObjectiveTracker_Load
 Quafe_ObjectiveTracker.Config = Quafe_ObjectiveTracker_Config
-insert(E.Module, Quafe_ObjectiveTracker)
+--insert(E.Module, Quafe_ObjectiveTracker)

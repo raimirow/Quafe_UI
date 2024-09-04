@@ -54,8 +54,8 @@ local function TalkingHead_RePos(f)
 	if not f.Style then
 		TalkingHeadFrame.ignoreFramePositionManager = true
 		TalkingHeadFrame: ClearAllPoints()
-		TalkingHeadFrame: SetAllPoints(f)
 		RemoveAnchor(TalkingHeadFrame)
+		TalkingHeadFrame: SetAllPoints(f)
 
 		TalkingHeadFrame.NameFrame: ClearAllPoints()
 		TalkingHeadFrame.NameFrame: SetAllPoints(f)
@@ -72,7 +72,7 @@ local function TalkingHead_RePos(f)
 		TalkingHeadFrame.BackgroundFrame.TextBackground: Hide()
 		F.HideFrame(TalkingHeadFrame.BackgroundFrame.TextBackground)
 		if not TalkingHeadFrame.BackgroundFrame.TextBackgroundAlter then
-			local Bg = F.Create.Backdrop(TalkingHeadFrame, 2, true, 6, 6, C.Color.Main0, 0.9, C.Color.Main0, 0.9)
+			local Bg = F.Create.Backdrop(TalkingHeadFrame.TextFrame, 2, true, 6, 6, C.Color.Main0, 0.9, C.Color.Main0, 0.9)
 			TalkingHeadFrame.BackgroundFrame.TextBackgroundAlter = Bg
 		end
 		
@@ -183,7 +183,7 @@ end
 
 local Quafe_Notification = CreateFrame("Frame", "Quafe_Notification", E)
 Quafe_Notification: SetSize(720,90)
-Quafe_Notification: SetPoint("TOP", UIParent, "TOP", 0,-4)
+Quafe_Notification: SetPoint("TOP", UIParent, "TOP", 0,-10)
 Quafe_Notification.Init = false
 Quafe_Notification: Hide()
 

@@ -111,13 +111,29 @@ local function PartyName_Update(self, unit)
 	end
 end
 
-local function GroupRoleIndicator_Update(frame, event)
-	local role = UnitGroupRolesAssigned(frame.Unit) --TANK, HEALER, DAMAGER, NONE
+--- Blizzard_UnitFrame/PartyMemberFrame.lua
+--- 520 PartyMemberFrameMixin:UpdateAssignedRoles()
+local function GroupRoleIndicator_Update(self, event)
+	local role = UnitGroupRolesAssigned(self.Unit) --TANK, HEALER, DAMAGER, NONE
+	--[[
 	if(role == 'TANK' or role == 'HEALER' or role == 'DAMAGER') then
 		frame.GroupRoleIndicator:SetTexCoord(GetTexCoordsForRoleSmallCircle(role))
 		frame.GroupRoleIndicator:Show()
 	else
 		frame.GroupRoleIndicator:Hide()
+	end
+	--]]
+	if role == Enum.LFGRole.Tank then
+		self.GroupRoleIndicator:SetAtlas("roleicon-tiny-tank");
+		self.GroupRoleIndicator:Show();
+	elseif role == Enum.LFGRole.Healer then
+		self.GroupRoleIndicator:SetAtlas("roleicon-tiny-healer");
+		self.GroupRoleIndicator:Show();
+	elseif role == Enum.LFGRole.Damage then
+		self.GroupRoleIndicator:SetAtlas("roleicon-tiny-dps");
+		self.GroupRoleIndicator:Show();
+	else
+		self.GroupRoleIndicator:Hide();
 	end
 end
 

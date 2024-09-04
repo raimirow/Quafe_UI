@@ -32,20 +32,22 @@ local create_Backdrop = function(f)
 	local d1 = 4
 	local d2 = 8
 	if f.Shadow then return end
-	f.Shadow = CreateFrame("Frame", nil, f, "BackdropTemplate")
+	f.Shadow = CreateFrame("Frame", nil, f, BackdropTemplateMixin and "BackdropTemplate")
 	f.Shadow: SetFrameLevel(0)
 	f.Shadow: SetFrameStrata(f:GetFrameStrata())
-	f.Shadow:SetPoint("TOPLEFT", -d1, d1)
-	f.Shadow:SetPoint("BOTTOMLEFT", -d1, -d1)
-	f.Shadow:SetPoint("TOPRIGHT", d1, d1)
-	f.Shadow:SetPoint("BOTTOMRIGHT", d1, -d1)
+	f.Shadow: SetPoint("TOPLEFT", -d1, d1)
+	f.Shadow: SetPoint("BOTTOMLEFT", -d1, -d1)
+	f.Shadow: SetPoint("TOPRIGHT", d1, d1)
+	f.Shadow: SetPoint("BOTTOMRIGHT", d1, -d1)
 	f.Shadow: SetBackdrop({
 		edgeFile = F.Path("EdgeFile\\EdgeFile_Backdrop"),
 		edgeSize = d2,
-		insets = { left = 0, right = 0, top = 0, bottom = 0 }
+		insets = { left = 0, right = 0, top = 0, bottom = 0 },
+		backdropColor = {.05,.05,.05, 0},
+		backdropBorderColor = {C.Color.Black[1],C.Color.Black[2],C.Color.Black[3],0.9},
 	})
-	f.Shadow: SetBackdropColor( .05,.05,.05, 0)
-	f.Shadow: SetBackdropBorderColor(C.Color.Black[1],C.Color.Black[2],C.Color.Black[3],0.9)
+	--f.Shadow: SetBackdropColor( .05,.05,.05, 0)
+	--f.Shadow: SetBackdropBorderColor(C.Color.Black[1],C.Color.Black[2],C.Color.Black[3],0.9)
 end
 	
 local formatTime = function(s)
@@ -362,7 +364,7 @@ local Quafe_BuffFrame_Config = {
 
 Quafe_BuffFrame.Load = Quafe_BuffFrame_Load
 Quafe_BuffFrame.Config = Quafe_BuffFrame_Config
-tinsert(E.Module, Quafe_BuffFrame)
+--tinsert(E.Module, Quafe_BuffFrame)
 
 ----------------------------------------------------------------
 --[[

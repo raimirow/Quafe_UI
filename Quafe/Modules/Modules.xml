@@ -26,7 +26,11 @@
 	<Script file="MinimapIcon.lua"/>
 	
 	<Script file="VehicleSeatIndicator.lua"/>
-	<Script file="Bag.lua"/>
+
+	<!--<Script file="Bag.lua"/>-->
+	<Script file="Container.lua"/>
+	<Include file="Container.xml"/>
+
 	<Script file="AFK.lua"/>
 	<Script file="Addition.lua"/>
 

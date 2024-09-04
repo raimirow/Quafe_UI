@@ -2,4 +2,7 @@
 	<Binding name="QUAFE_COMMUNICATIONMENU" runOnUp="true" category="BINDING_HEADER_QUAFE">
 		Quafe_Binding_CommunicationMenu(keystate)
 	</Binding>
+	<Binding name="QUAFE_BAG_TOGGLE">
+        Quafe_ToggleBags()
+    </Binding>
 </Bindings>

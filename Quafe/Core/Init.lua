@@ -22,7 +22,7 @@ _G[AddonName] = Engine	-->Allow other addons to use Engine
 --(learned from Tukui)
 
 E.Name = AddonName
-E.Version = tonumber(GetAddOnMetadata(E.Name, "Version"))
+E.Version = tonumber(C_AddOns.GetAddOnMetadata(E.Name, "Version"))
 
 E.Module = {}
 E.Config = {}

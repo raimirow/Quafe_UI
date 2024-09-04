@@ -1,0 +1,12 @@
+## Interface: 100207, 110002
+## Version: 11.10
+## Author: Raimirow (voidiver)
+## Title: Quafe |cff96fef0MEKA|r
+## Notes: Quafe_MEKA
+## Notes-zhCN: Quafe D.Va风格
+
+## IconTexture: Interface\Addons\Quafe\Media\Minimap\MinimapButton_Icon
+
+## RequiredDeps: Quafe
+
+Quafe_MEKA.xml

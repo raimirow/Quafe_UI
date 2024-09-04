@@ -300,3 +300,12 @@ local function addLine(tooltip, id, type)
 		if id then addLine(self, id) end
 	end)
 	--]]
+
+--- ------------------------------------------------------------
+--> Swatches
+--- ------------------------------------------------------------
+
+local COLOR_MARTX = {
+	
+}
+

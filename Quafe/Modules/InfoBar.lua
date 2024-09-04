@@ -199,13 +199,14 @@ local function MicroMenu_Frame(f)
 		elseif i == 6 then
 			Button[i]: SetPoint("TOP", Button[i-1], "BOTTOM", 0,-2)
 			Button[i]: SetAttribute("*type1", "click")
-			Button[i]: SetAttribute("clickbutton", _G[MICROMENU_BUTTONS[i][1]])
+			Button[i]: SetAttribute("clickbutton", _G["GuildMicroButton"])
 			Button[i]: SetAttribute("*type2", "macro")
 			Button[i]: SetAttribute("macrotext", "/guildroster") --/run GuildFrame_Toggle()
 		elseif i == 11 then
 			Button[i]: SetPoint("TOP", Button[i-1], "BOTTOM", 0,-2)
 			Button[i]: SetScript("OnClick", function(self, button)
 				if ( not GameMenuFrame:IsShown() ) then
+					--[[
 					if ( VideoOptionsFrame:IsShown() ) then
 						VideoOptionsFrameCancel:Click();
 					elseif ( AudioOptionsFrame:IsShown() ) then
@@ -213,6 +214,7 @@ local function MicroMenu_Frame(f)
 					elseif ( InterfaceOptionsFrame:IsShown() ) then
 						InterfaceOptionsFrameCancel:Click();
 					end
+					--]]
 					CloseMenus();
 					CloseAllWindows()
 					PlaySound(SOUNDKIT.IG_MAINMENU_OPEN);
@@ -220,7 +222,7 @@ local function MicroMenu_Frame(f)
 				else
 					PlaySound(SOUNDKIT.IG_MAINMENU_QUIT);
 					HideUIPanel(GameMenuFrame);
-					MainMenuMicroButton_SetNormal();
+					--MainMenuMicroButton_SetNormal();
 				end
 			end)
 		else
@@ -323,9 +325,10 @@ local function Time_Frame(f)
 	f.TimeFrame: SetBackdrop(backdrop)
 	f.TimeFrame: SetBackdropColor(F.Color(C.Color.Main0, 0.6))
 	
-	f.TimeFrame.Time = F.create_Font(f.TimeFrame, C.Font.Num, 12, nil, 0, "CENTER", "CENTER")
-	f.TimeFrame.Time: SetTextColor(F.Color(C.Color.Main1))
-	f.TimeFrame.Time: SetAlpha(0.9)
+	--f.TimeFrame.Time = F.create_Font(f.TimeFrame, C.Font.Num, 12, nil, 0, "CENTER", "CENTER")
+	f.TimeFrame.Time = F.Create.Font(f.TimeFrame, "ARTWORK", C.Font.Num, 12, 0.9, C.Color.Main1, nil, C.Color.Config.Back, 0.9, {1,-1}, "CENTER", "MIDDLE")
+	--f.TimeFrame.Time: SetTextColor(F.Color(C.Color.Main1))
+	--f.TimeFrame.Time: SetAlpha(0.9)
 	f.TimeFrame.Time: SetPoint("CENTER", f.TimeFrame, "CENTER", 1,0)
 	
 	f.TimeFrame: RegisterEvent("PLAYER_LOGIN")
@@ -680,7 +683,7 @@ local function MBC_Frame(f)
 	
 	--local MBContainer = CreateFrame("Frame", "Quafe_InfoBar.MBCC", MBCFrame, "SecureHandlerEnterLeaveTemplate")
 	local MBContainer = CreateFrame("Frame", "Quafe_InfoBar.MBCC", MBCFrame, "BackdropTemplate")
-	MBContainer: SetFrameStrata("HIGH")
+	MBContainer: SetFrameStrata("LOW")
 	MBContainer: SetPoint("BOTTOMLEFT", MBCFrame, "TOPLEFT", 0,4)
 	MBContainer: SetBackdrop(backdrop)
 	MBContainer: SetBackdropColor(F.Color(C.Color.Main0, 0.8))
@@ -761,48 +764,20 @@ end
 --- ------------------------------------------------------------
 -- GameTooltip:AddLine("|T"..itemTexture..":0|t ")
 -- /run for i,v in pairs(_G) do if type(i)=="string" and i:match("BNET_CLIENT_") then print(i,"=",v) end end
---[[
+
 local ClientIcon = {
-	--["BSAp"] = {"Battle.Net", "Interface\\CHATFRAME\\UI-ChatIcon-ArmoryChat"},
-	["BSAp"] = {"Battle.Net", "Interface\\CHATFRAME\\UI-ChatIcon-Battlenet"},
-	[BNET_CLIENT_APP] = {"Battle.Net", "Interface\\CHATFRAME\\UI-ChatIcon-Battlenet"},
-	[BNET_CLIENT_CLNT] = {"CLNT", "Interface\\CHATFRAME\\UI-ChatIcon-Battlenet"},
-	[BNET_CLIENT_D3] = {"Diablo 3", "Interface\\CHATFRAME\\UI-ChatIcon-D3"},
-	[BNET_CLIENT_HEROES] = {"Heroes of the Storm", "Interface\\CHATFRAME\\UI-ChatIcon-HotS"},
-	[BNET_CLIENT_SC] = {"Starcarft", "Interface\\CHATFRAME\\UI-ChatIcon-SC"},
-	[BNET_CLIENT_SC2] = {"Starcarft 2", "Interface\\CHATFRAME\\UI-ChatIcon-SC2"},
-	[BNET_CLIENT_WOW] = {"World of Warcraft", "Interface\\CHATFRAME\\UI-ChatIcon-WoW"},
-	[BNET_CLIENT_WTCG] = {"Hearthstone", "Interface\\CHATFRAME\\UI-ChatIcon-WTCG"},
-	[BNET_CLIENT_OVERWATCH] = {"Overwatch", "Interface\\CHATFRAME\\UI-ChatIcon-Overwatch"},
-	[BNET_CLIENT_DESTINY2] = {"Destiny 2", "Interface\\CHATFRAME\\UI-ChatIcon-Destiny2"},
-}
-]]--
-local ClientIcon = {
-	--[[
-	["BSAp"] = {"Battle.Net", "Interface\\FriendsFrame\\Battlenet-Battleneticon"},
-	[BNET_CLIENT_APP] = {"Battle.Net", "Interface\\FriendsFrame\\Battlenet-Battleneticon"},
-	[BNET_CLIENT_CLNT] = {"CLNT", "Interface\\FriendsFrame\\Battlenet-Battleneticon"},
-	[BNET_CLIENT_D3] = {"Diablo 3", "Interface\\FriendsFrame\\Battlenet-D3icon"},
-	[BNET_CLIENT_HEROES] = {"Heroes of the Storm", "Interface\\FriendsFrame\\Battlenet-HotSicon"},
-	[BNET_CLIENT_SC] = {"Starcarft", "Interface\\FriendsFrame\\Battlenet-SCicon"},
-	[BNET_CLIENT_SC2] = {"Starcarft 2", "Interface\\FriendsFrame\\Battlenet-Sc2icon"},
-	[BNET_CLIENT_WOW] = {"World of Warcraft", "Interface\\FriendsFrame\\Battlenet-WoWicon"},
-	[BNET_CLIENT_WTCG] = {"Hearthstone", "Interface\\FriendsFrame\\Battlenet-WTCGicon"},
-	[BNET_CLIENT_OVERWATCH] = {"Overwatch", "Interface\\FriendsFrame\\Battlenet-Overwatchicon"},
-	[BNET_CLIENT_DESTINY2] = {"Destiny 2", "Interface\\FriendsFrame\\Battlenet-Destiny2icon"},
-	--]]
 	["BSAp"] = {"Battle.Net", "Interface\\CHATFRAME\\UI-ChatIcon-Battlenet"}, --Battle.Net Mobile App
 	[BNET_CLIENT_APP] = {"Battle.Net", "Interface\\CHATFRAME\\UI-ChatIcon-Battlenet"}, --Battle.Net-Client (App)
 	[BNET_CLIENT_CLNT] = {"CLNT", "Interface\\CHATFRAME\\UI-ChatIcon-Battlenet"}, --(CLNT)
-	[BNET_CLIENT_D3] = {"Diablo 3", "Interface\\CHATFRAME\\UI-ChatIcon-D3"}, --(D3)
+	--[BNET_CLIENT_D3] = {"Diablo 3", "Interface\\CHATFRAME\\UI-ChatIcon-D3"}, --(D3)
 	[BNET_CLIENT_HEROES] = {"Heroes of the Storm", "Interface\\CHATFRAME\\UI-ChatIcon-HotS"}, --(Hero)
-	[BNET_CLIENT_SC] = {"Starcarft", "Interface\\CHATFRAME\\UI-ChatIcon-SC"}, --(S1)
-	[BNET_CLIENT_SC2] = {"Starcarft 2", "Interface\\CHATFRAME\\UI-ChatIcon-SC2"}, --(S2)
+	--[BNET_CLIENT_SC] = {"Starcarft", "Interface\\CHATFRAME\\UI-ChatIcon-SC"}, --(S1)
+	--[BNET_CLIENT_SC2] = {"Starcarft 2", "Interface\\CHATFRAME\\UI-ChatIcon-SC2"}, --(S2)
 	[BNET_CLIENT_WOW] = {"World of Warcraft", "Interface\\CHATFRAME\\UI-ChatIcon-WoW"}, --(WoW)
-	[BNET_CLIENT_WTCG] = {"Hearthstone", "Interface\\CHATFRAME\\UI-ChatIcon-WTCG"}, --(WTCG)
-	[BNET_CLIENT_OVERWATCH] = {"Overwatch", "Interface\\CHATFRAME\\UI-ChatIcon-Overwatch"}, --(Pro)
-	[BNET_CLIENT_DESTINY2] = {"Destiny 2", "Interface\\CHATFRAME\\UI-ChatIcon-Destiny2"}, --(DST2)
-	[BNET_CLIENT_COD] = {"Call of Duty: Black Ops 4", "Interface\\CHATFRAME\\UI-ChatIcon-CallOfDutyBlackOps4"}, --VIPR
+	--[BNET_CLIENT_WTCG] = {"Hearthstone", "Interface\\CHATFRAME\\UI-ChatIcon-WTCG"}, --(WTCG)
+	--[BNET_CLIENT_OVERWATCH] = {"Overwatch", "Interface\\CHATFRAME\\UI-ChatIcon-Overwatch"}, --(Pro)
+	--[BNET_CLIENT_DESTINY2] = {"Destiny 2", "Interface\\CHATFRAME\\UI-ChatIcon-Destiny2"}, --(DST2)
+	--[BNET_CLIENT_COD] = {"Call of Duty: Black Ops 4", "Interface\\CHATFRAME\\UI-ChatIcon-CallOfDutyBlackOps4"}, --VIPR
 }
 
 local function Friend_ListTemplate(f)
@@ -825,7 +800,8 @@ local function Friend_ListTemplate(f)
 	Icon: SetSize(22,22)
 	Icon: SetPoint("RIGHT", f, "RIGHT", 0,0)
 
-	local Name = F.create_Font(f, C.Font.Txt, 12, nil, 1, "LEFT", "CENTER")
+	--local Name = F.create_Font(f, C.Font.Txt, 12, nil, 1, "LEFT", "CENTER")
+	local Name = F.Create.Font(f, "ARTWORK", C.Font.Txt, 12, nil, nil, 1, nil, 1, nil, "LEFT", "MIDDLE")
 	Name: SetHeight(1)
 	Name: SetPoint("LEFT", Status, "RIGHT", 4,0)
 	Name: SetPoint("RIGHT", Icon, "LEFT", -4,0)
@@ -1051,9 +1027,10 @@ local function Friend_Frame(f)
 	Icon: SetSize(16,16)
 	Icon: SetPoint("CENTER", Friend, "LEFT", 16,0)
 	
-	local Num = F.create_Font(Friend, C.Font.Num, 12, nil, 0, "CENTER", "CENTER")
-	Num: SetTextColor(F.Color(C.Color.Main1))
-	Num: SetAlpha(0.9)
+	--local Num = F.create_Font(Friend, C.Font.Num, 12, nil, 0, "CENTER", "CENTER")
+	local Num = F.Create.Font(Friend, "ARTWORK", C.Font.Num, 12, nil, C.Color.Main1, 0.9, C.Color.Config.Back, 0.9, {1,-1}, "CENTER", "MIDDLE")
+	--Num: SetTextColor(F.Color(C.Color.Main1))
+	--Num: SetAlpha(0.9)
 	Num: SetPoint("CENTER", Friend, "RIGHT", -14,0)
 	Num: SetText("00")
 
@@ -1122,9 +1099,10 @@ local function Guild_Artwork(frame)
 	Icon: SetSize(16,16)
 	Icon: SetPoint("CENTER", frame, "LEFT", 16,0)
 	
-	local Num = F.create_Font(frame, C.Font.Num, 12, nil, 0, "CENTER", "CENTER")
-	Num: SetTextColor(F.Color(C.Color.Main1))
-	Num: SetAlpha(0.9)
+	--local Num = F.create_Font(frame, C.Font.Num, 12, nil, 0, "CENTER", "CENTER")
+	local Num = F.Create.Font(frame, "ARTWORK", C.Font.Num, 12, nil, C.Color.Main1, 0.9, C.Color.Config.Back, 0.9, {1,-1}, "CENTER", "MIDDLE")
+	--Num: SetTextColor(F.Color(C.Color.Main1))
+	--Num: SetAlpha(0.9)
 	Num: SetPoint("CENTER", frame, "RIGHT", -14,0)
 	Num: SetText("00")
 
@@ -1278,13 +1256,14 @@ local function MeetingStone_Frame(f)
 	Icon: SetAlpha(0.9)
 	Icon: SetPoint("CENTER", f.MeetingStone, "LEFT", 16,0)
 	
-	f.MeetingStone.Num = F.create_Font(f.MeetingStone, C.Font.Num, 12, nil, 0, "CENTER", "CENTER")
-	f.MeetingStone.Num: SetTextColor(F.Color(C.Color.Main1))
-	f.MeetingStone.Num: SetAlpha(0.9)
+	--f.MeetingStone.Num = F.create_Font(f.MeetingStone, C.Font.Num, 12, nil, 0, "CENTER", "CENTER")
+	f.MeetingStone.Num = F.Create.Font(f.MeetingStone, "ARTWORK", C.Font.Num, 12, nil, C.Color.Main1, 0.9, C.Color.Config.Back, 0.9, {1,-1}, "CENTER", "MIDDLE")
+	--f.MeetingStone.Num: SetTextColor(F.Color(C.Color.Main1))
+	--f.MeetingStone.Num: SetAlpha(0.9)
 	f.MeetingStone.Num: SetPoint("CENTER", f.MeetingStone, "RIGHT", -14,0)
 	f.MeetingStone.Num: SetText("00")
 	
-	if IsAddOnLoaded("MeetingStone") then
+	if C_AddOns.IsAddOnLoaded("MeetingStone") then
 		local MeetingStoneAddon = LibStub("AceAddon-3.0"):GetAddon("MeetingStone")
 		local MeetingStoneApp = MeetingStoneAddon:GetModule("App")
 		local MeetingStoneDataBroker = MeetingStoneAddon:GetModule("DataBroker")
@@ -1389,7 +1368,7 @@ local function WIM_Frame(f)
 	FlashGlow: SetAllPoints(WIM)
 
 	WIM: SetScript("OnClick", function(self, button)
-		if IsAddOnLoaded("WIM") then
+		if C_AddOns.IsAddOnLoaded("WIM") then
 			ToggleWIM(WIM)
 		end
 	end)
@@ -1615,7 +1594,8 @@ local function ExpBar_Event(frame, event, ...)
 		ShowExp = (newLevel < MAX_PLAYER_LEVEL);
 		AzeriteItemLocation = false;
 	else
-		ShowExp = (newLevel < MAX_PLAYER_LEVEL) and (not IsXPUserDisabled());
+		PLAYER_MAX_LEVEL = GetMaxLevelForPlayerExpansion()
+		ShowExp = (newLevel < PLAYER_MAX_LEVEL) and (not IsXPUserDisabled());
 		AzeriteItemLocation = C_AzeriteItem.FindActiveAzeriteItem();
 	end
 	local DATA = Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_ExpBar"]
@@ -1639,8 +1619,14 @@ local function ExpBar_Event(frame, event, ...)
 		end
 	elseif (AzeriteItemLocation and DATA.Enable and DATA.Azerite) then
 		if event == "ALL" or event == "PLAYER_ENTERING_WORLD" or event == "PLAYER_LEVEL_UP" or event == "AZERITE_ITEM_EXPERIENCE_CHANGED" or event == "PLAYER_EQUIPMENT_CHANGED" then
-			local minXP,maxXP = C_AzeriteItem.GetAzeriteItemXPInfo(AzeriteItemLocation)
-			local azeriteLevel = C_AzeriteItem.GetPowerLevel(AzeriteItemLocation)
+			local minXP,maxXP,azeriteLevel
+			if AzeriteUtil.IsAzeriteItemLocationBankBag(AzeriteItemLocation) then
+				minXP,maxXP = 0, 1;
+				azeriteLevel = -1;
+			else
+				minXP,maxXP = C_AzeriteItem.GetAzeriteItemXPInfo(AzeriteItemLocation);
+				azeriteLevel = C_AzeriteItem.GetPowerLevel(AzeriteItemLocation); 
+			end
 			if frame.Info.MaxXP ~= maxXP then
 				frame.Info.MaxXP = maxXP
 				frame:UpdateMaxValue(0,maxXP)

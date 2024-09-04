@@ -22,10 +22,11 @@ if F.IsClassic then
 			return LibClassicDurations:UnitAura(unit, index, filter)
 		else
 			return UnitAura(unit, index, filter)
+			--return C_UnitAuras.GetAuraDataByIndex(unit, index, filter)
 		end
 	end
 else
-	F.UnitAura = UnitAura
+	F.UnitAura = C_UnitAuras.GetAuraDataByIndex
 end
 
 --- ------------------------------------------------------------
@@ -36,7 +37,7 @@ local create_Backdrop = function(f)
 	local d1 = 2
 	local d2 = 8
 	if f.Shadow then return end
-	f.Shadow = CreateFrame("Frame", nil, f, "BackdropTemplate")
+	f.Shadow = CreateFrame("Frame", nil, f, BackdropTemplateMixin and "BackdropTemplate")
 	f.Shadow: SetFrameLevel(f:GetFrameLevel()-1)
 	f.Shadow: SetFrameStrata(f:GetFrameStrata())
 	f.Shadow:SetPoint("TOPLEFT", -d1, d1)
@@ -47,18 +48,19 @@ local create_Backdrop = function(f)
 	f.Shadow: SetBackdrop({
 		edgeFile = F.Path("EdgeFile\\EdgeFile_Backdrop"), 
 		edgeSize = d2,
-		insets = { left = 0, right = 0, top = 0, bottom = 0 }
+		insets = { left = 0, right = 0, top = 0, bottom = 0 },
+		backdropColor = {F.Color(C.Color.Black,0)},
+		backdropBorderColor = {F.Color(C.Color.Black,0.9)},
 	})
-	
-	f.Shadow: SetBackdropColor( .05,.05,.05, 0)
-	f.Shadow: SetBackdropBorderColor(C.Color.Black[1],C.Color.Black[2],C.Color.Black[3],0.9)
+	--f.Shadow: SetBackdropColor( .05,.05,.05, 0)
+	--f.Shadow: SetBackdropBorderColor(C.Color.Black[1],C.Color.Black[2],C.Color.Black[3],0.9)
 end
 
 local function create_Border(f)
 	local d1 = -2
 	local d2 = 2
 	if f.Beyond then return end
-	f.Beyond = CreateFrame("Frame", nil, f, "BackdropTemplate")
+	f.Beyond = CreateFrame("Frame", nil, f, BackdropTemplateMixin and "BackdropTemplate")
 	f.Beyond: SetFrameLevel(f:GetFrameLevel()+1)
 	f.Beyond: SetFrameStrata(f:GetFrameStrata())
 	f.Beyond: SetPoint("TOPLEFT", -d1, d1)
@@ -69,10 +71,12 @@ local function create_Border(f)
 	f.Beyond: SetBackdrop({
 		edgeFile = F.Path("White"),
 		edgeSize = d2,
-		insets = { left = 0, right = 0, top = 0, bottom = 0 }
+		insets = { left = 0, right = 0, top = 0, bottom = 0 },
+		backdropColor = {F.Color(C.Color.W1, 0)},
+		backdropBorderColor = {F.Color(C.Color.W1, 0.9)},
 	})
-	f.Beyond: SetBackdropColor(F.Color(C.Color.W1, 0))
-	f.Beyond: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
+	--f.Beyond: SetBackdropColor(F.Color(C.Color.W1, 0))
+	--f.Beyond: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
 end
 
 local formatTime = function(s)
@@ -106,21 +110,22 @@ end
 
 local event_Aura = function(f, unit, index, filter)
 	if not unit then return end
-	local name, icon, count, dispelType, duration, expires, caster, isStealable,  nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, isCastByPlayer, nameplateShowAll, timeMod, value1, value2, value3  = F.UnitAura(unit, index , filter)
-	if name then
+	--local name, icon, count, dispelType, duration, expires, caster, isStealable,  nameplateShowPersonal, spellID, canApplyAura, isBossDebuff, isCastByPlayer, nameplateShowAll, timeMod, value1, value2, value3  = F.UnitAura(unit, index , filter)
+	local AuraInfo = F.UnitAura(unit, index , filter)
+	if AuraInfo then
 		f:SetID(index)
-		f.name = name
-		f.tex = icon
-		f.count = count
-		f.debuffType = dispelType
-		f.duration = duration
-		--f.expires = expires
-		f.remain = max(expires - GetTime(), 0)
-		f.caster = caster
-		f.steal = isStealable
-		f.spellID = spellID
-		f.isBoss = isBossDebuff
-		f.isNameplate = nameplateShowAll
+		f.name = AuraInfo.name
+		f.tex = AuraInfo.icon
+		f.count = AuraInfo.charges
+		f.debuffType = AuraInfo.dispelName
+		f.duration = AuraInfo.duration
+		--f.expires = AuraInfo.expirationTime
+		f.remain = max(AuraInfo.expirationTime - GetTime(), 0)
+		f.caster = AuraInfo.sourceUnit
+		f.steal = AuraInfo.isStealable
+		f.spellID = AuraInfo.spellId
+		f.isBoss = AuraInfo.isBossAura
+		f.isNameplate = AuraInfo.nameplateShowAll
 		f.filter = filter
 	else
 		f.name = nil
@@ -210,8 +215,10 @@ local Aura_Event = function(f)
 			
 			create_Border(f.Aura[i])
 			create_Backdrop(f.Aura[i])
-			f.Aura[i].Beyond: SetBackdropBorderColor(C.Color.Black[1],C.Color.Black[2],C.Color.Black[3],0.9)
-			f.Aura[i].Shadow: SetBackdropBorderColor(C.Color.Black[1],C.Color.Black[2],C.Color.Black[3],0.9)
+			--f.Aura[i].Beyond: SetBackdropBorderColor(C.Color.Black[1],C.Color.Black[2],C.Color.Black[3],0.9)
+			--f.Aura[i].Shadow: SetBackdropBorderColor(C.Color.Black[1],C.Color.Black[2],C.Color.Black[3],0.9)
+			f.Aura[i].Beyond: SetBackdrop({backdropBorderColor = {F.Color(C.Color.Black,0.9)},})
+			f.Aura[i].Shadow: SetBackdrop({backdropBorderColor = {F.Color(C.Color.Black,0.9)},})
 			
 			f.Aura[i].UpdateTooltip = UpdateTooltip
 			f.Aura[i]: SetScript("OnEnter", function(self)
@@ -445,9 +452,10 @@ local function ABGU_UpdateBuff(unit)
 	ABGU_List_Refresh(E.AuraUpdate[unit].Buff)
 	local num = 1
 	while num do
-		local name, icon, count, dispelType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellID = F.UnitAura(unit, num, "HELPFUL")
-		if name then
-			ABGU_Check(E.AuraUpdate[unit].Buff, name, icon, count, duration, expirationTime, unitCaster, spellID)
+		--local name, icon, count, dispelType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellID = F.UnitAura(unit, num, "HELPFUL")
+		local AuraInfo = F.UnitAura(unit, num, "HELPFUL")
+		if AuraInfo then
+			ABGU_Check(E.AuraUpdate[unit].Buff, AuraInfo.name, AuraInfo.icon, AuraInfo.charges, AuraInfo.duration, AuraInfo.expirationTime, AuraInfo.sourceUnit, AuraInfo.spellId)
 			num = num + 1
 		else
 			num = nil
@@ -460,9 +468,11 @@ local function ABGU_UpdateDebuff(unit)
 	ABGU_List_Refresh(E.AuraUpdate[unit].Debuff)
 	local num = 1
 	while num do
-		local name, icon, count, dispelType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellID = F.UnitAura(unit, num, "HARMFUL")
-		if name then
-			ABGU_Check(E.AuraUpdate[unit].Debuff, name, icon, count, duration, expirationTime, unitCaster, spellID)
+		--local name, icon, count, dispelType, duration, expirationTime, unitCaster, canStealOrPurge, nameplateShowPersonal, spellID = F.UnitAura(unit, num, "HARMFUL")
+		local AuraInfo = F.UnitAura(unit, num, "HARMFUL")
+		print(num)
+		if AuraInfo then
+			ABGU_Check(E.AuraUpdate[unit].Debuff, AuraInfo.name, AuraInfo.icon, AuraInfo.charges, AuraInfo.duration, AuraInfo.expirationTime, AuraInfo.sourceUnit, AuraInfo.spellId)
 			num = num + 1
 		else
 			num = nil
@@ -520,4 +530,4 @@ end
 
 F.ABGU_Toggle = ABGU_Toggle
 AuraListUpdate.Load = AuraListUpdate_Load
-tinsert(E.Module, AuraListUpdate)
+--tinsert(E.Module, AuraListUpdate)

@@ -15,18 +15,45 @@ local cos = math.cos
 local rad = math.rad
 local find = string.find
 local insert = table.insert
-local GetItemClassInfo = _G.GetItemClassInfo
-local GetItemSubClassInfo = _G.GetItemSubClassInfo
+local wipe = table.wipe
+
+--local GetItemClassInfo = _G.GetItemClassInfo
+--local GetItemSubClassInfo = _G.GetItemSubClassInfo
 
 local MAX_CONTAINER_ITEMS = 36
 local NUM_CONTAINER_COLUMNS = 4
 local BACKPACK_BASE_SIZE = 16
 
+-- NUM_CONTAINER_FRAMES = 13;
+-- NUM_BAG_FRAMES = Constants.InventoryConstants.NumBagSlots;	4
+-- NUM_REAGENTBAG_FRAMES = Constants.InventoryConstants.NumReagentBagSlots;		1
+-- NUM_TOTAL_BAG_FRAMES = Constants.InventoryConstants.NumBagSlots + Constants.InventoryConstants.NumReagentBagSlots;
+
 --- ------------------------------------------------------------
 --> Bag
 --- ------------------------------------------------------------
+--- 
+--- BagID
+--- 0			BACKPACK_CONTAINER		Enum.BagIndex.Backpack
+--- 1 to 4		NUM_BAG_SLOTS			Enum.BagIndex.Bag_1 to Bag_4
+--- 5			NUM_REAGENTBAG_SLOTS	Enum.BagIndex.ReagentBag
+--- 6 to 12		NUM_BANKBAGSLOTS		Enum.BagIndex.BankBag_1 to BankBag_7
+--- 13 to 17							Enum.BagIndex.AccountBankTab_1 to AccountBankTab_5
+--- -1			BANK_CONTAINER			Enum.BagIndex.Bank
+--- -2			KEYRING_CONTAINER		Enum.BagIndex.Keyring
+--- -3			REAGENTBANK_CONTAINER	Enum.BagIndex.Reagentbank
+--- -5									Enum.BagIndex.Accountbanktab
+--- 
+--- BANK
+--- REAGENT_BANK
+--- ACCOUNT_BANK_PANEL_TITLE
+--- 
+--- ACCOUNT_BANK_TAB_NAME_PROMPT
+--- ACCOUNT_BANK_DEPOSIT_BUTTON_LABEL
+--- ACCOUNT_BANK_TAB_PURCHASE_PROMPT
+--- ACCOUNT_BANK_LOCKED_PROMPT 战团银行正在被使用
 
--- texture, itemCount, locked, quality, readable, lootable, itemLink, isFiltered = GetContainerItemInfo(bag, slot);
+-- texture, itemCount, locked, quality, readable, lootable, itemLink, isFiltered = C_Container.GetContainerItemInfo(bag, slot);
 -- itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemID or "itemString" or "itemName" or "itemLink")
 -- itemID, itemType, itemSubType, itemEquipLoc, itemTexture, itemClassID, itemSubClassID = GetItemInfoInstant(itemLink) 
 -- GetItemClassInfo(classIndex)
@@ -162,6 +189,10 @@ local sortingCache = {
 }
 --]]
 
+-- 11.0.0
+-- C_NewItems.RemoveNewItem(itemButton:GetBagID(), itemButton:GetID())
+
+
 local Bag = {}
 local BagFree = {}
 local BagNew = {}
@@ -171,6 +202,8 @@ local BankSpecical = {}
 local BankSpecicalFree = {}
 local Reagent = {}
 local ReagentFree = {}
+local AccountSlots = {}
+local AccountBankSlotsFree  = {}
 
 local config = {
 	buttonSize = 32,
@@ -234,48 +267,48 @@ local function Init_ItemClass()
 	else
 		ITEMCLASS = {
 			--["New"] = 				{L = 1,  C = C.Color.B1, T = "Bag_New"},         --新物品
-			["Elixir"] =				{L = 1,  C = C.Color.Y1, T = "Bag_Elixir",			D = GetItemSubClassInfo(0, 1)},         --药剂
-			["Food"] =					{L = 2,  C = C.Color.Y1, T = "Bag_Food",			D = GetItemSubClassInfo(0, 5)},			--食物
+			["Elixir"] =				{L = 1,  C = C.Color.Y1, T = "Bag_Elixir",			D = C_Item.GetItemSubClassInfo(0, 1)},         --药剂
+			["Food"] =					{L = 2,  C = C.Color.Y1, T = "Bag_Food",			D = C_Item.GetItemSubClassInfo(0, 5)},			--食物
 			[ITEMCLASS_Consumable] =	{L = 3,  C = C.Color.Y1, T = "Bag_Consumable",		D = ITEMCLASS_Consumable},	   			--消耗品
-			[GetItemClassInfo(12)] =	{L = 4,  C = C.Color.Y1, T = "Bag_Quest",			D = GetItemClassInfo(12)},				--任务
+			[GetItemClassInfo(12)] =	{L = 4,  C = C.Color.Y1, T = "Bag_Quest",			D = C_Item.GetItemClassInfo(12)},				--任务
 			[ITEMCLASS_Weapon] =		{L = 5,  C = C.Color.Y1, T = "Bag_Weapon",			D = ITEMCLASS_Weapon},					--武器
 			[ITEMCLASS_Armor] =			{L = 6,  C = C.Color.Y1, T = "Bag_Armor",			D = ITEMCLASS_Armor},					--护甲
-			[GetItemClassInfo(3)] =		{L = 7,  C = C.Color.Y1, T = "Bag_Gem",				D = GetItemClassInfo(3)},				--宝石
-			[GetItemClassInfo(16)] =	{L = 8,  C = C.Color.Y1, T = "Bag_Glyphs",			D = GetItemClassInfo(16)},		  		--雕文
-			[GetItemClassInfo(8)] =		{L = 9,  C = C.Color.Y1, T = "Bag_Upgrade",			D = GetItemClassInfo(8)},				--物品强化
-			[GetItemClassInfo(9)] =		{L = 10, C = C.Color.Y1, T = "Bag_Glyph",			D = GetItemClassInfo(9)},				--配方
-			[GetItemClassInfo(7)] =		{L = 11, C = C.Color.Y1, T = "Bag_Trade",			D = GetItemClassInfo(7)},				--商业技能
-			[GetItemClassInfo(5)] =		{L = 12, C = C.Color.Y1, T = "Bag_Material",		D = GetItemClassInfo(5)},				--材料
-			[GetItemClassInfo(13)] = 	{L = 13, C = C.Color.Y1, T = "Bag_Key",				D = GetItemClassInfo(13)},				--钥匙
+			[GetItemClassInfo(3)] =		{L = 7,  C = C.Color.Y1, T = "Bag_Gem",				D = C_Item.GetItemClassInfo(3)},				--宝石
+			[GetItemClassInfo(16)] =	{L = 8,  C = C.Color.Y1, T = "Bag_Glyphs",			D = C_Item.GetItemClassInfo(16)},		  		--雕文
+			[GetItemClassInfo(8)] =		{L = 9,  C = C.Color.Y1, T = "Bag_Upgrade",			D = C_Item.GetItemClassInfo(8)},				--物品强化
+			[GetItemClassInfo(9)] =		{L = 10, C = C.Color.Y1, T = "Bag_Glyph",			D = C_Item.GetItemClassInfo(9)},				--配方
+			[GetItemClassInfo(7)] =		{L = 11, C = C.Color.Y1, T = "Bag_Trade",			D = C_Item.GetItemClassInfo(7)},				--商业技能
+			[GetItemClassInfo(5)] =		{L = 12, C = C.Color.Y1, T = "Bag_Material",		D = C_Item.GetItemClassInfo(5)},				--材料
+			[GetItemClassInfo(13)] = 	{L = 13, C = C.Color.Y1, T = "Bag_Key",				D = C_Item.GetItemClassInfo(13)},				--钥匙
 			[ITEMCLASS_Miscellaneous] =	{L = 14, C = C.Color.Y1, T = "Bag_Goods",			D = ITEMCLASS_Miscellaneous},			--杂项
 			["Other"] = 				{L = 15, C = C.Color.Y1, T = "Bag_Other",			D = OTHER},								--其它
 			["Hearthstone"] =			{L = 16, C = C.Color.Y1, T = "Bag_Hearthstone",		D = GetItemInfo(6948)},					--炉石
 			["Sale"] =					{L = 17, C = C.Color.Y1, T = "Bag_Junk"},			--垃圾
 		}
 		ITEMCLASS.Elixir.SubClass = {
-			[GetItemSubClassInfo(0, 1)] = {L = 1},  --药水
-			[GetItemSubClassInfo(0, 2)] = {L = 2},  --药剂
-			[GetItemSubClassInfo(0, 3)] = {L = 3},  --合剂
-			[GetItemSubClassInfo(0, 7)] = {L = 4},  --绷带
+			[C_Item.GetItemSubClassInfo(0, 1)] = {L = 1},  --药水
+			[C_Item.GetItemSubClassInfo(0, 2)] = {L = 2},  --药剂
+			[C_Item.GetItemSubClassInfo(0, 3)] = {L = 3},  --合剂
+			[C_Item.GetItemSubClassInfo(0, 7)] = {L = 4},  --绷带
 		}
 		ITEMCLASS.Food.SubClass = {
-			[GetItemSubClassInfo(0, 5)] = {L = 1},  --餐饮供应商
+			[C_Item.GetItemSubClassInfo(0, 5)] = {L = 1},  --餐饮供应商
 		}
 	end
 
 	ITEMCLASS.Hearthstone.itemID = {
-		["6948"] =		{L = 1},   --炉石
-		["140192"] =	{L = 2},   --达拉然炉石
-		["110560"] =	{L = 3},   --要塞炉石
-		["141605"] =	{L = 4},   --飞行管理员的哨子
-		["65360"] =		{L = 5},   --协同披风
-		["63206"] =		{L = 6},   --协和披风
-		["63352"] =		{L = 7},   --协作披风
-		["46874"] =		{L = 8},   --银色北伐军战袍
-		["128353"] =	{L = 9},   --海军上将的罗盘
-		["37863"] =	    {L = 10},  --黑铁遥控器
-		["32757"] =	    {L = 11},  --卡拉波神圣勋章
-		["118663"] =	{L = 12},  --卡拉波圣物
+		[6948] =	{L = 1},   --炉石
+		[140192] =	{L = 2},   --达拉然炉石
+		[110560] =	{L = 3},   --要塞炉石
+		[141605] =	{L = 4},   --飞行管理员的哨子
+		[65360] =	{L = 5},   --协同披风
+		[63206] =	{L = 6},   --协和披风
+		[63352] =	{L = 7},   --协作披风
+		[46874] =	{L = 8},   --银色北伐军战袍
+		[128353] =	{L = 9},   --海军上将的罗盘
+		[37863] =	{L = 10},  --黑铁遥控器
+		[32757] =	{L = 11},  --卡拉波神圣勋章
+		[118663] =	{L = 12},  --卡拉波圣物
 	}
 end
 
@@ -312,31 +345,31 @@ local function Init_BankItemClass()
 		}
 	else
 		BANKITEMCLASS = {
-			["Elixir"] =				{L = 1,  C = C.Color.Y1, T = "Bag_Elixir",			D = GetItemSubClassInfo(0, 1)},         --药剂
-			["Food"] =					{L = 2,  C = C.Color.Y1, T = "Bag_Food",			D = GetItemSubClassInfo(0, 5)},			--食物
+			["Elixir"] =				{L = 1,  C = C.Color.Y1, T = "Bag_Elixir",			D = C_Item.GetItemSubClassInfo(0, 1)},         --药剂
+			["Food"] =					{L = 2,  C = C.Color.Y1, T = "Bag_Food",			D = C_Item.GetItemSubClassInfo(0, 5)},			--食物
 			[ITEMCLASS_Consumable] =	{L = 3,  C = C.Color.Y1, T = "Bag_Consumable",		D = ITEMCLASS_Consumable},     			--消耗品
-			[GetItemClassInfo(12)] =	{L = 4,  C = C.Color.Y1, T = "Bag_Quest",			D = GetItemClassInfo(12)},				--任务
+			[GetItemClassInfo(12)] =	{L = 4,  C = C.Color.Y1, T = "Bag_Quest",			D = C_Item.GetItemClassInfo(12)},				--任务
 			[ITEMCLASS_Weapon] =		{L = 5,  C = C.Color.Y1, T = "Bag_Weapon",			D = ITEMCLASS_Weapon},         			--武器
 			[ITEMCLASS_Armor] =			{L = 6,  C = C.Color.Y1, T = "Bag_Armor",			D = ITEMCLASS_Armor},					--护甲
-			[GetItemClassInfo(3)] =		{L = 7,  C = C.Color.Y1, T = "Bag_Gem",				D = GetItemClassInfo(3)},				--宝石
-			[GetItemClassInfo(16)] =	{L = 8,  C = C.Color.Y1, T = "Bag_Glyphs",			D = GetItemClassInfo(16)},	    	    --雕文
-			[GetItemClassInfo(8)] =		{L = 9,  C = C.Color.Y1, T = "Bag_Upgrade",			D = GetItemClassInfo(8)},				--物品强化
-			[GetItemClassInfo(9)] =		{L = 10, C = C.Color.Y1, T = "Bag_Glyph",			D = GetItemClassInfo(9)},				--配方
-			[GetItemClassInfo(7)] =		{L = 11, C = C.Color.Y1, T = "Bag_Trade",			D = GetItemClassInfo(7)},				--商业技能
-			[GetItemClassInfo(5)] =		{L = 12, C = C.Color.Y1, T = "Bag_Material",		D = GetItemClassInfo(5)},				--材料
-			[GetItemClassInfo(13)] = 	{L = 13, C = C.Color.Y1, T = "Bag_Key",				D = GetItemClassInfo(13)},				--钥匙
+			[GetItemClassInfo(3)] =		{L = 7,  C = C.Color.Y1, T = "Bag_Gem",				D = C_Item.GetItemClassInfo(3)},				--宝石
+			[GetItemClassInfo(16)] =	{L = 8,  C = C.Color.Y1, T = "Bag_Glyphs",			D = C_Item.GetItemClassInfo(16)},	    	    --雕文
+			[GetItemClassInfo(8)] =		{L = 9,  C = C.Color.Y1, T = "Bag_Upgrade",			D = C_Item.GetItemClassInfo(8)},				--物品强化
+			[GetItemClassInfo(9)] =		{L = 10, C = C.Color.Y1, T = "Bag_Glyph",			D = C_Item.GetItemClassInfo(9)},				--配方
+			[GetItemClassInfo(7)] =		{L = 11, C = C.Color.Y1, T = "Bag_Trade",			D = C_Item.GetItemClassInfo(7)},				--商业技能
+			[GetItemClassInfo(5)] =		{L = 12, C = C.Color.Y1, T = "Bag_Material",		D = C_Item.GetItemClassInfo(5)},				--材料
+			[GetItemClassInfo(13)] = 	{L = 13, C = C.Color.Y1, T = "Bag_Key",				D = C_Item.GetItemClassInfo(13)},				--钥匙
 			[ITEMCLASS_Miscellaneous] =	{L = 14, C = C.Color.Y1, T = "Bag_Goods",			D = ITEMCLASS_Miscellaneous},			--杂项
 			["Other"] = 				{L = 15, C = C.Color.Y1, T = "Bag_Other",			D = OTHER},								--其它
 			["Sale"] =					{L = 17, C = C.Color.Y1, T = "Bag_Junk"},			--垃圾
 		}
 		BANKITEMCLASS.Elixir.SubClass = {
-			[GetItemSubClassInfo(0, 1)] = {L = 1},  --药水
-			[GetItemSubClassInfo(0, 2)] = {L = 2},  --药剂
-			[GetItemSubClassInfo(0, 3)] = {L = 3},  --合剂
-			[GetItemSubClassInfo(0, 7)] = {L = 4},  --绷带
+			[C_Item.GetItemSubClassInfo(0, 1)] = {L = 1},  --药水
+			[C_Item.GetItemSubClassInfo(0, 2)] = {L = 2},  --药剂
+			[C_Item.GetItemSubClassInfo(0, 3)] = {L = 3},  --合剂
+			[C_Item.GetItemSubClassInfo(0, 7)] = {L = 4},  --绷带
 		}
 		BANKITEMCLASS.Food.SubClass = {
-			[GetItemSubClassInfo(0, 5)] = {L = 1},  --餐饮供应商
+			[C_Item.GetItemSubClassInfo(0, 5)] = {L = 1},  --餐饮供应商
 		}
 	end
 end
@@ -370,7 +403,7 @@ local function Button_Template(f)
 	F.create_Backdrop(button, 2, 8, 4, C.Color.Y1,0, C.Color.W4,0.9)
 	button.Bg: SetAlpha(0)
 	
-	button.Icon = button:CreateTexture(nil, "ARTOWRK")
+	button.Icon = button:CreateTexture(nil, "ARTWORK")
 	button.Icon: SetSize(16,16)
 	button.Icon: SetPoint("CENTER", button, "CENTER", 0,0)
 	button.Icon: SetVertexColor(F.Color(C.Color.W3))
@@ -401,19 +434,19 @@ local function Sell_Junk()
 		if v.itemType then
 			if v.itemType == "Sale" then
 				if JUNK_NUM < 12 then
-					local currPrice = (select(11, GetItemInfo(v.itemID)) or 0) * (v.itemCount or 1)
-					PickupContainerItem(v.bagID, v.slotID)
+					local currPrice = (select(11, C_Item.GetItemInfo(v.itemID)) or 0) * (v.itemCount or 1)
+					C_Container.PickupContainerItem(v.bagID, v.slotID)
 					PickupMerchantItem(0)
 					JUNK_NUM = JUNK_NUM + 1
 					JUNK_PRICE = JUNK_PRICE + currPrice
 				else
-					DEFAULT_CHAT_FRAME:AddMessage(L['SOLD'].." "..JUNK_NUM.."  "..L['GAINED'].." "..GetCoinTextureString(JUNK_PRICE))
+					DEFAULT_CHAT_FRAME:AddMessage(L['SOLD'].." "..JUNK_NUM.."  "..L['GAINED'].." "..C_CurrencyInfo.GetCoinTextureString(JUNK_PRICE))
 					return
 				end
 			end
 		end
 	end
-	DEFAULT_CHAT_FRAME:AddMessage(L['SOLD'].." "..JUNK_NUM.."  "..L['GAINED'].." "..GetCoinTextureString(JUNK_PRICE))
+	DEFAULT_CHAT_FRAME:AddMessage(L['SOLD'].." "..JUNK_NUM.."  "..L['GAINED'].." "..C_CurrencyInfo.GetCoinTextureString(JUNK_PRICE))
 end
 
 local function Init_BagGap(f, classtable, p, bank)
@@ -558,15 +591,29 @@ local function Create_BagItemButton(f, bagID, slotID)
 	else
 		template = "ContainerFrameItemButtonTemplate"
 	end
+
+	local buttonAnchor = CreateFrame("Frame", nil, f)
+	buttonAnchor: SetSize(config.buttonSize, config.buttonSize)
+	buttonAnchor: SetID(bagID)
+
+	local button = CreateFrame(F.IsClassic and "CheckButton" or "ItemButton", "Quafe_Bag"..bagID.."Slot"..slotID, buttonAnchor, template)
+	--ContainerFrameItemButtonMixin.OnLoad(button)
+	button: SetAllPoints(buttonAnchor)
+	button: SetSize(config.buttonSize, config.buttonSize)
+	button: SetPoint("BOTTOMRIGHT", buttonAnchor, "BOTTOMRIGHT", 0, 0)
 	
 	--local button = CreateFrame("CheckButton", "Quafe_Bag"..bagID.."Slot"..slotID, f, template)
-	local button = CreateFrame(F.IsClassic and "CheckButton" or "ItemButton", "Quafe_Bag"..bagID.."Slot"..slotID, f, template)
-	button: SetSize(config.buttonSize, config.buttonSize)
+	--local button = CreateFrame(F.IsClassic and "CheckButton" or "ItemButton", "Quafe_Bag"..bagID.."Slot"..slotID, f, template)
+	--button: SetSize(config.buttonSize, config.buttonSize)
+	button: SetBagID(bagID)
 	button: SetID(slotID)
 	button.bagID = bagID
 	button.slotID = slotID
-	button:Show()
-	
+	button: RegisterForDrag("LeftButton")
+	button: RegisterForClicks("LeftButtonUp", "RightButtonUp")
+	button: Enable()
+	button: Show()
+
 	if bagID == BANK_CONTAINER then 
 		button: SetFrameLevel(4)
 	elseif bagID == REAGENTBANK_CONTAINER then
@@ -574,14 +621,8 @@ local function Create_BagItemButton(f, bagID, slotID)
 	end
 
 	local slotName = button: GetName()
-
-	button.Border = CreateFrame("Frame", nil, button, "BackdropTemplate")
-	button.Border: SetFrameLevel(button:GetFrameLevel()+1)
-	button.Border: SetAllPoints(button)
-
-	Create_ButtonBg(button.Border, 1, 0)
-	button.Border: SetBackdropColor(F.Color(C.Color.W1, 0))
-	button.Border: SetBackdropBorderColor(F.Color(C.Color.W4, 0.9))
+	
+	button.Border = F.Create.Backdrop(button, {wide = 0, border = true, edge = 2, inset = 0, cBg = C.Color.W1, aBg = 0, cBd = C.Color.W4, aBd = 0.9})
 	
 	button.icon: SetAllPoints(button)
 	button.icon: SetTexCoord(0.1, 0.9, 0.1, 0.9)
@@ -591,9 +632,7 @@ local function Create_BagItemButton(f, bagID, slotID)
 	button.Count: ClearAllPoints()
 	button.Count: SetPoint("BOTTOMRIGHT", button, "BOTTOMRIGHT", -1,2)
 	
-	button.Level = F.create_Font(button, C.Font.Num, 12, "OUTLINE", 0, "CENTER", "CENTER")
-	button.Level: SetTextColor(F.Color(C.Color.W4))
-	button.Level: SetAlpha(0.9)
+	button.Level = F.Create.Font(button, "ARTWORK", C.Font.Num, 12, "OUTLINE", C.Color.W4, 0.9)
 	button.Level: SetPoint("CENTER", button, "CENTER", 1,0)
 	--[[
 	if (not button.NewItemTexture) then
@@ -624,13 +663,13 @@ local function Create_BagItemButton(f, bagID, slotID)
 	button.NewItemTexture: Hide()
 	
 	if(not button.BattlepayItemTexture) then
-		button.BattlepayItemTexture = button:CreateTexture(nil, "OVERLAY", 1);
+		button.BattlepayItemTexture = button:CreateTexture(nil, "OVERLAY", nil, 1);
 	end
 	button.BattlepayItemTexture: SetTexture("")
 	button.BattlepayItemTexture: Hide()
 
 	if(not button.JunkIcon) then
-		button.JunkIcon = button:CreateTexture(nil, "OVERLAY", 1);
+		button.JunkIcon = button:CreateTexture(nil, "OVERLAY", nil, 1);
 	end
 	button.JunkIcon: SetTexture([[Interface\BUTTONS\UI-GroupLoot-Coin-Up]])
 	button.JunkIcon: SetSize(14,14)
@@ -638,7 +677,7 @@ local function Create_BagItemButton(f, bagID, slotID)
 	button.JunkIcon: SetPoint("BOTTOMLEFT", button, "BOTTOMLEFT", 2,0)
 
 	if (not button.UpgradeIcon) then
-		button.UpgradeIcon = button: CreateTexture(nil, "OVERLAY", 1);
+		button.UpgradeIcon = button: CreateTexture(nil, "OVERLAY", nil, 1);
 	end
 	--Texture:SetAtlas("atlasName"[, useAtlasSize, "filterMode"])
 	button.UpgradeIcon: SetAtlas("bags-greenarrow", true)
@@ -647,7 +686,7 @@ local function Create_BagItemButton(f, bagID, slotID)
 	button.UpgradeIcon: SetPoint("TOPLEFT", button, "TOPLEFT", -2,2)
 	button.UpgradeIcon: Hide()
 
-	button.QuestIcon = _G[slotName.."IconQuestTexture"] or button: CreateTexture(nil, "OVERLAY", 2)
+	button.QuestIcon = _G[slotName.."IconQuestTexture"] or button: CreateTexture(nil, "OVERLAY", nil, 2)
 	button.QuestIcon: SetTexture(F.Path("Bag_Icon_Quest"))
 	button.QuestIcon: SetVertexColor(F.Color(C.Color.W3))
 	button.QuestIcon: SetBlendMode("BLEND")
@@ -656,7 +695,7 @@ local function Create_BagItemButton(f, bagID, slotID)
 	button.QuestIcon: ClearAllPoints()
 	button.QuestIcon: SetPoint("BOTTOMLEFT", button, "BOTTOMLEFT", 2,2)
 
-	button.QualityIcon = button: CreateTexture(nil, "OVERLAY", 2)
+	button.QualityIcon = button: CreateTexture(nil, "OVERLAY", nil, 2)
 	--button.QualityIcon: SetTexture(F.Path("Bag_Icon_Quality"))
 	--button.QualityIcon: SetSize(12,12)
 	--button.QualityIcon: SetPoint("BOTTOMLEFT", button, "BOTTOMLEFT", 2,2)
@@ -665,15 +704,19 @@ local function Create_BagItemButton(f, bagID, slotID)
 	button.QualityIcon: SetPoint("CENTER", button, "CENTER", 0,0)
 	button.QualityIcon: SetVertexColor(F.Color(C.Color.W3))
 	
-	button: SetNormalTexture("")
-	_G[slotName.."NormalTexture"]:ClearAllPoints()
-	_G[slotName.."NormalTexture"]:SetAllPoints(button)
+	--button: SetNormalTexture("")
+	--button: SetNormalTexture(0)
+	button: ClearNormalTexture()
+	--_G[slotName.."NormalTexture"]:ClearAllPoints()
+	--_G[slotName.."NormalTexture"]:SetAllPoints(button)
 	button: SetPushedTexture(F.Path("Button\\Bag_Pushed"))
 	button: SetHighlightTexture(F.Path("Button\\Bag_Hightlight"))
 	
 	button.cooldown = _G[format("%sCooldown", slotName)]
 	button.cooldown: ClearAllPoints()
 	button.cooldown: SetAllPoints(button)
+
+	button.Anchor = buttonAnchor
 	
 	return button
 end
@@ -794,13 +837,15 @@ end
 local function Update_SlotItem(slot, v)
 	SetItemButtonTexture(slot, v.itemTexture or F.Path("Bag_Slot")) --Interface\Paperdoll\UI-PaperDoll-Slot-Bag
 	--SetItemButtonQuality(itemButton, quality, itemID)
-	SetItemButtonCount(slot,  v.itemCount)
-	SetItemButtonDesaturated(slot, v.itemLocked, 0.5,0.5,0.5)
+	SetItemButtonCount(slot, v.itemCount)
+	--SetItemButtonDesaturated(slot, v.itemLocked, 0.5,0.5,0.5)
+	SetItemButtonDesaturated(slot, v.itemLocked)
 	if not F.IsClassic then
-		ContainerFrameItemButton_UpdateItemUpgradeIcon(slot);
+		--ContainerFrameItemButton_UpdateItemUpgradeIcon(slot); --待改
 
-		local isQuestItem, questId, isActiveQuest = GetContainerItemQuestInfo(v.bagID, v.slotID)
-		if isQuestItem then
+		--local isQuestItem, questId, isActiveQuest = GetContainerItemQuestInfo(v.bagID, v.slotID)
+		local QuestInfo = C_Container.GetContainerItemQuestInfo(v.bagID, v.slotID)
+		if QuestInfo.isQuestItem then
 			slot.QuestIcon: Show()
 		else
 			slot.QuestIcon: Hide()
@@ -837,7 +882,8 @@ local function Update_SlotItem(slot, v)
 		slot.Level: SetText("")
 	end
 	
-	local start, duration, enable = GetContainerItemCooldown(v.bagID, v.slotID)
+	--local start, duration, enable = GetContainerItemCooldown(v.bagID, v.slotID)
+	local start, duration, enable = C_Container.GetContainerItemCooldown(v.bagID, v.slotID)
 	CooldownFrame_Set(slot.cooldown, start, duration, enable)
 	if duration > 0 and enable == 0 then
 		SetItemButtonTextureVertexColor(slot, 0.4, 0.4, 0.4)
@@ -845,7 +891,8 @@ local function Update_SlotItem(slot, v)
 		SetItemButtonTextureVertexColor(slot, 1, 1, 1)
 	end
 
-	local isBattlePayItem = IsBattlePayItem(v.bagID, v.slotID)
+	--local isBattlePayItem = IsBattlePayItem(v.bagID, v.slotID)
+	local isBattlePayItem = C_Container.IsBattlePayItem(v.bagID, v.slotID)
 	--Update_CIMI(slot)
 end
 
@@ -884,9 +931,14 @@ local function BagItem_Pos(frame, bag)
 		end
 		y = floor((num+config.perLine-1)/config.perLine) - 1
 		x = num - y * config.perLine - 1
+		--[[
 		frame["Bag"..v.bagID]["Slot"..v.slotID]: ClearAllPoints()
 		frame["Bag"..v.bagID]["Slot"..v.slotID]: SetPoint("TOPLEFT", bag, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
 		frame["Bag"..v.bagID]["Slot"..v.slotID]: SetAlpha(1)
+		--]]
+		frame["Bag"..v.bagID]["Slot"..v.slotID].Anchor: ClearAllPoints()
+		frame["Bag"..v.bagID]["Slot"..v.slotID].Anchor: SetPoint("TOPLEFT", bag, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
+		frame["Bag"..v.bagID]["Slot"..v.slotID].Anchor: SetAlpha(1)
 	end
 	bag.NumBag = num
 end
@@ -916,9 +968,14 @@ local function BagFreeItem_Pos(frame, bag)
 		end
 		y = floor((num+config.perLine-1)/config.perLine) - 1
 		x = num- y * config.perLine - 1
+		--[[
 		frame["Bag"..v.bagID]["Slot"..v.slotID]: ClearAllPoints()
 		frame["Bag"..v.bagID]["Slot"..v.slotID]: SetPoint("TOPLEFT", bag, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
 		frame["Bag"..v.bagID]["Slot"..v.slotID]: SetAlpha(1)
+		--]]
+		frame["Bag"..v.bagID]["Slot"..v.slotID].Anchor: ClearAllPoints()
+		frame["Bag"..v.bagID]["Slot"..v.slotID].Anchor: SetPoint("TOPLEFT", bag, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
+		frame["Bag"..v.bagID]["Slot"..v.slotID].Anchor: SetAlpha(1)
 	end
 	bag.NumFree = num - bag.NumBag
 end
@@ -935,17 +992,27 @@ local function OtherBagItem_Pos(frame, bag)
 				e = e + 1
 				y = floor((num+config.perLine-1)/config.perLine)+floor((e+config.perLine-1)/config.perLine) - 1
 				x = e - (floor((e+config.perLine-1)/config.perLine)-1) * config.perLine - 1
+				--[[
 				frame["Bag"..v.bagID]["Slot"..v.slotID]: ClearAllPoints()
 				frame["Bag"..v.bagID]["Slot"..v.slotID]: SetPoint("TOPLEFT", bag, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border*(et+1)-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
 				frame["Bag"..v.bagID]["Slot"..v.slotID]: SetAlpha(1)
+				--]]
+				frame["Bag"..v.bagID]["Slot"..v.slotID].Anchor: ClearAllPoints()
+				frame["Bag"..v.bagID]["Slot"..v.slotID].Anchor: SetPoint("TOPLEFT", bag, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
+				frame["Bag"..v.bagID]["Slot"..v.slotID].Anchor: SetAlpha(1)
 			end
 			for k,v in ipairs(BagFree[t]) do
 				e = e + 1
 				y = floor((num+config.perLine-1)/config.perLine)+floor((e+config.perLine-1)/config.perLine) - 1
 				x = e - (floor((e+config.perLine-1)/config.perLine)-1) * config.perLine - 1
+				--[[
 				frame["Bag"..v.bagID]["Slot"..v.slotID]: ClearAllPoints()
 				frame["Bag"..v.bagID]["Slot"..v.slotID]: SetPoint("TOPLEFT", bag, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border*(et+1)-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
 				frame["Bag"..v.bagID]["Slot"..v.slotID]: SetAlpha(1)
+				--]]
+				frame["Bag"..v.bagID]["Slot"..v.slotID].Anchor: ClearAllPoints()
+				frame["Bag"..v.bagID]["Slot"..v.slotID].Anchor: SetPoint("TOPLEFT", bag, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
+				frame["Bag"..v.bagID]["Slot"..v.slotID].Anchor: SetAlpha(1)
 			end
 		end
 	end
@@ -1040,20 +1107,23 @@ local function Pos_AllBagItem(frame, pos)
 end
 
 local function GetItemInfoFromBS(BagID, SlotID)
-	local texture, itemCount, locked, quality, readable, lootable, itemLink, isFiltered = GetContainerItemInfo(BagID, SlotID)
-	if texture then
-		local _, itemID = strsplit(":", itemLink)
-		local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemLink)
+	--local texture, itemCount, locked, quality, readable, lootable, itemLink, isFiltered, noValue, itemID, isBound = C_Container.GetContainerItemInfo(BagID, SlotID)
+	local ItemInfo = C_Container.GetContainerItemInfo(BagID, SlotID)
+	--if texture then
+	if ItemInfo then
+		--local _, itemID = strsplit(":", itemLink)
+		local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = C_Item.GetItemInfo(ItemInfo.itemID)
 		--local itemID, itemType, itemSubType, itemEquipLoc, itemTexture, itemClassID, itemSubClassID = GetItemInfoInstant(itemLink) 
 		if (itemType == ITEMCLASS_Weapon) or (itemType == ITEMCLASS_Armor) then
-			local EffectiveItemLevel = GetDetailedItemLevelInfo(itemLink)
+			--local EffectiveItemLevel = C_Item.GetDetailedItemLevelInfo(itemLink)
+			local EffectiveItemLevel = C_Item.GetDetailedItemLevelInfo(ItemInfo.hyperlink)
 			itemLevel = EffectiveItemLevel or itemLevel
 		end
 		itemType = itemType or "Other"
 		if not ITEMCLASS[itemType] then
 			itemType = "Other"
 		end
-		if quality == 0 then
+		if ItemInfo.quality == 0 then
 			itemType = "Sale"
 		end
 		if itemType == ITEMCLASS_Consumable then
@@ -1064,13 +1134,13 @@ local function GetItemInfoFromBS(BagID, SlotID)
 				itemType = "Food"
 			end
 		end
-		if ITEMCLASS.Hearthstone.itemID[itemID] then
+		if ITEMCLASS.Hearthstone.itemID[ItemInfo.itemID] then
 			itemType = "Hearthstone"
 		end
 
-		return itemName,itemID,texture,itemCount,itemType,itemSubType,itemEquipLoc,quality,itemLevel,lockde
+		return itemName, ItemInfo.itemID, ItemInfo.iconFileID, ItemInfo.stackCount, itemType, itemSubType, itemEquipLoc, ItemInfo.quality, itemLevel, ItemInfo.isLocked
 	else
-		return nil,nil,texture,nil,nil,nil,quality,nil,lockde
+		return nil,nil,nil,nil,nil,nil,nil,nil,nil
 	end
 end
 
@@ -1102,7 +1172,7 @@ local function RefreshItemTable(table, bagID, slotID, itemName,itemID,texture,it
 end
 
 local function Check_BagNumSlots(frame, bagID)
-	local num = GetContainerNumSlots(bagID)
+	local num = C_Container.GetContainerNumSlots(bagID)
 	if frame.Num then
 		if frame.Num > num then
 			for i = num,frame.Num do
@@ -1124,8 +1194,8 @@ end
 local function Insert_BagItem(f)
 	wipe(Bag)
 	wipe(BagFree)
-	for b = 0, NUM_BAG_SLOTS do
-		local BagType = select(2,GetContainerNumFreeSlots(b)) or 0
+	for b = 0, NUM_BAG_SLOTS + 1 do
+		local BagType = select(2,C_Container.GetContainerNumFreeSlots(b)) or 0
 		if not f["Bag"..b] then
 			f["Bag"..b] = Create_BagFrame(f, b)
 		end
@@ -1155,8 +1225,8 @@ end
 local BagFreeNew = {}
 local function BagFreeItem_Insert(frame)
 	wipe(BagFreeNew)
-	for b = 0, NUM_BAG_SLOTS do
-		local BagType = select(2,GetContainerNumFreeSlots(b)) or 0
+	for b = 0, NUM_BAG_SLOTS + 1 do
+		local BagType = select(2,C_Container.GetContainerNumFreeSlots(b)) or 0
 		if not frame["Bag"..b] then
 			frame["Bag"..b] = Create_BagFrame(frame, b)
 		end
@@ -1179,8 +1249,8 @@ end
 
 local function Refresh_SlotNumFree(frame)
 	SlotNum.Free = 0
-	for BagID = 0, NUM_BAG_SLOTS do
-		local FreeSlots,BagType = GetContainerNumFreeSlots(BagID)
+	for BagID = 0, NUM_BAG_SLOTS + 1 do
+		local FreeSlots,BagType = C_Container.GetContainerNumFreeSlots(BagID)
 		if BagType == 0 then
 			SlotNum.Free = SlotNum.Free + FreeSlots or 0
 		end
@@ -1210,7 +1280,7 @@ local function Refresh_BagItemInfo(frame)
 end
 
 local function Remove_BagItem(frame)
-	for b = 0, NUM_BAG_SLOTS do
+	for b = 0, NUM_BAG_SLOTS + 1 do
 		Check_BagNumSlots(frame["Bag"..b], b)
 	end
 	for BagType, Slots in pairs(Bag) do
@@ -1255,7 +1325,7 @@ local function Update_ItemLock(self, ...)
 	if (not (self and self:IsShown())) then return end
 	local bagID, slotID = ...
 	if bagID and slotID and self["Bag"..bagID] and self["Bag"..bagID]["Slot"..slotID] then
-		local _, _, locked, quality = GetContainerItemInfo(bagID, slotID)
+		local _, _, locked, quality = C_Container.GetContainerItemInfo(bagID, slotID)
 		local button = self["Bag"..bagID]["Slot"..slotID]
 		SetItemButtonDesaturated(button, locked, 0.5,0.5,0.5)
 		if locked then
@@ -1279,7 +1349,7 @@ local function Update_ItemCooldown(frame, ...)
 	for bagID = BANK_CONTAINER, NUM_BAG_SLOTS + NUM_BANKBAGSLOTS do
 		if _G[format("Quafe_Bag%s", bagID)] then
 			for slotID = 1, ContainerFrame_GetContainerNumSlots(bagID)do
-				local start, duration, enable = GetContainerItemCooldown(bagID, slotID)
+				local start, duration, enable = C_Container.GetContainerItemCooldown(bagID, slotID)
 				itemButton = _G[format("Quafe_Bag%sSlot%s", bagID, slotID)]
 				if itemButton then
 					CooldownFrame_Set(itemButton.cooldown, start, duration, enable)
@@ -1302,7 +1372,7 @@ local function Update_ItemUpgradeIcons(frame)
 			for slotID = 1, ContainerFrame_GetContainerNumSlots(bagID)do
 				itemButton = _G[format("Quafe_Bag%sSlot%s", bagID, slotID)]
 				if itemButton then
-					ContainerFrameItemButton_UpdateItemUpgradeIcon(itemButton)
+					--ContainerFrameItemButton_UpdateItemUpgradeIcon(itemButton)	--待改
 				end
 			end
 		end
@@ -1312,27 +1382,31 @@ end
 local function Search_BagItem(frame, ...)
 	if (not (frame and frame:IsShown())) then return end
 	local itemButton
-	for bagID = 0, NUM_BAG_SLOTS do
+	local ItemInfo
+	for bagID = 0, NUM_BAG_SLOTS + 1 do
 		for slotID = 1, ContainerFrame_GetContainerNumSlots(bagID) do
-			local _, _, _, quality, _, _, _, isFiltered = GetContainerItemInfo(bagID, slotID)
+			--local _, _, _, quality, _, _, _, isFiltered = C_Container.GetContainerItemInfo(bagID, slotID)
 			itemButton = frame["Bag"..bagID]["Slot"..slotID]
 			if itemButton then
-				if isFiltered then
-					SetItemButtonDesaturated(item, 1)
-					itemButton:SetAlpha(0.4)
-					--itemButton.searchOverlay:Show();
-					if quality and (quality > 1) then
-						itemButton.QualityIcon: SetVertexColor(0.5,0.5,0.5)
-						itemButton.Border: SetBackdropBorderColor(0.5,0.5,0.5, 0.9)
-					end
-				else
-					SetItemButtonDesaturated(item)
-					itemButton:SetAlpha(1)
-					--itemButton.searchOverlay:Hide();
-					if quality and (quality > 1) then
-						local color = ITEM_QUALITY_COLORS[quality]
-						itemButton.QualityIcon: SetVertexColor(color.r,color.g,color.b)
-						itemButton.Border: SetBackdropBorderColor(color.r,color.g,color.b, 0.9)
+				ItemInfo = C_Container.GetContainerItemInfo(bagID, slotID)
+				if ItemInfo then
+					if  ItemInfo.isFiltered then
+						SetItemButtonDesaturated(item, 1)
+						itemButton.Anchor:SetAlpha(0.4)
+						--itemButton.searchOverlay:Show();
+						if ItemInfo.quality and (ItemInfo.quality > 1) then
+							itemButton.QualityIcon: SetVertexColor(0.5,0.5,0.5)
+							itemButton.Border: SetBackdropBorderColor(0.5,0.5,0.5, 0.9)
+						end
+					else
+						SetItemButtonDesaturated(item)
+						itemButton.Anchor:SetAlpha(1)
+						--itemButton.searchOverlay:Hide();
+						if ItemInfo.quality and (ItemInfo.quality > 1) then
+							local color = ITEM_QUALITY_COLORS[ItemInfo.quality]
+							itemButton.QualityIcon: SetVertexColor(color.r,color.g,color.b)
+							itemButton.Border: SetBackdropBorderColor(color.r,color.g,color.b, 0.9)
+						end
 					end
 				end
 			end
@@ -1591,11 +1665,12 @@ local function BagExtra_Frame(f)
 	AddSlotButton.Bg: SetAlpha(0)
 	AddSlotButton.tooltipText = BACKPACK_AUTHENTICATOR_INCREASE_SIZE
 
-	local AddSlotButtonIcon = AddSlotButton:CreateTexture(nil, "ARTOWRK")
-	AddSlotButtonIcon: SetTexture(F.Path("Bag_Button3"))
-	AddSlotButtonIcon: SetSize(18,18)
+	local AddSlotButtonIcon = F.Create.Texture(AddSlotButton, "ARTWORK", 0, F.Path("Bag_Button3"), C.Color.W3, 1, {18,18})
+	--local AddSlotButtonIcon = AddSlotButton:CreateTexture(nil, "ARTWORK", )
+	--AddSlotButtonIcon: SetTexture(F.Path("Bag_Button3"))
+	--AddSlotButtonIcon: SetSize(18,18)
 	AddSlotButtonIcon: SetPoint("CENTER", AddSlotButton, "CENTER", 0,0)
-	AddSlotButtonIcon: SetVertexColor(F.Color(C.Color.W3))
+	--AddSlotButtonIcon: SetVertexColor(F.Color(C.Color.W3))
 
 	AddSlotButton: RegisterEvent("BAG_OPEN")
 	AddSlotButton: RegisterEvent("BAG_UPDATE")
@@ -1629,7 +1704,7 @@ local function BagExtra_Frame(f)
 	end)
 	
 	local lastbutton
-	for bagID = 0, NUM_BAG_SLOTS do
+	for bagID = 0, NUM_BAG_SLOTS + 1 do
 		local button
 		if F.IsClassic then
 			if bagID == 0 then
@@ -1641,24 +1716,34 @@ local function BagExtra_Frame(f)
 		else
 			if bagID == 0 then
 				button = CreateFrame("ItemButton", "Quafe_BagBackpack", bagextra, "Quafe_BackpackButtonTemplate")
+				button.commandName = "TOGGLEBACKPACK"
+			elseif bagID == 5 then
+				button = CreateFrame("ItemButton", "Quafe_BagReagentBag0Slot", bagextra, "Quafe_BagSlotButtonTemplate")
+				button.commandName = "TOGGLEREAGENTBAG1"
 			else
 				button = CreateFrame("ItemButton", "Quafe_BagBag"..(bagID-1).."Slot", bagextra, "Quafe_BagSlotButtonTemplate")
+				button.commandName = "TOGGLEBAG"..(5-bagID)
 			end
 		end
 		button: SetSize(24,24)
 		local invID
 		if bagID == 0 then
 			invID = bagID
-			button: SetPoint("RIGHT", bagextra, "RIGHT", -33-30*4,0)
+			button: SetPoint("RIGHT", bagextra, "RIGHT", -33,0)
 		else
-			invID = ContainerIDToInventoryID(bagID)
-			button: SetPoint("LEFT", lastbutton, "RIGHT", 6,0)
+			invID = C_Container.ContainerIDToInventoryID(bagID)
+			button: SetPoint("RIGHT", lastbutton, "LEFT", -4,0)
 		end
 		button.invID = invID
 		button.bagID = bagID
 		button: SetID(invID)
 		
-		button: SetNormalTexture("")
+		--button: SetNormalTexture("")
+		--button: SetNormalTexture(0)
+		button: ClearNormalTexture()
+		button: SetPushedTexture(F.Path("Button\\Bag_Pushed"))
+		button: SetHighlightTexture(F.Path("Button\\Bag_Hightlight"))
+
 		button.icon: SetAllPoints(button)
 		button.icon: SetTexCoord(0.1,0.9, 0.1,0.9)
 		
@@ -1676,7 +1761,7 @@ local function BagExtra_Frame(f)
 			button.IconBorder: SetAlpha(0)
 		end
 		
-		--button: RegisterForDrag("LeftButton", "RightButton")
+		button: RegisterForDrag("LeftButton", "RightButton")
 		--button: RegisterForClicks("anyUp")
 		--[[
 		button: SetScript("OnClick", function(self, btn)
@@ -1715,7 +1800,7 @@ local function BagExtra_Frame(f)
 	--f.Extra: RegisterEvent("PLAYERBANKBAGSLOTS_CHANGED")
 	f.Extra: RegisterEvent("ITEM_LOCK_CHANGED")
 	f.Extra: SetScript("OnEvent", function(self, event, ...)
-		for bagID = 0, NUM_BAG_SLOTS do
+		for bagID = 0, NUM_BAG_SLOTS + 1 do
 			if bagID == 0 then
 				f.Extra["Bag"..bagID].icon:SetTexture([[Interface\Buttons\Button-Backpack-Up]])
 			else
@@ -1733,7 +1818,7 @@ end
 
 local CIMI_Load = false
 local function CanIMogIt_Load()
-	if IsAddOnLoaded("CanIMogIt") and (not CIMI_Load) then
+	if C_AddOns.IsAddOnLoaded("CanIMogIt") and (not CIMI_Load) then
 		--> UpdateIcon functions
 		function QuafeItemButton_CIMIUpdateIcon(self)
 			if not self or not self:GetParent() then return end
@@ -1799,7 +1884,7 @@ local function CanIMogIt_Load()
 end
 --[[
 local function CIMI_LoadCheck()
-	if IsAddOnLoaded("CanIMogIt") then
+	if C_AddOns.IsAddOnLoaded("CanIMogIt") then
 		Update_CIMI = function(button)
 			CIMI_AddToFrame(button, ContainerFrameItemButton_CIMIUpdateIcon)
 			ContainerFrameItemButton_CIMIUpdateIcon(button.CanIMogItOverlay)
@@ -1807,6 +1892,7 @@ local function CIMI_LoadCheck()
 	end
 end
 --]]
+
 --- ------------------------------------------------------------
 --> Bag Frame
 --- ------------------------------------------------------------
@@ -1838,12 +1924,11 @@ local function UpdatePostion(frame, database)
 end
 
 local function Bag_Frame(frame)
-	local BagFrame = CreateFrame("Frame", "Quafe_BagFrame", frame)
+	local BagFrame = CreateFrame("Frame", "Quafe_BagFrame", UIParent)
 	BagFrame: SetFrameLevel(2)
 	BagFrame: SetSize((config.buttonSize+config.buttonGap*2)*config.perLine+config.border*2, 48)
 	--BagFrame: SetPoint("TOPRIGHT", UIParent, "TOPRIGHT", -40,-240)
 	BagFrame: SetPoint("RIGHT", UIParent, "RIGHT", -80,0)
-	table.insert(UISpecialFrames, "Quafe_BagFrame");
 
 	function BagFrame: FullUpdate_BagItem()
 		FullUpdate_BagItem(self)
@@ -1881,22 +1966,6 @@ local function Bag_Frame(frame)
 		UpdatePostion(frame.BagFrame, Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Container"].BagPos)
 	end)
 
-	local function Bag_Toggle()
-		if frame.BagFrame: IsShown() then
-			frame.BagFrame: Hide()
-		else
-			frame.BagFrame: Show()
-		end
-	end
-
-	local function Bag_Open()
-		frame.BagFrame:Show()
-	end
-
-	local function Bag_Close()
-		frame.BagFrame:Hide()
-	end
-
 	frame.BagFrame: RegisterEvent("PLAYER_LOGIN")
 	frame.BagFrame: RegisterEvent("PLAYER_ENTERING_WORLD")
 	--frame.BagFrame: RegisterEvent("BAG_OPEN");
@@ -1918,14 +1987,16 @@ local function Bag_Frame(frame)
 	frame.BagFrame: SetScript("OnEvent", function(self, event, ...)
 		if event == "PLAYER_LOGIN" then
 			self:Hide()
-			--ToggleBag = Bag_Toggle
+			--[[
+			ToggleBag = Bag_Toggle
 			ToggleAllBags = Bag_Toggle
 			ToggleBackpack = Bag_Toggle
 			OpenBag = Bag_Open
 			OpenAllBags = Bag_Open
-			OpenBackpack = Bag_Open
-			CloseAllBags = Bag_Close
-			CloseBackpack = Bag_Close
+			--]]
+			--OpenBackpack = Bag_Open
+			--CloseAllBags = Bag_Close
+			--CloseBackpack = Bag_Close
 			FullUpdate_BagItem(self)
 			C_Timer.After(2, function() FullUpdate_BagItem(self) end)
 			self.FullUpdate = true
@@ -1998,7 +2069,9 @@ local function Bag_Frame(frame)
 			end
 		end
 		--Quafe_UpdateAfter()
+		PlaySoundFile(F.Path("Sound\\Show.ogg"), "Master")
 	end)
+	
 	frame.BagFrame: SetScript("OnHide", function(self)
 		if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Manual" then
 			LimitedUpdate_BagItem(self)
@@ -2007,20 +2080,35 @@ local function Bag_Frame(frame)
 		elseif Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Always" then
 			FullUpdate_BagItem(self)
 		end
+		--PlaySoundFile(F.Path("Sound\\Show.ogg"), "Master")
 	end)
 end
 
 --- ------------------------------------------------------------
---> Bank Frame
+--> Bank Functions
 --- ------------------------------------------------------------
 
-local Bank_BagID = {-3,-1,5,6,7,8,9,10,11}
+local Bank_BagID = {-3,-1,6,7,8,9,10,11,12}
+
+local function GetActiveBankType(self)
+	if not self:IsShown() then
+		return nil;
+	end
+	if self.activeTabIndex == 1 then
+		return Enum.BankType.Character;
+	--elseif self.activeTabIndex == 2 then
+		-- Insert reagent bank override if needed here
+	elseif self.activeTabIndex == 3 then
+		return Enum.BankType.Account;
+	end
+	return Enum.BankType.Character;
+end
 
 local function Create_BankFrame(f, bagID)
 	local button = CreateFrame("Button", "Quafe_Bag"..bagID, f)
 	button: SetID(bagID)
 	button.isBag = 1
-	
+
 	return button
 end
 
@@ -2088,11 +2176,16 @@ local function Pos_BankItem(frame, pos)
 		end
 		y = floor((num+config.bankperLine-1)/config.bankperLine) - 1
 		x = num - y * config.bankperLine - 1
+		--[[
 		frame["Bag"..v.bagID]["Slot"..v.slotID]: ClearAllPoints()
 		frame["Bag"..v.bagID]["Slot"..v.slotID]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
 		frame["Bag"..v.bagID]["Slot"..v.slotID]: SetAlpha(1)
+		--]]
+		frame["Bag"..v.bagID]["Slot"..v.slotID].Anchor: ClearAllPoints()
+		frame["Bag"..v.bagID]["Slot"..v.slotID].Anchor: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
+		frame["Bag"..v.bagID]["Slot"..v.slotID].Anchor: SetAlpha(1)
 	end
-	
+
 	for k,v in ipairs(BankFree[0]) do
 		num = num + 1
 		if k == 1 then
@@ -2105,9 +2198,14 @@ local function Pos_BankItem(frame, pos)
 		end
 		y = floor((num+config.bankperLine-1)/config.bankperLine) - 1
 		x = num- y * config.bankperLine - 1
+		--[[
 		frame["Bag"..v.bagID]["Slot"..v.slotID]: ClearAllPoints()
 		frame["Bag"..v.bagID]["Slot"..v.slotID]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
 		frame["Bag"..v.bagID]["Slot"..v.slotID]: SetAlpha(1)
+		--]]
+		frame["Bag"..v.bagID]["Slot"..v.slotID].Anchor: ClearAllPoints()
+		frame["Bag"..v.bagID]["Slot"..v.slotID].Anchor: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
+		frame["Bag"..v.bagID]["Slot"..v.slotID].Anchor: SetAlpha(1)
 	end
 
 	for t,s in pairs(Bank) do
@@ -2118,17 +2216,27 @@ local function Pos_BankItem(frame, pos)
 				e = e + 1
 				y = floor((num+config.bankperLine-1)/config.bankperLine)+floor((e+config.bankperLine-1)/config.bankperLine) - 1
 				x = e - (floor((e+config.bankperLine-1)/config.bankperLine)-1) * config.bankperLine - 1
+				--[[
 				frame["Bag"..v.bagID]["Slot"..v.slotID]: ClearAllPoints()
 				frame["Bag"..v.bagID]["Slot"..v.slotID]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border*(et+1)-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
 				frame["Bag"..v.bagID]["Slot"..v.slotID]: SetAlpha(1)
+				--]]
+				frame["Bag"..v.bagID]["Slot"..v.slotID].Anchor: ClearAllPoints()
+				frame["Bag"..v.bagID]["Slot"..v.slotID].Anchor: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
+				frame["Bag"..v.bagID]["Slot"..v.slotID].Anchor: SetAlpha(1)
 			end
 			for k,v in ipairs(BankFree[t]) do
 				e = e + 1
 				y = floor((num+config.bankperLine-1)/config.bankperLine)+floor((e+config.bankperLine-1)/config.bankperLine) - 1
 				x = e - (floor((e+config.bankperLine-1)/config.bankperLine)-1) * config.bankperLine - 1
+				--[[
 				frame["Bag"..v.bagID]["Slot"..v.slotID]: ClearAllPoints()
 				frame["Bag"..v.bagID]["Slot"..v.slotID]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border*(et+1)-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
 				frame["Bag"..v.bagID]["Slot"..v.slotID]: SetAlpha(1)
+				--]]
+				frame["Bag"..v.bagID]["Slot"..v.slotID].Anchor: ClearAllPoints()
+				frame["Bag"..v.bagID]["Slot"..v.slotID].Anchor: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
+				frame["Bag"..v.bagID]["Slot"..v.slotID].Anchor: SetAlpha(1)
 			end
 		end
 	end
@@ -2138,25 +2246,35 @@ local function Pos_BankItem(frame, pos)
 	frame: SetHeight(y+48+2)
 end
 
-local function Pos_ReagentItem(f, pos)
+local function Pos_ReagentItem(frame, pos)
 	local x,y
 	local num = 0
 	for k,v in ipairs(Reagent) do
 		num = num + 1
 		y = floor((num+config.reagentperLine-1)/config.reagentperLine) - 1
 		x = num - y * config.reagentperLine - 1
+		--[[
 		f["Bag"..v.bagID]["Slot"..v.slotID]: ClearAllPoints()
 		f["Bag"..v.bagID]["Slot"..v.slotID]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
 		f["Bag"..v.bagID]["Slot"..v.slotID]: SetAlpha(1)
+		--]]
+		frame["Bag"..v.bagID]["Slot"..v.slotID].Anchor: ClearAllPoints()
+		frame["Bag"..v.bagID]["Slot"..v.slotID].Anchor: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
+		frame["Bag"..v.bagID]["Slot"..v.slotID].Anchor: SetAlpha(1)
 	end
 	
 	for k,v in ipairs(ReagentFree) do
 		num = num + 1
 		y = floor((num+config.reagentperLine-1)/config.reagentperLine) - 1
 		x = num- y * config.reagentperLine - 1
+		--[[
 		f["Bag"..v.bagID]["Slot"..v.slotID]: ClearAllPoints()
 		f["Bag"..v.bagID]["Slot"..v.slotID]: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
 		f["Bag"..v.bagID]["Slot"..v.slotID]: SetAlpha(1)
+		--]]
+		frame["Bag"..v.bagID]["Slot"..v.slotID].Anchor: ClearAllPoints()
+		frame["Bag"..v.bagID]["Slot"..v.slotID].Anchor: SetPoint("TOPLEFT", pos, "TOPLEFT", config.border+config.buttonGap+x*(config.buttonSize+config.buttonGap*2), -config.border-config.buttonGap-y*(config.buttonSize+config.buttonGap*2))
+		frame["Bag"..v.bagID]["Slot"..v.slotID].Anchor: SetAlpha(1)
 	end
 
 	pos: SetHeight((config.buttonSize+config.buttonGap*2)*ceil(num/config.reagentperLine)+config.border*2)
@@ -2168,7 +2286,7 @@ local function Insert_BankItem(f)
 	wipe(Reagent)
 	wipe(ReagentFree)
 	for _, b in ipairs(Bank_BagID) do
-		local BagType = select(2,GetContainerNumFreeSlots(b)) or 0
+		local BagType = select(2,C_Container.GetContainerNumFreeSlots(b)) or 0
 		if not f["Bag"..b] then
 			f["Bag"..b] = Create_BankFrame(f, b)
 			if b == REAGENTBANK_CONTAINER then
@@ -2189,7 +2307,7 @@ local function Insert_BankItem(f)
 				f["Bag"..b]["Slot"..s] = Create_BagItemButton(f["Bag"..b], b, s)
 			end
 			local itemName,itemID,texture,itemCount,itemType,itemSubType,itemEquipLoc,quality,itemLevel,lockde = GetItemInfoFromBS(b, s)
-			--local texture, itemCount, locked, quality, readable, lootable, itemLink, isFiltered = GetContainerItemInfo(b, s)
+			--local texture, itemCount, locked, quality, readable, lootable, itemLink, isFiltered = C_Container.GetContainerItemInfo(b, s)
 			if texture then
 				--local _, itemID = strsplit(":", itemLink)
 				--local itemName, itemLink, itemRarity, itemLevel, itemMinLevel, itemType, itemSubType, itemStackCount, itemEquipLoc, itemTexture, itemSellPrice = GetItemInfo(itemLink)
@@ -2229,27 +2347,32 @@ end
 local function Search_BankItem(frame, ...)
 	if (not frame and frame:IsShown()) then return end
 	local itemButton
+	local ItemInfo
 	for _, bagID in ipairs(Bank_BagID) do
 		for slotID = 1, ContainerFrame_GetContainerNumSlots(bagID) do
-			local _, _, _, quality, _, _, _, isFiltered = GetContainerItemInfo(bagID, slotID)
+			--local _, _, _, quality, _, _, _, isFiltered = C_Container.GetContainerItemInfo(bagID, slotID)
 			itemButton = frame["Bag"..bagID]["Slot"..slotID]
 			if itemButton then
-				if isFiltered then
-					SetItemButtonDesaturated(item, 1)
-					itemButton:SetAlpha(0.4)
-					--itemButton.searchOverlay:Show();
-					if quality and (quality > 1) then
-						itemButton.QualityIcon: SetVertexColor(0.5,0.5,0.5)
-						itemButton.Border: SetBackdropBorderColor(0.5,0.5,0.5, 0.9)
-					end
-				else
-					SetItemButtonDesaturated(item)
-					itemButton:SetAlpha(1)
-					--itemButton.searchOverlay:Hide();
-					if quality and (quality > 1) then
-						local color = ITEM_QUALITY_COLORS[quality]
-						itemButton.QualityIcon: SetVertexColor(color.r,color.g,color.b)
-						itemButton.Border: SetBackdropBorderColor(color.r,color.g,color.b, 0.9)
+				ItemInfo = C_Container.GetContainerItemInfo(bagID, slotID)
+				if ItemInfo then
+					if ItemInfo.isFiltered then
+						print(bagID, slotID)
+						SetItemButtonDesaturated(item, 1)
+						itemButton.Anchor:SetAlpha(0.4)
+						--itemButton.searchOverlay:Show();
+						if ItemInfo.quality and (ItemInfo.quality > 1) then
+							itemButton.QualityIcon: SetVertexColor(0.5,0.5,0.5)
+							itemButton.Border: SetBackdropBorderColor(0.5,0.5,0.5, 0.9)
+						end
+					else
+						SetItemButtonDesaturated(item)
+						itemButton.Anchor:SetAlpha(1)
+						--itemButton.searchOverlay:Hide();
+						if ItemInfo.quality and (ItemInfo.quality > 1) then
+							local color = ITEM_QUALITY_COLORS[ItemInfo.quality]
+							itemButton.QualityIcon: SetVertexColor(color.r,color.g,color.b)
+							itemButton.Border: SetBackdropBorderColor(color.r,color.g,color.b, 0.9)
+						end
 					end
 				end
 			end
@@ -2257,30 +2380,34 @@ local function Search_BankItem(frame, ...)
 	end
 end
 
-local function Reagent_Frame(f)
-	local Reagent = CreateFrame("Frame", "Quafe_BankReagent", f)
-	Reagent: SetFrameLevel(5)
-	Reagent: SetSize((config.buttonSize+config.buttonGap*2)*config.reagentperLine + config.border*2, 48)
-	Reagent: SetPoint("TOP", f.Extra, "BOTTOM", 0,-2)
-	F.create_Backdrop(Reagent, 2, 8, 4, C.Color.Config.Back,0.9, C.Color.Config.Back,0.9)
+--- ------------------------------------------------------------
+--> Reagent Frame
+--- ------------------------------------------------------------
 
-	local RegentUnlockInfo = CreateFrame("Frame", "Quafe_BankReagent.UnlockInfo", Reagent)
-	RegentUnlockInfo: SetAllPoints(Reagent)
+local function Reagent_Frame(f)
+	local ReagentFrame = CreateFrame("Frame", "Quafe_BankReagent", f)
+	ReagentFrame: SetFrameLevel(5)
+	ReagentFrame: SetSize((config.buttonSize+config.buttonGap*2)*config.reagentperLine + config.border*2, 48)
+	ReagentFrame: SetPoint("TOP", f.Extra, "BOTTOM", 0,-2)
+	F.create_Backdrop(ReagentFrame, 2, 8, 4, C.Color.Config.Back,0.9, C.Color.Config.Back,0.9)
+
+	local RegentUnlockInfo = CreateFrame("Frame", "Quafe_BankReagent.UnlockInfo", ReagentFrame)
+	RegentUnlockInfo: SetAllPoints(ReagentFrame)
 	RegentUnlockInfo: SetFrameLevel(18)
 	RegentUnlockInfo: EnableMouse(true)
 	F.create_Backdrop(RegentUnlockInfo, 2, 8, 4, C.Color.Config.Back,0.9, C.Color.Config.Back,0)
 
-	local RegentUnlockInfoText = F.create_Font(RegentUnlockInfo, C.Font.Txt, 14, nil, 1, "CENTER", "CENTER")
+	local RegentUnlockInfoText = F.Create.Font(RegentUnlockInfo, "ARTWORK", C.Font.Txt, 14, nil, nil, 1, nil, nil, nil, "CENTER", "MIDDLE")
 	RegentUnlockInfoText: SetSize(512,32)
 	RegentUnlockInfoText: SetPoint("BOTTOM", RegentUnlockInfo, "CENTER", 0, 0)
 	RegentUnlockInfoText: SetText(REAGENTBANK_PURCHASE_TEXT)
 
-	local RegentUnlockInfoTitle = F.create_Font(RegentUnlockInfo, C.Font.Txt, 22, nil, 1, "CENTER", "CENTER")
+	local RegentUnlockInfoTitle = F.Create.Font(RegentUnlockInfo, "ARTWORK", C.Font.Txt, 22, nil, nil, 1, nil, nil, nil, "CENTER", "MIDDLE")
 	RegentUnlockInfoTitle: SetSize(384,0)
 	RegentUnlockInfoTitle: SetPoint("BOTTOM", RegentUnlockInfoText, "TOP", 0, 8)
 	RegentUnlockInfoTitle: SetText(REAGENT_BANK)
-
-	local RegentUnlockInfoCost = F.create_Font(RegentUnlockInfo, C.Font.Txt, 14, nil, 1, "RIGHT", "CENTER")
+	
+	local RegentUnlockInfoCost = F.Create.Font(RegentUnlockInfo, "ARTWORK", C.Font.Txt, 14, nil, nil, 1, nil, nil, nil, "RIGHT", "MIDDLE")
 	RegentUnlockInfoCost: SetSize(384,21)
 	RegentUnlockInfoCost: SetPoint("TOPRIGHT", RegentUnlockInfoText, "BOTTOM", -10, -8)
 	RegentUnlockInfoCost: SetText(COSTS_LABEL)
@@ -2291,13 +2418,13 @@ local function Reagent_Frame(f)
 	--RegentUnlockInfoPurchaseButton: SetFont(C.Font.Txt, 14, nil)
 	RegentUnlockInfoPurchaseButton: SetText(BANKSLOTPURCHASE)
 	RegentUnlockInfoPurchaseButton: SetScript("OnClick", function(self, button)
-		PlaySound(852)
+		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION);
 		StaticPopup_Show("CONFIRM_BUY_REAGENTBANK_TAB")
 	end)
 
-	Reagent: RegisterEvent("BANKFRAME_OPENED")
-	Reagent: RegisterEvent("REAGENTBANK_PURCHASED")
-	Reagent: SetScript("OnEvent", function(self, event)
+	ReagentFrame: RegisterEvent("BANKFRAME_OPENED")
+	ReagentFrame: RegisterEvent("REAGENTBANK_PURCHASED")
+	ReagentFrame: SetScript("OnEvent", function(self, event)
 		if event == "BANKFRAME_OPENED" then
 			if(not IsReagentBankUnlocked()) then
 				local cost = GetReagentBankCost()
@@ -2316,7 +2443,92 @@ local function Reagent_Frame(f)
 		end
 	end)
 	
-	f.Reagent = Reagent
+	f.Reagent = ReagentFrame
+end
+
+--- ------------------------------------------------------------
+--> AccountBank Frame 13-17
+--- ------------------------------------------------------------
+
+local AccountBank_Frame = function(frame)
+	local AccountBankFrame = CreateFrame("Frame", "Quafe_AccountBank", frame)
+	AccountBankFrame: SetFrameLevel(5)
+	AccountBankFrame: SetSize((config.buttonSize+config.buttonGap*2)*config.reagentperLine + config.border*2, 48)
+	AccountBankFrame: SetPoint("TOP", frame.Extra, "BOTTOM", 0,-2)
+	F.Create.Backdrop(AccountBankFrame, 2, false, 8, 4, C.Color.Config.Back,0.9, C.Color.Config.Back,0.9)
+
+	local UnlockInfo = CreateFrame("Frame", "Quafe_BankReagent.UnlockInfo", AccountBankFrame)
+	UnlockInfo: SetAllPoints(AccountBankFrame)
+	UnlockInfo: SetFrameLevel(18)
+	UnlockInfo: EnableMouse(true)
+	F.Create.Backdrop(UnlockInfo, 2, false, 8, 4, C.Color.Config.Back,0.9, C.Color.Config.Back,0)
+
+	local UnlockInfoText = F.Create.Font(UnlockInfo, "ARTWORK", C.Font.Txt, 14, nil, nil, 1, nil, nil, nil, "CENTER", "MIDDLE")
+	UnlockInfoText: SetSize(512,64)
+	UnlockInfoText: SetPoint("BOTTOM", UnlockInfo, "CENTER", 0, 0)
+	UnlockInfoText: SetText(ACCOUNT_BANK_TAB_PURCHASE_PROMPT)
+
+	local UnlockInfoTitle = F.Create.Font(UnlockInfo, "ARTWORK", C.Font.Txt, 22, nil, nil, 1, nil, nil, nil, "CENTER", "MIDDLE")
+	UnlockInfoTitle: SetSize(384,0)
+	UnlockInfoTitle: SetPoint("BOTTOM", UnlockInfoText, "TOP", 0, 8)
+	UnlockInfoTitle: SetText(ACCOUNT_BANK_PANEL_TITLE)
+
+	local UnlockInfoCost = F.Create.Font(UnlockInfo, "ARTWORK", C.Font.Txt, 14, nil, nil, 1, nil, nil, nil, "RIGHT", "MIDDLE")
+	UnlockInfoCost: SetSize(384,21)
+	UnlockInfoCost: SetPoint("TOPRIGHT", UnlockInfoText, "BOTTOM", -10, -8)
+	UnlockInfoCost: SetText(COSTS_LABEL)
+
+	local UnlockInfoPurchaseButton = CreateFrame("Button", nil, UnlockInfo, "UIPanelButtonTemplate")
+	UnlockInfoPurchaseButton: SetSize(124,21)
+	UnlockInfoPurchaseButton: SetPoint("TOPLEFT", UnlockInfoText, "BOTTOM", 10, -8)
+	--UnlockInfoPurchaseButton: SetFont(C.Font.Txt, 14, nil)
+	UnlockInfoPurchaseButton: SetText(BANKSLOTPURCHASE)
+	UnlockInfoPurchaseButton: SetScript("OnClick", function(self, button)
+		PlaySound(SOUNDKIT.IG_MAINMENU_OPTION);
+		local textArg1, textArg2 = nil, nil;
+		StaticPopup_Show("CONFIRM_BUY_BANK_TAB", textArg1, textArg2, { bankType = Enum.BankType.Account });
+	end)
+
+	AccountBankFrame.UnlockInfo = UnlockInfo
+	AccountBankFrame.UnlockInfo.Cost = UnlockInfoCost
+
+	local function AccountBank_UpdateUnlockInfo(self)
+		local purchasedBankTabData = C_Bank.FetchPurchasedBankTabData(Enum.BankType.Account)
+		local hasPurchasedTabs = purchasedBankTabData and #purchasedBankTabData > 0;
+		if hasPurchasedTabs then
+			self.UnlockInfo: Hide()
+		else
+			local cost = C_Bank.FetchNextPurchasableBankTabCost(Enum.BankType.Account)
+			local gold = floor(abs(cost / 10000))
+			local silver = floor(abs(mod(cost / 100, 100)))
+			local copper = floor(abs(mod(cost, 100)))
+			local hexcolor = F.Hex(C.Color.Y1)
+			self.UnlockInfo.Cost: SetText(format("%s%s%s%s%s%s%s", COSTS_LABEL, gold, hexcolor.."G|r",silver, hexcolor.."S|r",copper, hexcolor.."C|r"))
+			self.UnlockInfo: Show()
+		end
+	end
+
+	AccountBankFrame: RegisterEvent("BANKFRAME_OPENED")
+	AccountBankFrame: RegisterEvent("BANK_TAB_SETTINGS_UPDATED")
+	AccountBankFrame: SetScript("OnEvent", function(self, event)
+		if event == "BANKFRAME_OPENED" then
+			AccountBank_UpdateUnlockInfo(self)
+		elseif event == "BANK_TAB_SETTINGS_UPDATED" then
+			if self.UnlockInfo: IsShow() then
+				AccountBank_UpdateUnlockInfo(self)
+			end
+		end
+	end)
+
+
+	frame.AccountBank = AccountBankFrame
+end
+
+--- ------------------------------------------------------------
+--> Bank Frames
+--- ------------------------------------------------------------
+local function TabButton_Templplate(frame)
+
 end
 
 local function BankExtra_Frame(f)
@@ -2385,7 +2597,7 @@ local function BankExtra_Frame(f)
 	PurchaseButton.Bg: SetAlpha(0)
 	PurchaseButton.tooltipText = BANKSLOTPURCHASE_LABEL
 
-	local PurchaseButtonIcon = PurchaseButton:CreateTexture(nil, "ARTOWRK")
+	local PurchaseButtonIcon = PurchaseButton:CreateTexture(nil, "ARTWORK")
 	PurchaseButtonIcon: SetTexture(F.Path("Bag_Button3"))
 	PurchaseButtonIcon: SetSize(18,18)
 	PurchaseButtonIcon: SetPoint("CENTER", PurchaseButton, "CENTER", 0,0)
@@ -2471,7 +2683,12 @@ local function BankExtra_Frame(f)
 		button.bagID = bagID
 		button: SetID(bagID - 4)
 		
-		button: SetNormalTexture("")
+		--button: SetNormalTexture("")
+		--button: SetNormalTexture(0)
+		button: ClearNormalTexture()
+		button: SetPushedTexture(F.Path("Button\\Bag_Pushed"))
+		button: SetHighlightTexture(F.Path("Button\\Bag_Hightlight"))
+
 		button.icon: SetAllPoints(button)
 		button.icon: SetTexCoord(0.1,0.9, 0.1,0.9)
 		
@@ -2549,13 +2766,56 @@ local function BankExtra_Frame(f)
 	end)
 end
 
+local function BankFrame_OnShow(self)
+	self:RegisterEvent("ITEM_LOCK_CHANGED");
+	self:RegisterEvent("PLAYERBANKSLOTS_CHANGED");
+	self:RegisterEvent("PLAYERREAGENTBANKSLOTS_CHANGED");
+	self:RegisterEvent("PLAYERBANKBAGSLOTS_CHANGED");
+	self:RegisterEvent("PLAYER_MONEY");
+	self:RegisterEvent("BAG_UPDATE_COOLDOWN");
+	self:RegisterEvent("INVENTORY_SEARCH_UPDATE");
+
+	FullUpdate_BankItem(self)
+
+	for i=1, NUM_BANKGENERIC_SLOTS, 1 do
+
+	end
+end
+
+local function BankFrame_OnHide(self)
+	self:UnregisterEvent("ITEM_LOCK_CHANGED");
+	self:UnregisterEvent("PLAYERBANKSLOTS_CHANGED");
+	self:UnregisterEvent("PLAYERREAGENTBANKSLOTS_CHANGED");
+	self:UnregisterEvent("PLAYERBANKBAGSLOTS_CHANGED");
+	self:UnregisterEvent("PLAYER_MONEY");
+	self:UnregisterEvent("BAG_UPDATE_COOLDOWN");
+	self:UnregisterEvent("INVENTORY_SEARCH_UPDATE");
+
+	StaticPopup_Hide("CONFIRM_BUY_BANK_SLOT")
+	--CloseBankFrame()
+	C_Bank.CloseBankFrame()
+end
+
+local function BankFrame_OnEvent(self)
+
+end
+
+local BankPanelEvents = {
+	"ACCOUNT_MONEY",
+	"BANK_TABS_CHANGED",
+	"BAG_UPDATE",
+	"BANK_TAB_SETTINGS_UPDATED",
+	"INVENTORY_SEARCH_UPDATE",
+	"ITEM_LOCK_CHANGED",
+	"PLAYER_MONEY",
+};
+
 local function Bank_Frame(f)
 	local bank = CreateFrame("Frame", "Quafe_BankFrame", f)
 	bank: SetFrameLevel(2)
 	bank: SetSize((config.buttonSize+config.buttonGap*2)*config.bankperLine + config.border*2, 48)
 	--bank: SetPoint("TOPLEFT", UIParent, "TOPLEFT", 20,-200)
 	bank: SetPoint("LEFT", UIParent, "LEFT", 20,0)
-	table.insert(UISpecialFrames, "Quafe_BankFrame");
 	
 	bank: SetClampedToScreen(true)
 	bank: SetMovable(true)
@@ -2567,6 +2827,7 @@ local function Bank_Frame(f)
 	BankExtra_Frame(bank)
 	if not F.IsClassic then
 		Reagent_Frame(bank)
+		AccountBank_Frame(bank)
 	end
 	f.Bank = bank
 	
@@ -2594,10 +2855,10 @@ local function Bank_Frame(f)
 	f.Bank: RegisterEvent("PLAYER_ENTERING_WORLD")
 	f.Bank: RegisterEvent("BAG_UPDATE")
 	f.Bank: RegisterEvent("BAG_UPDATE_DELAYED")
-	--f.Bank: RegisterEvent("BAG_NEW_ITEMS_UPDATED")
-	f.Bank: RegisterEvent("ITEM_LOCK_CHANGED")
-	f.Bank: RegisterEvent("BAG_UPDATE_COOLDOWN")
-	f.Bank: RegisterEvent("INVENTORY_SEARCH_UPDATE")
+	--f.Bank: RegisterEvent("BAG_NEW_ITEMS_UPDATED") --不考虑新物品
+	--f.Bank: RegisterEvent("ITEM_LOCK_CHANGED")
+	--f.Bank: RegisterEvent("BAG_UPDATE_COOLDOWN")
+	--f.Bank: RegisterEvent("INVENTORY_SEARCH_UPDATE")
 	f.Bank: SetScript("OnEvent", function(self, event, ...)
 		if event == "PLAYER_LOGIN" then
 			self:Hide()
@@ -2606,7 +2867,6 @@ local function Bank_Frame(f)
 				self.Reagent:Hide()
 			end
 			BankFrame:UnregisterAllEvents()
-			insert(UISpecialFrames, "BankFrame");
 			--Quafe_UpdateAfter()
 		elseif event == "PLAYER_ENTERING_WORLD" then
 			FullUpdate_BankItem(self)
@@ -2616,8 +2876,8 @@ local function Bank_Frame(f)
 			if not F.IsClassic then
 				self.Reagent:Hide()
 			end
-			FullUpdate_BankItem(self)
-			C_Timer.After(2, function() FullUpdate_BankItem(self) end)
+			--FullUpdate_BankItem(self)
+			--C_Timer.After(2, function() FullUpdate_BankItem(self) end)
 			--Quafe_UpdateAfter()
 		elseif event == "BANKFRAME_CLOSED" then
 			self: Hide()
@@ -2634,20 +2894,79 @@ local function Bank_Frame(f)
 		end
 	end)
 
-	f.Bank: SetScript("OnHide", function(self)
-		StaticPopup_Hide("CONFIRM_BUY_BANK_SLOT")
-		CloseBankFrame()
-	end)
+	f.Bank: SetScript("OnShow", BankFrame_OnShow)
+	f.Bank: SetScript("OnHide", BankFrame_OnHide)
 end
 
 --- ------------------------------------------------------------
 --> Container Frame
 --- ------------------------------------------------------------
 
-local Quafe_Container = CreateFrame("Frame", nil, E)
+local Quafe_Container = CreateFrame("Frame", "Quafe_Container", E)
 Quafe_Container: SetFrameStrata("HIGH")
 Quafe_Container: SetSize(8,8)
 Quafe_Container.Init = false
+
+local function Bag_Open()
+	if not ContainerFrame_AllowedToOpenBags() then
+		return;
+	end
+	if Quafe_Container.BagFrame then
+		Quafe_Container.BagFrame:Show()
+	end
+end
+
+local function Bag_Close()
+	if Quafe_Container.BagFrame then
+		Quafe_Container.BagFrame:Hide()
+	end
+end
+
+local function Bag_Toggle()
+	if Quafe_Container.BagFrame and Quafe_Container.BagFrame: IsShown() then
+		Bag_Close()
+	else
+		Bag_Open()
+	end
+end
+
+function Quafe_ToggleBags()
+	Bag_Toggle()
+end
+
+local function BindingFrame_Init(self)
+	local function CheckBingdings(self)
+		if InCombatLockdown() then
+			self:RegisterEvent("PLAYER_REGEN_ENABLED")
+			return
+		end
+		self:UnregisterEvent("PLAYER_REGEN_ENABLED")
+		ClearOverrideBindings(self)
+		local bindings = {
+			"TOGGLEBACKPACK",
+			"TOGGLEREAGENTBAG",
+			"TOGGLEBAG1",
+			"TOGGLEBAG2",
+			"TOGGLEBAG3",
+			"TOGGLEBAG4",
+			"OPENALLBAGS"
+		}
+		for _, binding in pairs(bindings) do
+			local key, otherkey = GetBindingKey(binding)
+			if key ~= nil then
+				SetOverrideBinding(self, true, key, "QUAFE_BAG_TOGGLE")
+			end
+			if otherkey ~= nil then
+				SetOverrideBinding(self, true, otherkey, "QUAFE_BAG_TOGGLE")
+			end
+		end
+	end
+
+	local BindingFrame = CreateFrame("Frame")
+	BindingFrame: RegisterEvent("PLAYER_LOGIN")
+	BindingFrame: RegisterEvent("UPDATE_BINDINGS")
+	BindingFrame: SetScript("OnEvent", CheckBingdings)
+end
 
 local function Quafe_Container_Load()
 	if F.IsAddonEnabled("EuiScript") then return end
@@ -2655,14 +2974,17 @@ local function Quafe_Container_Load()
 		Bag_Frame(Quafe_Container)
 		Quafe_Container.BagFrame: ClearAllPoints()
 		Quafe_Container.BagFrame: SetPoint(unpack(Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Container"].BagPos))
-
+		tinsert(UISpecialFrames, Quafe_Container.BagFrame:GetName())
+		
 		Bank_Frame(Quafe_Container)
 		Quafe_Container.Bank: ClearAllPoints()
 		Quafe_Container.Bank: SetPoint(unpack(Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Container"].BankPos))
-
+		tinsert(UISpecialFrames, Quafe_Container.Bank:GetName())
+		
+		BindingFrame_Init(Quafe_Container)
 		CanIMogIt_Load()
 		--CIMI_LoadCheck()
-
+	
 		if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.Scale then
 			Quafe_Container: SetScale(Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.Scale)
 		end

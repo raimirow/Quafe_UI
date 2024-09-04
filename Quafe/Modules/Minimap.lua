@@ -16,21 +16,20 @@ F.Minimap_HideStuff = function()
 	local frames_Retail = {
 		--"MiniMapVoiceChatFrame",
 		--"MiniMapWorldMapButton",
-		"MinimapZoneTextButton",
+		--"MinimapZoneTextButton",
 		--"MiniMapTrackingButton",
-		"MiniMapMailFrame",
-		"MiniMapMailBorder",
-		"MiniMapInstanceDifficulty",
-		"MinimapNorthTag",
-		"MinimapZoomOut",
-		"MinimapZoomIn",
-		"MinimapBackdrop",
-		"GameTimeFrame",
-		"GuildInstanceDifficulty",
-		"MinimapBorderTop",
+		--"MiniMapMailFrame",
+		--"MiniMapMailBorder",
+		--"MiniMapInstanceDifficulty",
+		--"MinimapNorthTag",
+		--"MinimapZoomOut",
+		--"MinimapZoomIn",
+		--"MinimapBackdrop",
+		--"GameTimeFrame",
+		--"GuildInstanceDifficulty",
+		--"MinimapBorderTop",
 		--"MinimapBorder",
 		"MinimapBackdrop",
-
 	}
 
 	local frames_Classic = {
@@ -52,11 +51,15 @@ F.Minimap_HideStuff = function()
 		_G[frames[i]]:Hide()
 		_G[frames[i]].Show = dummy
 	end
+	Minimap.ZoomIn:Hide()
+	Minimap.ZoomIn.Show = dummy
+	Minimap.ZoomOut:Hide()
+	Minimap.ZoomOut.Show = dummy
 
 	GameTimeFrame:SetAlpha(0)
 	GameTimeFrame:EnableMouse(false)
 	
-	LoadAddOn("Blizzard_TimeManager")
+	C_AddOns.LoadAddOn("Blizzard_TimeManager")
 	TimeManagerClockButton.Show = TimeManagerClockButton.Hide
 	TimeManagerClockButton:Hide()
 end
@@ -77,6 +80,12 @@ F.Minimap_MouseWheel = function()
 			end
 		end
 	end)
+end
+
+F.Minimap_Garrison_OnClick = function()
+	--GarrisonLandingPage_Toggle()
+	--GarrisonTabButton_Refresh(self)
+	ExpansionLandingPageMinimapButton:ToggleLandingPage()
 end
 
 local Minimap_ButtonFilter = {

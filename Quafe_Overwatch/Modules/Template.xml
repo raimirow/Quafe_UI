@@ -1,0 +1,144 @@
+<Ui>
+	<Frame name = "OW_GarrisonNotificationTemplate"  hidden="true" virtual="true">
+		<Animations>
+			<AnimationGroup parentKey="Pulse" setToFinalAlpha="true" looping="REPEAT">
+				<Alpha duration="0" order="0" fromAlpha="0" toAlpha="0" />
+				<Alpha smoothing="IN" duration="0.75" order="1" fromAlpha="0" toAlpha="1" />
+				<Alpha smoothing="OUT" duration="0.75" order="2" fromAlpha="1" toAlpha="0" />
+			</AnimationGroup>
+		</Animations>
+		<Scripts>
+			<OnShow>
+				self.Pulse:Play()
+			</OnShow>
+			<OnHide>
+				self.Pulse:Stop()
+			</OnHide>
+		</Scripts>
+	</Frame>
+
+	<Frame name = "OW_MinimapIconFlashTemplate"  hidden="false" virtual="true">
+		<Animations>
+			<AnimationGroup parentKey="Flash" setToFinalAlpha="true" looping="REPEAT">
+				<Alpha order="1" childKey="Icon" duration="0"  fromAlpha="1" toAlpha="1" />
+				<Alpha order="2" childKey="Icon" duration="0.75" fromAlpha="1" toAlpha="0.25" smoothing="OUT" />
+				<Alpha order="3" childKey="Icon" duration="0.75" fromAlpha="0.25" toAlpha="1" smoothing="IN" />
+				<Scripts>
+					<OnStop>
+						self:GetParent().Icon: SetAlpha(0.5)
+					</OnStop>
+					<OnFinished>
+						self:GetParent().Icon: SetAlpha(0.5)
+					</OnFinished>
+				</Scripts>
+			</AnimationGroup>
+		</Animations>
+	</Frame>
+
+	<Frame name = "OW_WarnFlashTemplate" hidden="true" virtual = "true">
+		<Animations>
+			<AnimationGroup parentKey="Pulse" setToFinalAlpha="true" looping="REPEAT">
+				<Alpha duration="0" order="0" fromAlpha="0" toAlpha="0" />
+				<Alpha smoothing="IN" duration="0.2" order="1" fromAlpha="0" toAlpha="1" />
+				<Alpha duration="0.2" order="2" fromAlpha="1" toAlpha="1" />
+				<Alpha smoothing="OUT" duration="0.2" order="3" fromAlpha="1" toAlpha="0" />
+			</AnimationGroup>
+		</Animations>
+		<Scripts>
+			<OnShow>
+				self.Pulse:Play()
+			</OnShow>
+			<OnHide>
+				self.Pulse:Stop()
+			</OnHide>
+		</Scripts>
+	</Frame>
+
+	<Frame name = "OW_PlayerPortraitFlashTemplate" hidden="true" virtual = "true">
+		<Animations>
+			<AnimationGroup parentKey="Enlarge" setToFinalAlpha="true" looping="REPEAT">
+				<Scale order="1" duration="0.0" endDelay="1.2" scaleX="1" scaleY="1" fromScaleX="1" fromScaleY="1" toScaleX="0.5" toScaleY="0.5" />
+				<Alpha order="2" duration="0.0" endDelay="0.0" fromAlpha="0" toAlpha="1" />
+				<Scale order="3" duration="3.4" endDelay="0.0" scaleX="1" scaleY="1" fromScaleX="1" fromScaleY="1" toScaleX="2" toScaleY="2" />
+				<Alpha order="4" duration="0.4" endDelay="0.0" fromAlpha="1" toAlpha="0" />
+			</AnimationGroup>
+		</Animations>
+		<Scripts>
+			<OnShow>
+				self.Enlarge:Play()
+			</OnShow>
+			<OnHide>
+				self.Enlarge:Stop()
+			</OnHide>
+		</Scripts>
+	</Frame>
+
+	<Frame name = "OW_PlayerPowerFlashTemplate" hidden="true" virtual = "true">
+		<Animations>
+			<AnimationGroup parentKey="Pulse" setToFinalAlpha="true" looping="REPEAT">
+				<Alpha order="1" duration="0.0" endDelay="0.0" fromAlpha="0.8" toAlpha="0.8" />
+				<Alpha order="2" duration="0.2" endDelay="0.1" smoothing="IN" fromAlpha="0.8" toAlpha="1" />
+				<Alpha order="3" duration="0.1" endDelay="0.0" smoothing="OUT" fromAlpha="1" toAlpha="0.8" />
+				<Alpha order="4" duration="0.2" endDelay="0.1" smoothing="IN" fromAlpha="0.8" toAlpha="1" />
+				<Alpha order="5" duration="0.1" endDelay="0.0" smoothing="OUT" fromAlpha="1" toAlpha="0.8" />
+				<Alpha order="6" duration="0.2" endDelay="0.1" smoothing="IN" fromAlpha="0.8" toAlpha="1" />
+				<Alpha order="7" duration="0.3" endDelay="0.1" smoothing="OUT" fromAlpha="1" toAlpha="0.6" />
+				<Alpha order="8" duration="0.4" endDelay="0.2" smoothing="IN" fromAlpha="0.8" toAlpha="1" />
+				<Alpha order="9" duration="0.2" endDelay="0.0" smoothing="OUT" fromAlpha="1" toAlpha="0.8" />
+			</AnimationGroup>
+		</Animations>
+		<Scripts>
+			<OnShow>
+				self.Pulse:Play()
+			</OnShow>
+			<OnHide>
+				self.Pulse:Stop()
+			</OnHide>
+		</Scripts>
+	</Frame>
+
+	<Frame name = "OW_HUD_SlideTemplate" hidden="false" virtual = "true">
+		<Animations>
+			<AnimationGroup parentKey="SlideIn" setToFinalAlpha="true" looping="NONE">
+				<Alpha order="1" duration="0" fromAlpha="0" toAlpha="0" />
+				<Translation order="1" childKey="Left" duration="0" offsetX="-20" offsetY="-10" />
+				<Translation order="1" childKey="Right" duration="0" offsetX="20" offsetY="-10" />
+				<Alpha order="2" smoothing="IN" duration="0.25" fromAlpha="0" toAlpha="1" />
+				<Translation order="2" childKey="Left" smoothing="IN" duration="0.25" offsetX="20" offsetY="10" />
+				<Translation order="2" childKey="Right" smoothing="IN" duration="0.25" offsetX="-20" offsetY="10" />
+				<Scripts>
+					<OnPlay>
+						self:GetParent().SlideOut:Stop()
+						self:GetParent().State = "Show"
+						self:GetParent():Show()
+					</OnPlay>
+					<OnStop>
+						self:GetParent(): SetAlpha(1)
+						self:GetParent(): Show()
+					</OnStop>
+					<OnFinished>
+						self:GetParent(): SetAlpha(1)
+						self:GetParent(): Show()
+					</OnFinished>
+				</Scripts>
+			</AnimationGroup>
+			<AnimationGroup parentKey="SlideOut" setToFinalAlpha="true" looping="NONE">
+				<Alpha order="1" smoothing="IN" duration="0.25" fromAlpha="1" toAlpha="0" />
+				<Translation order="1" childKey="Left" smoothing="IN" duration="0.25" offsetX="-20" offsetY="-10" />
+				<Translation order="1" childKey="Right" smoothing="IN" duration="0.25" offsetX="20" offsetY="-10" />
+				<Scripts>
+					<OnPlay>
+						self:GetParent().SlideIn: Stop()
+						self:GetParent().State = "Hide"
+						self:GetParent(): SetAlpha(1)
+						self:GetParent(): Show()
+					</OnPlay>
+					<OnFinished>
+						self:GetParent(): Hide()
+						self:GetParent(): SetAlpha(1)
+					</OnFinished>
+				</Scripts>
+			</AnimationGroup>
+		</Animations>
+	</Frame>
+</Ui>

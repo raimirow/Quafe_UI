@@ -25,6 +25,9 @@ local insert = table.insert
 local remove = table.remove
 local wipe = table.wipe
 
+local GetCVar = C_CVar.GetCVar
+local SetCVar = C_CVar.SetCVar
+
 --- ------------------------------------------------------------
 --> API and Variable
 --- ------------------------------------------------------------
@@ -200,7 +203,7 @@ function F.CreateJoystick(frame, sizeX,sizeY, framename)
 	--Bg: SetVertexColor(0.09,0.09,0.09,0.5)
 	--Bg: SetAllPoints(Mover)
 
-	local Name = F.create_Font(Mover, C.Font.Txt, 12, nil, 1, "CENTER", "CENTER")
+	local Name = F.Create.Font(Mover, "ARTWORK", C.Font.Txt, 12, nil, C.Color.W3, 1, C.Color.Config.Back,1, {1,-1}, "CENTER", "MIDDLE")
 	Name: SetPoint("TOP", Mover, "TOP", 0,-4)
 	Name: SetAlpha(1)
 	Name: SetText(framename)
@@ -272,14 +275,14 @@ local function Create_Arrow(f, style)
 	if not style then style = "None" end
 	if style == "Switch" then
 		--> Left
-		f.ArrowL = f:CreateTexture(nil, "ARTWORK", 1)
+		f.ArrowL = f:CreateTexture(nil, "ARTWORK", nil, 1)
 		f.ArrowL: SetTexture(F.Path("Config_Arrow"))
 		f.ArrowL: SetVertexColor(F.Color(C.Color.W3))
 		f.ArrowL: SetSize(32, 32)
 		f.ArrowL: SetPoint("LEFT", f, "LEFT", 0,0)
 		f.ArrowL: SetAlpha(1)
 		--> Right
-		f.ArrowR = f:CreateTexture(nil, "ARTWORK", 1)
+		f.ArrowR = f:CreateTexture(nil, "ARTWORK", nil, 1)
 		f.ArrowR: SetTexture(F.Path("Config_Arrow"))
 		f.ArrowR: SetVertexColor(F.Color(C.Color.W3))
 		f.ArrowR: SetSize(32, 32)
@@ -288,7 +291,7 @@ local function Create_Arrow(f, style)
 		f.ArrowR: SetAlpha(1)
 	elseif style == "Dropdown" then
 		--> Down
-		f.ArrowD = f:CreateTexture(nil, "ARTWORK", 1)
+		f.ArrowD = f:CreateTexture(nil, "ARTWORK", nil, 1)
 		f.ArrowD: SetTexture(F.Path("Config_ArrowDown"))
 		f.ArrowD: SetVertexColor(F.Color(C.Color.W3))
 		f.ArrowD: SetSize(32, 32)
@@ -299,7 +302,7 @@ local function Create_Arrow(f, style)
 	
 	if style ~= "Blank" then
 		f.Text = f:CreateFontString(nil, "ARTWORK")
-		f.Text: SetFont(C.Font.Txt, 14, nil)
+		f.Text: SetFont(C.Font.Txt, 14, "")
 		f.Text: SetShadowColor(0,0,0,0)
 		f.Text: SetShadowOffset(1,-1)
 		f.Text: SetTextColor(F.Color(C.Color.W3))
@@ -307,7 +310,7 @@ local function Create_Arrow(f, style)
 		f.Text: SetPoint("CENTER", f, "CENTER", 0, 0)
 		f.Text: SetText(L['INVALID'])
 		
-		f.HighLight = f:CreateTexture(nil, "BORDER", 1)
+		f.HighLight = f:CreateTexture(nil, "BORDER", nil, 1)
 		f.HighLight: SetTexture(F.Path("White"))
 		f.HighLight: SetVertexColor(F.Color(C.Color.B2))
 		f.HighLight: SetAllPoints(f)
@@ -389,9 +392,9 @@ end
 local function Dropdown_Menu_Artwork(frame, fontsize)
 	local Text = frame: CreateFontString(nil, "ARTWORK")
 	if fontsize then
-		Text: SetFont(C.Font.Txt, fontsize, nil)
+		Text: SetFont(C.Font.Txt, fontsize, "")
 	else
-		Text: SetFont(C.Font.Txt, 14, nil)
+		Text: SetFont(C.Font.Txt, 14, "")
 	end
 	Text: SetShadowColor(0,0,0,0)
 	Text: SetShadowOffset(1,-1)
@@ -401,7 +404,7 @@ local function Dropdown_Menu_Artwork(frame, fontsize)
 	Text: SetPoint("CENTER", frame, "CENTER", 0, 0)
 	Text: SetText(L['INVALID'])
 
-	local HighLight = frame: CreateTexture(nil, "BORDER", 1)
+	local HighLight = frame: CreateTexture(nil, "BORDER", nil, 1)
 	HighLight: SetTexture(F.Path("White"))
 	HighLight: SetVertexColor(F.Color(C.Color.B1))
 	HighLight: SetAllPoints(frame)
@@ -528,7 +531,7 @@ local function Slider_Create(frame)
 	Bg: SetAlpha(0.6)
 
 	local Text = SliderHold:CreateFontString(nil, "ARTWORK")
-	Text: SetFont(C.Font.Num, 14, nil)
+	Text: SetFont(C.Font.Num, 14, "")
 	Text: SetShadowColor(0,0,0,0)
 	Text: SetShadowOffset(1,-1)
 	Text: SetTextColor(F.Color(C.Color.W3))
@@ -592,7 +595,7 @@ local Button_Artwork = function(frame, style, hasbutton)
 	PlusTex: SetPoint("CENTER", Plus, "CENTER", 0,0)
 	PlusTex: SetAlpha(1)
 
-	local PlusHighlight =  Plus:CreateTexture(nil, "BORDER", 1)
+	local PlusHighlight =  Plus:CreateTexture(nil, "BORDER", nil, 1)
 	PlusHighlight: SetTexture(F.Path("White"))
 	PlusHighlight: SetVertexColor(F.Color(C.Color.B2))
 	PlusHighlight: SetAllPoints(Plus)
@@ -608,7 +611,7 @@ local Button_Artwork = function(frame, style, hasbutton)
 		PlusHighlight: SetAlpha(0)
 	end)
 
-	local Bg = frame:CreateTexture(nil, "BACKGROUND", 1)
+	local Bg = frame:CreateTexture(nil, "BACKGROUND", nil, 1)
 	Bg: SetTexture(F.Path("White"))
 	Bg: SetVertexColor(F.Color(C.Color.W2))
 	Bg: SetHeight(button_size)
@@ -621,7 +624,7 @@ local Button_Artwork = function(frame, style, hasbutton)
 	Bg: SetAlpha(1)
 	
 	local Name = frame:CreateFontString(nil, "ARTWORK")
-	Name: SetFont(C.Font.Txt, 14, nil)
+	Name: SetFont(C.Font.Txt, 14, "")
 	Name: SetShadowColor(0,0,0,0)
 	Name: SetShadowOffset(1,-1)
 	Name: SetTextColor(F.Color(C.Color.W3))
@@ -653,7 +656,7 @@ local Button_Artwork = function(frame, style, hasbutton)
 end
 
 local SubBar_Artwork = function(frame, style, hasbutton)
-	local Bg = frame:CreateTexture(nil, "BACKGROUND", 1)
+	local Bg = frame:CreateTexture(nil, "BACKGROUND", nil, 1)
 	Bg: SetTexture(F.Path("White"))
 	Bg: SetVertexColor(F.Color(C.Color.W2))
 	Bg: SetHeight(button_size)
@@ -666,7 +669,7 @@ local SubBar_Artwork = function(frame, style, hasbutton)
 	Bg: SetAlpha(1)
 	
 	local Name = frame:CreateFontString(nil, "ARTWORK")
-	Name: SetFont(C.Font.Txt, 14, nil)
+	Name: SetFont(C.Font.Txt, 14, "")
 	Name: SetShadowColor(0,0,0,0)
 	Name: SetShadowOffset(1,-1)
 	Name: SetTextColor(F.Color(C.Color.W3))
@@ -984,6 +987,36 @@ local function Button_Mouse(frame, configframe)
 				Show = nil,
 			},
 			[2] = {
+				Name = L['RAW_MOUSE_ACCELERATION'],
+				Text = L["ON"],
+				Type = "Switch",
+				Click = function(self, button)
+					if tostring(GetCVar("rawMouseAccelerationEnable")) == "1" then
+						SetCVar("rawMouseAccelerationEnable", 0)
+						self.Text:SetText(L["OFF"])
+					else
+						SetCVar("rawMouseAccelerationEnable", 1)
+						self.Text:SetText(L["ON"])
+					end
+				end,
+				Load = function(self)
+					self: RegisterEvent("CVAR_UPDATE")
+					self: SetScript("OnEvent", function(s, event, ...)
+						if tostring(GetCVar("rawMouseAccelerationEnable") or 0) == "1" then
+							self.Button.Text:SetText(L["ON"])
+						else
+							self.Button.Text:SetText(L["OFF"])
+						end
+					end)
+					if tostring(GetCVar("rawMouseAccelerationEnable") or 0) == "1" then
+						self.Button.Text:SetText(L["ON"])
+					else
+						self.Button.Text:SetText(L["OFF"])
+					end
+				end,
+				Show = nil,
+			},
+			[3] = {
 				Name = L['MOUSE_POLLING'],
 				Type = "Slider",
 				Click = nil,
@@ -1001,7 +1034,7 @@ local function Button_Mouse(frame, configframe)
 				end,
 				Show = nil,
 			},
-			[3] = {
+			[4] = {
 				Name = L['MOUSE_RESOLUTION'],
 				Type = "Slider",
 				Load = function(self)
@@ -1071,7 +1104,7 @@ local function Aurawatch_Bar_Artwork(frame, scroll)
 	end)
 
 	local SnText = Sn:CreateFontString(nil, "ARTWORK")
-	SnText: SetFont(C.Font.Num, 14, nil)
+	SnText: SetFont(C.Font.Num, 14, "")
 	SnText: SetShadowColor(0,0,0,0)
 	SnText: SetShadowOffset(0,0)
 	SnText: SetTextColor(F.Color(C.Color.W3))
@@ -1089,7 +1122,7 @@ local function Aurawatch_Bar_Artwork(frame, scroll)
 		SortList(frame, scroll, "Up")
 	end)
 
-	local ArrowU = SnUp:CreateTexture(nil, "ARTWORK", 1)
+	local ArrowU = SnUp:CreateTexture(nil, "ARTWORK", nil, 1)
 	ArrowU: SetTexture(F.Path("Config_ArrowDown"))
 	ArrowU: SetVertexColor(F.Color(C.Color.W3))
 	ArrowU: SetSize(24, 24)
@@ -1108,7 +1141,7 @@ local function Aurawatch_Bar_Artwork(frame, scroll)
 		SortList(frame, scroll, "Down")
 	end)
 
-	local ArrowD = SnDown:CreateTexture(nil, "ARTWORK", 1)
+	local ArrowD = SnDown:CreateTexture(nil, "ARTWORK", nil, 1)
 	ArrowD: SetTexture(F.Path("Config_ArrowDown"))
 	ArrowD: SetVertexColor(F.Color(C.Color.W3))
 	ArrowD: SetSize(24, 24)
@@ -1124,7 +1157,7 @@ local function Aurawatch_Bar_Artwork(frame, scroll)
 	StyleButton: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
 
 	local StyleText = StyleButton:CreateFontString(nil, "ARTWORK")
-	StyleText: SetFont(C.Font.Txt, 14, nil)
+	StyleText: SetFont(C.Font.Txt, 14, "")
 	StyleText: SetShadowColor(0,0,0,0)
 	StyleText: SetShadowOffset(1,-1)
 	StyleText: SetTextColor(F.Color(C.Color.W3))
@@ -1149,7 +1182,7 @@ local function Aurawatch_Bar_Artwork(frame, scroll)
 	AuraButton: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
 
 	local AuraText = AuraButton:CreateFontString(nil, "ARTWORK")
-	AuraText: SetFont(C.Font.Txt, 14, nil)
+	AuraText: SetFont(C.Font.Txt, 14, "")
 	AuraText: SetShadowColor(0,0,0,0)
 	AuraText: SetShadowOffset(1,-1)
 	AuraText: SetTextColor(F.Color(C.Color.W3))
@@ -1171,7 +1204,7 @@ local function Aurawatch_Bar_Artwork(frame, scroll)
 	SpellButton: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
 
 	local SpellText = SpellButton:CreateFontString(nil, "ARTWORK")
-	SpellText: SetFont(C.Font.Txt, 14, nil)
+	SpellText: SetFont(C.Font.Txt, 14, "")
 	SpellText: SetShadowColor(0,0,0,0)
 	SpellText: SetShadowOffset(1,-1)
 	SpellText: SetTextColor(F.Color(C.Color.W3))
@@ -1265,7 +1298,7 @@ local function Aurawatch_Title_Template(frame)
 	Bg: SetAlpha(0.7)
 
 	local StyleText = Bar:CreateFontString(nil, "ARTWORK")
-	StyleText: SetFont(C.Font.Txt, 14, nil)
+	StyleText: SetFont(C.Font.Txt, 14, "")
 	StyleText: SetShadowColor(0,0,0,0)
 	StyleText: SetShadowOffset(1,-1)
 	StyleText: SetTextColor(F.Color(C.Color.W3))
@@ -1273,7 +1306,7 @@ local function Aurawatch_Title_Template(frame)
 	StyleText: SetText(L["STYLE"])
 
 	local AuraText = Bar:CreateFontString(nil, "ARTWORK")
-	AuraText: SetFont(C.Font.Txt, 14, nil)
+	AuraText: SetFont(C.Font.Txt, 14, "")
 	AuraText: SetShadowColor(0,0,0,0)
 	AuraText: SetShadowOffset(1,-1)
 	AuraText: SetTextColor(F.Color(C.Color.W3))
@@ -1281,7 +1314,7 @@ local function Aurawatch_Title_Template(frame)
 	AuraText: SetText(L["AURA"])
 
 	local SpellText = Bar:CreateFontString(nil, "ARTWORK")
-	SpellText: SetFont(C.Font.Txt, 14, nil)
+	SpellText: SetFont(C.Font.Txt, 14, "")
 	SpellText: SetShadowColor(0,0,0,0)
 	SpellText: SetShadowOffset(1,-1)
 	SpellText: SetTextColor(F.Color(C.Color.W3))
@@ -1296,7 +1329,7 @@ local function Aurawatch_Title_Template(frame)
 	Bar.Plus: SetBackdropBorderColor(F.Color(C.Color.W1, 0))
 	ButtonHighLight_Create(Bar.Plus, C.Color.B2)
 	
-	Bar.Plus.Tex = Bar.Plus:CreateTexture(nil, "ARTWORK", 2)
+	Bar.Plus.Tex = Bar.Plus:CreateTexture(nil, "ARTWORK", nil, 2)
 	Bar.Plus.Tex: SetTexture(F.Path("Config_Plus0"))
 	Bar.Plus.Tex: SetVertexColor(F.Color(C.Color.W3))
 	Bar.Plus.Tex: SetSize(32, 32)
@@ -1348,9 +1381,9 @@ local function Aurawatch_Create(frame, scroll, sn)
 
 	if Info.Aura then
 		if type(Info.Aura) == "table" then
-			frame.AuraText: SetText(GetSpellInfo(Info.Aura[1]) or Info.Aura[1])
+			frame.AuraText: SetText(C_Spell.GetSpellName(Info.Aura[1]) or Info.Aura[1])
 		else
-			frame.AuraText: SetText(GetSpellInfo(Info.Aura) or Info.Aura)
+			frame.AuraText: SetText(C_Spell.GetSpellName(Info.Aura) or Info.Aura)
 		end
 	else
 		frame.AuraText: SetText("")
@@ -1362,7 +1395,7 @@ local function Aurawatch_Create(frame, scroll, sn)
 	end
 
 	if Info.Spell then
-		frame.SpellText: SetText(GetSpellInfo(Info.Spell))
+		frame.SpellText: SetText(C_Spell.GetSpellName(Info.Spell))
 	else
 		frame.SpellText: SetText("")
 	end
@@ -1460,7 +1493,7 @@ end
 local function Aurawatch_AddNew_EidtBox_Template(frame)
 	local Box = CreateFrame("EditBox", nil, frame, "BackdropTemplate")
 	Box: SetAutoFocus(false)
-	Box: SetFont(C.Font.Txt, 14, nil)
+	Box: SetFont(C.Font.Txt, 14, "")
 	Box: SetJustifyH("LEFT")
 	Box: SetTextInsets(4, 4, 0, 0)
 	Box: SetBackdrop(backdrop)
@@ -1476,7 +1509,7 @@ end
 
 local function Aurawatch_AddNew_Label_Template(frame)
 	local Label = frame:CreateFontString(nil, "ARTWORK")
-	Label: SetFont(C.Font.Txt, 12, nil)
+	Label: SetFont(C.Font.Txt, 12, "")
 	Label: SetShadowColor(0,0,0,0.9)
 	Label: SetShadowOffset(1,-1)
 	Label: SetTextColor(F.Color(C.Color.W3, 0.4))
@@ -1487,7 +1520,7 @@ local function Aurawatch_AddNew_Label_Template(frame)
 end
 
 local function Aurawatch_AddNew_Dropdown_Create(frame)
-	local ArrowD = frame:CreateTexture(nil, "ARTWORK", 1)
+	local ArrowD = frame:CreateTexture(nil, "ARTWORK", nil, 1)
 	ArrowD: SetTexture(F.Path("Config_ArrowDown"))
 	ArrowD: SetVertexColor(F.Color(C.Color.W3))
 	ArrowD: SetSize(28, 28)
@@ -1520,7 +1553,7 @@ end
 
 local function AddNew_Dropdown_Menu_Create(frame, button, DB)
 	local Text = button: CreateFontString(nil, "ARTWORK")
-	Text: SetFont(C.Font.Txt, 14, nil)
+	Text: SetFont(C.Font.Txt, 14, "")
 	Text: SetShadowColor(0,0,0,0)
 	Text: SetShadowOffset(1,-1)
 	Text: SetTextColor(F.Color(C.Color.W3))
@@ -1624,12 +1657,12 @@ local function IconButton_Frame(frame, pos)
 	TextIcon: SetPoint("LEFT", frame, "LEFT", 4,0)
 
 	local Text = frame: CreateFontString(nil, "ARTWORK")
-	Text: SetFont(C.Font.Num, 14, nil)
+	Text: SetFont(C.Font.Num, 14, "")
 	Text: SetShadowColor(0,0,0,0)
 	Text: SetShadowOffset(1,-1)
 	Text: SetTextColor(F.Color(C.Color.W3))
 	Text: SetJustifyH("CENTER")
-	Text: SetJustifyV("CENTER")
+	Text: SetJustifyV("MIDDLE")
 	Text: SetPoint("TOPLEFT", frame, "TOPLEFT", button_size+4, -1)
 	Text: SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", -4, 0)
 
@@ -1807,7 +1840,7 @@ local function Aurawatch_AddNew_Buttons_GapTemplate(frame)
 	Gap: SetSize(2, 180)
 
 	local Text = frame:CreateFontString(nil, "ARTWORK")
-	Text: SetFont(C.Font.Num, 20, nil)
+	Text: SetFont(C.Font.Num, 20, "")
 	Text: SetShadowColor(0,0,0,0)
 	Text: SetShadowOffset(1,-1)
 	Text: SetTextColor(F.Color(C.Color.W3, 0.4))
@@ -2075,7 +2108,7 @@ local function Aurawatch_AddNew_Artwork(frame, scroll, configframe)
 		ButtonBg: SetAllPoints(Button)
 
 		local ButtonTxt = Button: CreateFontString(nil, "ARTWORK")
-		ButtonTxt: SetFont(C.Font.Txt, 18, nil)
+		ButtonTxt: SetFont(C.Font.Txt, 18, "")
 		ButtonTxt: SetShadowColor(0,0,0,0.9)
 		ButtonTxt: SetShadowOffset(1,-1)
 		ButtonTxt: SetTextColor(F.Color(C.Color.W3))
@@ -2290,7 +2323,7 @@ local function UDF_ColorPick_Buttons(frame)
 		ButtonBg: SetAllPoints(Button)
 
 		local ButtonTxt = Button: CreateFontString(nil, "ARTWORK")
-		ButtonTxt: SetFont(C.Font.Txt, 18, nil)
+		ButtonTxt: SetFont(C.Font.Txt, 18, "")
 		ButtonTxt: SetShadowColor(0,0,0,0)
 		ButtonTxt: SetShadowOffset(1,-1)
 		ButtonTxt: SetTextColor(F.Color(C.Color.W3))
@@ -2403,7 +2436,7 @@ local function Hotkey_Button(frame)
 	frame.Key = nil
 
 	local Text = frame:CreateFontString(nil, "ARTWORK")
-	Text: SetFont(C.Font.Num, 14, nil)
+	Text: SetFont(C.Font.Num, 14, "")
 	Text: SetShadowColor(0,0,0,0)
 	Text: SetShadowOffset(1,-1)
 	Text: SetTextColor(F.Color(C.Color.W3))
@@ -2501,7 +2534,7 @@ local function Hotkey_Create(frame, scroll, configframe)
 	frame: RegisterEvent("UPDATE_BINDINGS")
 	local Info = frame.Config
 
-	local Bg = frame: CreateTexture(nil, "BACKGROUND", 1)
+	local Bg = frame: CreateTexture(nil, "BACKGROUND", nil, 1)
 	Bg: SetTexture(F.Path("White"))
 	Bg: SetVertexColor(F.Color(C.Color.W2))
 	Bg: SetSize(460, button_size)
@@ -2509,7 +2542,7 @@ local function Hotkey_Create(frame, scroll, configframe)
 	Bg: SetAlpha(1)
 
 	local Name = frame:CreateFontString(nil, "ARTWORK")
-	Name: SetFont(C.Font.Txt, 14, nil)
+	Name: SetFont(C.Font.Txt, 14, "")
 	Name: SetShadowColor(0,0,0,0)
 	Name: SetShadowOffset(1,-1)
 	Name: SetTextColor(F.Color(C.Color.W3))
@@ -2776,7 +2809,7 @@ local function ProfileBar_Template(frame)
 
 	local ReNameBox = CreateFrame("EditBox", nil, ReNameHold, "BackdropTemplate")
 	ReNameBox: SetAutoFocus(true)
-	ReNameBox: SetFont(C.Font.Txt, 14, nil)
+	ReNameBox: SetFont(C.Font.Txt, 14, "")
 	ReNameBox: SetJustifyH("LEFT")
 	ReNameBox: SetTextInsets(20, 20, 0, 0)
 	ReNameBox: SetBackdrop(backdrop)
@@ -3033,7 +3066,7 @@ local function Tab_Template(frame, text, gap, gapleft)
 		Bg: Hide()
 
 		local Txt = frame: CreateFontString(nil, "ARTWORK")
-		Txt: SetFont(C.Font.Num, 14, nil)
+		Txt: SetFont(C.Font.Num, 14, "")
 		Txt: SetShadowColor(0,0,0,0)
 		Txt: SetShadowOffset(1,-1)
 		Txt: SetTextColor(F.Color(C.Color.W3))
@@ -3119,7 +3152,7 @@ local function Tab_Exit(frame)
 	Bg: Hide()
 	
 	local Txt = Exit: CreateFontString(nil, "ARTWORK")
-	Txt: SetFont(C.Font.Num, 18, nil)
+	Txt: SetFont(C.Font.Num, 18, "")
 	Txt: SetShadowColor(0,0,0,0)
 	Txt: SetShadowOffset(1,-1)
 	--Txt: SetTextColor(28/255, 28/255, 28/255)
@@ -3144,7 +3177,7 @@ local function Tab_Help(frame)
 	Tab_Template(Help, false, true, true)
 	
 	local Txt = Help:CreateFontString(nil, "ARTWORK")
-	Txt: SetFont(C.Font.Num, 18, nil)
+	Txt: SetFont(C.Font.Num, 18, "")
 	Txt: SetShadowColor(0,0,0,0)
 	Txt: SetShadowOffset(1,-1)
 	--Txt: SetTextColor(28/255, 28/255, 28/255)
@@ -3215,7 +3248,7 @@ local function Scroll_Template(frame)
 	Slider: Enable()
 	Slider: Hide()
 	
-	local SliderBg = Slider:CreateTexture(nil, "BACKGROUND", 0)
+	local SliderBg = Slider:CreateTexture(nil, "BACKGROUND")
 	SliderBg: SetTexture(F.Path("White"))
 	SliderBg: SetVertexColor(147/255,  156/255, 165/255)
 	SliderBg: SetSize(6, 436)
@@ -3281,7 +3314,7 @@ local wReload_Arts = function(frame)
 	BottomBorder: SetPoint("BOTTOMRIGHT", frame, "BOTTOMRIGHT", 0,1)
 	
 	local Title1 = frame:CreateFontString(nil, "OVERLAY")
-	Title1: SetFont(C.Font.Txt, 26, nil)
+	Title1: SetFont(C.Font.Txt, 26, "")
 	Title1: SetShadowColor(0,0,0,0.9)
 	Title1: SetShadowOffset(0,0)
 	Title1: SetPoint("BOTTOM", Board1, "CENTER", 0,10)
@@ -3289,7 +3322,7 @@ local wReload_Arts = function(frame)
 	
 	local Title2 = frame:CreateFontString(nil, "OVERLAY")
 	Title2: SetAlpha(0.6)
-	Title2: SetFont(C.Font.Txt, 18, nil)
+	Title2: SetFont(C.Font.Txt, 18, "")
 	Title2: SetShadowColor(0,0,0,0.9)
 	Title2: SetShadowOffset(0,0)
 	Title2: SetPoint("TOP", Board1, "CENTER", 0,-2)
@@ -3304,7 +3337,7 @@ local wReload_Arts = function(frame)
 		local Bg = F.Create.Backdrop(Button, 2, true, 2, 2, Button.Color, 0.9, Button.Color, 0.9)
 
 		local ButtonTxt = Button: CreateFontString(nil, "ARTWORK")
-		ButtonTxt: SetFont(C.Font.Txt, 18, nil)
+		ButtonTxt: SetFont(C.Font.Txt, 18, "")
 		ButtonTxt: SetShadowColor(0,0,0,0)
 		ButtonTxt: SetShadowOffset(1,-1)
 		ButtonTxt: SetTextColor(F.Color(C.Color.W3))

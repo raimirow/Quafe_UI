@@ -138,7 +138,7 @@ end
 --- ------------------------------------------------------------
 
 local function Quafe_Init()
-	BINDING_HEADER_QUAFE = GetAddOnMetadata(E.Name, "Title")
+	BINDING_HEADER_QUAFE = C_AddOns.GetAddOnMetadata(E.Name, "Title")
 	BINDING_NAME_QUAFE_COMMUNICATIONMENU = L['BINDING_COMMUNICATIONMENU']
 
 	--> 战斗字体
@@ -212,7 +212,7 @@ local function Quafe_InterfaceOptions()
 
 	local VersionText = F.Create.Font(QuafeInterfaceOptionsFrame, "ARTWORK", C.Font.NumOW, 22, nil, C.Color.W3,1)
 	VersionText: SetPoint("BOTTOMLEFT", LogoText, "BOTTOMRIGHT", 30,14)
-	local ver = gsub(GetAddOnMetadata("Quafe", "Version"), "%d+%p", "") or ""
+	local ver = gsub(C_AddOns.GetAddOnMetadata("Quafe", "Version"), "%d+%p", "") or ""
 	VersionText: SetText("Version: "..ver)
 	VersionText: SetAlpha(1)
 
@@ -221,8 +221,8 @@ local function Quafe_InterfaceOptions()
 	Setupwizard_Button.Text: SetText(L['OPEN_SETUP_WIZARD'])
 	Setupwizard_Button: SetScript("OnClick", function(self, button)
 		if Quafe_Setupwizard then
-			InterfaceOptionsFrameOkay_OnClick()
-			HideUIPanel(GameMenuFrame)
+			--InterfaceOptionsFrameOkay_OnClick()
+			HideUIPanel(SettingsPanel)
 			Quafe_Setupwizard: Show()
 		end
 	end)
@@ -232,8 +232,8 @@ local function Quafe_InterfaceOptions()
 	Settings_Button.Text: SetText(L['OPEN_CONFIG_FRAME'])
 	Settings_Button: SetScript("OnClick", function(self, button)
 		if Quafe_Config then
-			InterfaceOptionsFrameOkay_OnClick()
-			HideUIPanel(GameMenuFrame)
+			--InterfaceOptionsFrameOkay_OnClick()
+			HideUIPanel(SettingsPanel)
 			Quafe_Config: Show()
 		end
 	end)
@@ -255,7 +255,24 @@ local function Quafe_InterfaceOptions()
 	--end)
 
 	QuafeInterfaceOptionsFrame.name = "Quafe UI"
-	InterfaceOptions_AddCategory(QuafeInterfaceOptionsFrame)
+	if InterfaceOptions_AddCategory then
+		InterfaceOptions_AddCategory(QuafeInterfaceOptionsFrame)
+	else
+		local category, layout = Settings.RegisterCanvasLayoutCategory(QuafeInterfaceOptionsFrame, QuafeInterfaceOptionsFrame.name);
+		--Settings.RegisterCanvasLayoutSubcategory(parentCategory, frame, name)
+		Settings.RegisterAddOnCategory(category);
+	end
+end
+
+local function Quafe_AddonCompartment()
+	AddonCompartmentFrame:RegisterAddon({
+		text = "Quafe UI",
+		icon = F.Path("Minimap\\MinimapButton_Icon"),
+		notCheckable = true,
+		func = function()
+			Quafe_Config: Show()
+		end,
+	})
 end
 
 local Init_Help = CreateFrame("Frame", nil, E)
@@ -265,10 +282,10 @@ Init_Help: SetScript("OnEvent", function(self, event, addon)
 	if event == "ADDON_LOADED" then
 		if addon == E.Name then
 			Quafe_Init()
-			local QE_Load,QE_Reason = LoadAddOn("Quafe_Extra")
-			local OW_Load,OW_Reason = LoadAddOn("Quafe_Overwatch")
-			local TI_Load,TI_Reason = LoadAddOn("Quafe_TIE")
-			local MK_Load,MK_Reason = LoadAddOn("Quafe_MEKA")
+			local QE_Load,QE_Reason = C_AddOns.LoadAddOn("Quafe_Extra")
+			local OW_Load,OW_Reason = C_AddOns.LoadAddOn("Quafe_Overwatch")
+			local TI_Load,TI_Reason = C_AddOns.LoadAddOn("Quafe_TIE")
+			local MK_Load,MK_Reason = C_AddOns.LoadAddOn("Quafe_MEKA")
 
 			C.PlayerName = GetUnitName("player", false)
 			C.PlayerClass = select(2, UnitClass("player"))
@@ -276,6 +293,7 @@ Init_Help: SetScript("OnEvent", function(self, event, addon)
 			C.PlayerGuid = UnitGUID( "player")
 			Quafe_Load()
 			Quafe_InterfaceOptions()
+			Quafe_AddonCompartment()
 			self: UnregisterEvent(event)
 		end
 	elseif event == "PLAYER_LOGIN" then

@@ -1,0 +1,9 @@
+<Ui>
+	<Include file="Template.xml"/>
+	<Script file="Player.lua"/>
+	<Script file="Ultimate.lua"/>
+	<Script file="TDRS.lua"/>
+	<Script file="Minimap.lua"/>
+	<Script file="HUD.lua"/>
+	<!--<Script file="HUD_Mercy.lua"/>-->
+</Ui>
