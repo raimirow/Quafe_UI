@@ -282,6 +282,15 @@ local function Monk_Mistweaver_CTA(frame)
 	end
 end
 ]]--
+
+local function Get_SpellChargeInfo(spellIdentifier, frame)
+	local chargeInfo = C_Spell.GetSpellCharges(spellIdentifier)
+	frame.Info.E = chargeInfo.currentCharges
+	frame.Info.MP = chargeInfo.maxCharges or 3
+	frame.Info.Remain = GetTime() - (chargeInfo.cooldownStartTime or 0)
+	frame.Info.Duration = chargeInfo.cooldownDuration
+end
+
 --> ComboPoints
 local function ComboPoints_Event(frame, event, ...)
 	if F.IsClassic then
@@ -418,11 +427,12 @@ local function Mage_Event(frame, event, ...)
 			end
 		elseif (frame.Info.SpecID == 2) then
 			if event == "PLAYER_ENTERING_WORLD" or event == "PLAYER_SPECIALIZATION_CHANGED" or event == "SPELL_UPDATE_COOLDOWN" then
-				local count, maxcount, expiration, duration = GetSpellCharges("108853") -->火焰冲击
-				frame.Info.E = count
-				frame.Info.MP = maxcount or 3
-				frame.Info.Remain = GetTime() - (expiration or 0)
-				frame.Info.Duration = duration
+				--local count, maxcount, expiration, duration = GetSpellCharges("108853") -->火焰冲击
+				--frame.Info.E = count
+				--frame.Info.MP = maxcount or 3
+				--frame.Info.Remain = GetTime() - (expiration or 0)
+				--frame.Info.Duration = duration
+				Get_SpellChargeInfo("108853", frame)
 				update_Ring(frame.Ring, frame.Info.Remain/(frame.Info.Duration+F.Debug))
 			end
 		elseif (frame.Info.SpecID == 3) then
@@ -507,19 +517,21 @@ local function Monk_Event(frame, event, ...)
 		--> 酒仙
 		if (frame.Info.SpecID == SPEC_MONK_BREWMASTER) then
 			if event == "PLAYER_ENTERING_WORLD" or event == "PLAYER_SPECIALIZATION_CHANGED" or event == "SPELL_UPDATE_COOLDOWN" then
-				local count, maxcount = GetSpellCharges("119582") --活血酒
-				frame.Info.E = count
-				frame.Info.MP = maxcount
+				--local count, maxcount = GetSpellCharges("119582") --活血酒
+				--frame.Info.E = count
+				--frame.Info.MP = maxcount
+				Get_SpellChargeInfo("119582", frame)
 			end
 		--> 织雾
 		elseif (frame.Info.SpecID == SPEC_MONK_MISTWEAVER) then
 			--local count = GetSpellCount("115151") --复苏之雾
 			if event == "PLAYER_ENTERING_WORLD" or event == "PLAYER_SPECIALIZATION_CHANGED" or event == "SPELL_UPDATE_COOLDOWN" then
-				local count, maxcount, expiration, duration = GetSpellCharges("115151") --复苏之雾
-				frame.Info.E = count
-				frame.Info.MP = maxcount or 2
-				frame.Info.Remain = GetTime() - (expiration or 0)
-				frame.Info.Duration = duration
+				--local count, maxcount, expiration, duration = GetSpellCharges("115151") --复苏之雾
+				--frame.Info.E = count
+				--frame.Info.MP = maxcount or 2
+				--frame.Info.Remain = GetTime() - (expiration or 0)
+				--frame.Info.Duration = duration
+				Get_SpellChargeInfo("115151", frame)
 				update_Ring(frame.Ring, frame.Info.Remain/(frame.Info.Duration+F.Debug))
 			end
 			--update_Ring(frame.Ring, 1, true)

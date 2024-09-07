@@ -1,10 +1,10 @@
-local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Local
+local E, C, F, L = unpack(Quafe)  -->Engine, Config, Function, Locale
 
 ----------------------------------------------------------------
 --> Local
 ----------------------------------------------------------------
 
-print("Quafe_Options is unfinished")
+--print("Quafe_Options is unfinished")
 
 ----------------------------------------------------------------
 --> Template

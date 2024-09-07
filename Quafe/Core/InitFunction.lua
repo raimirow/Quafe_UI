@@ -1,4 +1,4 @@
-local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Local
+local E, C, F, L = unpack(Quafe) -->Engine, Config, Function, Loca
 
 --- ------------------------------------------------------------
 --> API and Variable
@@ -1132,3 +1132,13 @@ function F.AutoScale()
 end
 
 ----------------------------------------------------------------
+
+F.Avoid_Clash = 0
+
+function F.Avoid_Clash_Update()
+	if F.IsAddonEnabled("ElvUI") then
+		F.Avoid_Clash = 1
+	elseif F.IsAddonEnabled("EuiScript") then
+		F.Avoid_Clash = 1
+	end
+end

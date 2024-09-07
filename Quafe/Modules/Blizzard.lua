@@ -1,4 +1,4 @@
-local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
+local E, C, F, L = unpack(Quafe)  -->Engine, Config, Function, Locale
 
 ----------------------------------------------------------------
 --> API Localization
@@ -38,6 +38,7 @@ local isPartyHooked = false
 
 local BlizzardFrameHide = CreateFrame("Frame", nil, E)
 local function Load()
+	if F.Avoid_Clash == 1 then return end
 	if Quafe_DB.Profile[Quafe_DBP.Profile].Blizzard.PlayerFrame == false then
 		F.HideUnitFrame("PlayerFrame")
 		F.HideUnitFrame("PetFrame")
@@ -214,6 +215,6 @@ local BlizzardFrameHide_Config = {
 }
 BlizzardFrameHide.Load = Load
 BlizzardFrameHide.Config = BlizzardFrameHide_Config
-tinsert(E.Module, BlizzardFrameHide)
+insert(E.Module, BlizzardFrameHide)
 
 

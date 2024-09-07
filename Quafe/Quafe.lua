@@ -1,4 +1,4 @@
-local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
+local E, C, F, L = unpack(Quafe)  -->Engine, Config, Function, Locale
 
 ----------------------------------------------------------------
 --> API Localization
@@ -17,7 +17,7 @@ local function Database_Load()
 	for k, v in ipairs(E.Module) do
 		if v.Config and v.Config.Database then
 			for d, dv in pairs(v.Config.Database) do
-				E.Database.Profile.Default[d] = dv
+				C.Database.Profile.Default[d] = dv
 			end
 		end
 	end
@@ -48,7 +48,7 @@ local function Profile_Check()
 			if Quafe_DB.Profile["Default"] then
 				return 1
 			else
-				Quafe_DB.Profile["Default"] = E.Database.Profile.Default
+				Quafe_DB.Profile["Default"] = C.Database.Profile.Default
 				return 2
 			end
 		end
@@ -67,9 +67,9 @@ local function Profile_Load()
 		Quafe_DBP = {}
 		Quafe_DBP.Profile = "Default"
 	end
-	Quafe_CheckTable(Quafe_DB, E.Database)
+	Quafe_CheckTable(Quafe_DB, C.Database)
 	Profile_Check()
-	Quafe_CheckTable(Quafe_DB.Profile[Quafe_DBP.Profile], E.Database.Profile.Default)
+	Quafe_CheckTable(Quafe_DB.Profile[Quafe_DBP.Profile], C.Database.Profile.Default)
 end
 
 function F.Reset()
@@ -82,8 +82,8 @@ function F.Reset()
 		Quafe_DBP = {}
 		Quafe_DBP.Profile = "Default"
 	end
-	Quafe_CheckTable(Quafe_DB, E.Database)
-	Quafe_CheckTable(Quafe_DB.Profile[Quafe_DBP.Profile], E.Database.Profile.Default)
+	Quafe_CheckTable(Quafe_DB, C.Database)
+	Quafe_CheckTable(Quafe_DB.Profile[Quafe_DBP.Profile], C.Database.Profile.Default)
 	Profile_Check()
 	if not Quafe_DB.Global.AuraWatch then
 		Quafe_DB.Global.AuraWatch = E.Aurawatch
@@ -148,6 +148,7 @@ local function Quafe_Init()
 end
 
 local function Quafe_Load()
+	F.Avoid_Clash_Update()
 	Database_Load()
 	Profile_Load()
 	Aura_Load()

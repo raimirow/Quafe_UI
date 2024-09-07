@@ -1,4 +1,4 @@
-local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
+local E, C, F, L = unpack(Quafe)  -->Engine, Config, Function, Locale
 
 --- ------------------------------------------------------------
 --> API Localization
@@ -2639,7 +2639,7 @@ local function Profile_New()
 	local index = #Quafe_DB.Profile or 0
 	index = index + 1
 	local newprofile = {}
-	for k,v in pairs(E.Database.Profile.Default) do
+	for k,v in pairs(C.Database.Profile.Default) do
 		if k == "Name" then
 			newprofile[k] = "New Profile"
 		else

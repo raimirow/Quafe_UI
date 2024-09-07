@@ -1303,4 +1303,4 @@ local MEKA_CastBar_Config = {
 MEKA_CastBar.Load = MEKA_CastBar_Load
 MEKA_CastBar.Config = MEKA_CastBar_Config
 F.MEKA_CastBar_Toggle = MEKA_CastBar_Toggle
-tinsert(E.Module, MEKA_CastBar)
+insert(E.Module, MEKA_CastBar)

@@ -1,4 +1,4 @@
-local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Local
+local E, C, F, L = unpack(Quafe)  -->Engine, Config, Function, Locale
 
 local SharedMedia = LibStub("LibSharedMedia-3.0")
 if not SharedMedia then return end

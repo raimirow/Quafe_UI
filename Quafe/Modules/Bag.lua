@@ -1,4 +1,5 @@
-local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
+local E, C, F, L = unpack(Quafe)  -->Engine, Config, Function, Locale
+
 --if F.IsClassic then return end
 
 --- ------------------------------------------------------------

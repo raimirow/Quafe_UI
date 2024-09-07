@@ -1,4 +1,5 @@
-local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
+local E, C, F, L = unpack(Quafe)  -->Engine, Config, Function, Locale
+
 --if F.IsClassic then return end
 
 --MyAddon = LibStub("AceAddon-3.0"):NewAddon("MyAddon", "AceHook-3.0")
@@ -1867,7 +1868,10 @@ local function Hook_Blizzard()
 end
 
 local function Quafe_Container_Load()
-	if F.IsAddonEnabled("EuiScript") then return end
+	if F.Avoid_Clash == 1 then
+		Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Container"].Enable = false
+		--return
+	end
 	if Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Container"].Enable then
 		Bag_Frame(Quafe_Container)
 		Quafe_Container.BagFrame: ClearAllPoints()
@@ -1896,112 +1900,109 @@ local function Quafe_Container_Toggle(arg1,arg2)
 	end
 end
 
-local Quafe_Container_Config = {
-	Database = {
-		["Quafe_Container"] = {
-			Enable = true,
-			Gold = {},
-			RefreshRate = "Closing", --Always, Closing, Manual
-			Scale = 1,
-			BagPos = {"RIGHT", UIParent, "RIGHT", -80,0},
-			BankPos = {"LEFT", UIParent, "LEFT", 20,0},
-		},
-	},
+local Quafe_Container_Config = {}
+Quafe_Container_Config.Database = {
+	["Quafe_Container"] = {
+		Enable = true,
+		Gold = {},
+		RefreshRate = "Closing", --Always, Closing, Manual
+		Scale = 1,
+		BagPos = {"RIGHT", nil, "RIGHT", -80,0}
+	}
+}
+Quafe_Container_Config.Config = {
+	Name = "Quafe "..L['BAG'],
+	Type = "Switch",
+	Click = function(self, button)
+		if Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Container"].Enable then
+			Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Container"].Enable = false
+			self.Text:SetText(L["OFF"])
+			Quafe_Container_Toggle("OFF")
+		else
+			Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Container"].Enable = true
+			self.Text:SetText(L["ON"])
+			Quafe_Container_Toggle("ON")
+		end
+	end,
+	Show = function(self)
+		if Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Container"].Enable then
+			self.Text:SetText(L["ON"])
+		else
+			self.Text:SetText(L["OFF"])
+		end
+	end,
+	Sub = {
+		[1] = {
+			Name = L['GROUP_REFRESH_RATE'],
+			Type = "Dropdown",
+			Click = function(self, button)
+				
+			end,
+			Load = function(self)
 
-	Config = {
-		Name = "Quafe "..L['BAG'],
-		Type = "Switch",
-		Click = function(self, button)
-			if Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Container"].Enable then
-				Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Container"].Enable = false
-				self.Text:SetText(L["OFF"])
-				Quafe_Container_Toggle("OFF")
-			else
-				Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Container"].Enable = true
-				self.Text:SetText(L["ON"])
-				Quafe_Container_Toggle("ON")
-			end
-		end,
-		Show = function(self)
-			if Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Container"].Enable then
-				self.Text:SetText(L["ON"])
-			else
-				self.Text:SetText(L["OFF"])
-			end
-		end,
-		Sub = {
-			[1] = {
-				Name = L['GROUP_REFRESH_RATE'],
-				Type = "Dropdown",
-				Click = function(self, button)
-					
-				end,
-				Load = function(self)
-
-				end,
-				Show = function(self)
-					if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container then
-						if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Manual" then
-							self.Text:SetText(L['手动刷新'])
-						elseif Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Closing" then
-							self.Text:SetText(L['关闭时刷新'])
-						elseif Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Always" then
-							self.Text:SetText(L['实时刷新'])
-						end
+			end,
+			Show = function(self)
+				if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container then
+					if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Manual" then
+						self.Text:SetText(L['手动刷新'])
+					elseif Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Closing" then
+						self.Text:SetText(L['关闭时刷新'])
+					elseif Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Always" then
+						self.Text:SetText(L['实时刷新'])
 					end
-				end,
-				DropMenu = {
-					[1] = {
-						Text = L['手动刷新'],
-						Click = function(self, button) 
-							Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate = "Manual"
-							RefreshButton_Toggle(Quafe_Container.BagFrame)
-						end,
-					},
-					[2] = {
-						Text = L['关闭时刷新'],
-						Click = function(self, button) 
-							Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate = "Closing"
-							RefreshButton_Toggle(Quafe_Container.BagFrame)
-						end,
-					},
-					[3] = {
-						Text = L['实时刷新'],
-						Click = function(self, button) 
-							Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate = "Always"
-							RefreshButton_Toggle(Quafe_Container.BagFrame)
-						end,
-					},
+				end
+			end,
+			DropMenu = {
+				[1] = {
+					Text = L['手动刷新'],
+					Click = function(self, button) 
+						Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate = "Manual"
+						RefreshButton_Toggle(Quafe_Container.BagFrame)
+					end,
+				},
+				[2] = {
+					Text = L['关闭时刷新'],
+					Click = function(self, button) 
+						Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate = "Closing"
+						RefreshButton_Toggle(Quafe_Container.BagFrame)
+					end,
+				},
+				[3] = {
+					Text = L['实时刷新'],
+					Click = function(self, button) 
+						Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate = "Always"
+						RefreshButton_Toggle(Quafe_Container.BagFrame)
+					end,
 				},
 			},
-			[2] = {
-                Name = L['SCALE'],
-                Type = "Slider",
-                State = "ALL",
-				Click = nil,
-                Load = function(self)
-                    self.Slider: SetMinMaxValues(0.5, 2)
-					self.Slider: SetValueStep(0.05)
-                    self.Slider: SetValue(Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.Scale)
-					self.Slider: HookScript("OnValueChanged", function(s, value)
-                        value = floor(value*100+0.5)/100
-                        Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.Scale = value
-						Quafe_Container_Toggle("SCALE", value)
-					end)
-                end,
-                Show = nil,
-            },
-			[3] = {
-				Name = L['重置金币数据'],
-				Type = "Trigger",
-				Click = function(self, button)
-					wipe(Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Container"].Gold)
-					DEFAULT_CHAT_FRAME:AddMessage("Quafe "..L['背包金币数据已重置'])
-				end,
-				Show = function(self)
-					self.Text:SetText(L['CONFIRM'])
-				end,
-			},
+		},
+		[2] = {
+			Name = L['SCALE'],
+			Type = "Slider",
+			State = "ALL",
+			Click = nil,
+			Load = function(self)
+				self.Slider: SetMinMaxValues(0.5, 2)
+				self.Slider: SetValueStep(0.05)
+				self.Slider: SetValue(Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.Scale)
+				self.Slider: HookScript("OnValueChanged", function(s, value)
+					value = floor(value*100+0.5)/100
+					Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.Scale = value
+					Quafe_Container_Toggle("SCALE", value)
+				end)
+			end,
+			Show = nil,
+		},
+		[3] = {
+			Name = L['重置金币数据'],
+			Type = "Trigger",
+			Click = function(self, button)
+				wipe(Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Container"].Gold)
+				DEFAULT_CHAT_FRAME:AddMessage("Quafe "..L['背包金币数据已重置'])
+			end,
+			Show = function(self)
+				self.Text:SetText(L['CONFIRM'])
+			end,
 		},
 	},
 }
@@ -2895,7 +2896,10 @@ Quafe_Bank: SetSize(8,8)
 Quafe_Bank.Init = false
 
 local function Quafe_Bank_Load()
-	if F.IsAddonEnabled("EuiScript") then return end
+	if F.Avoid_Clash == 1 then
+		Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Bank"].Enable = false
+		--return
+	end
 	if Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Bank"].Enable then
 		Bank_Frame(Quafe_Container)
 		Quafe_Bank: ClearAllPoints()
@@ -2924,7 +2928,7 @@ local Quafe_Bank_Config = {
 		["Quafe_Bank"] = {
 			Enable = true,
 			Scale = 1,
-			Pos = {"LEFT", UIParent, "LEFT", 20,0},
+			Pos = {"LEFT", nil, "LEFT", 20,0},
 		},
 	},
 

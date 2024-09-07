@@ -1,5 +1,5 @@
-## Interface: 100207, 110002
-## Version: 11.10
+## Interface: 110002
+## Version: 11.11
 ## Author: Raimirow
 ## Title: Quafe
 ## Notes: Quafe
@@ -9,7 +9,6 @@
 
 ## SavedVariables: Quafe_DB
 ## SavedVariablesPerCharacter: Quafe_DBP
-## X-oUF: oUF_Quafe
 
 ## OptionalDeps: Details, Skada, MeetingStone, WIM, Clique
 

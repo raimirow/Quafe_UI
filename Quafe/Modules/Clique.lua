@@ -1,4 +1,4 @@
-local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
+local E, C, F, L = unpack(Quafe)  -->Engine, Config, Function, Locale
 
 ----------------------------------------------------------------
 --> API Localization
@@ -194,5 +194,5 @@ local CliqueSupportFrame_Config = {
 }
 
 CliqueSupportFrame.Config = CliqueSupportFrame_Config
-tinsert(E.Module, CliqueSupportFrame)
+insert(E.Module, CliqueSupportFrame)
 

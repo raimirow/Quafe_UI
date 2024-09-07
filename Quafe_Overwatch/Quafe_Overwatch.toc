@@ -1,5 +1,5 @@
-## Interface: 100207, 110002
-## Version: 11.10
+## Interface: 110002
+## Version: 11.11
 ## Author: Raimirow (voidiver)
 ## Title: Quafe |cffFEFEFFOVERWATCH|r
 ## Notes: Quafe_Overwatch

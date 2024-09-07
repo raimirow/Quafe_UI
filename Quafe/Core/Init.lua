@@ -11,13 +11,22 @@ Engine[1] = Quafe_UIParent
 Engine[2] = {}	-->C, Config and Constant
 Engine[3] = {}	-->F, Function and Lib
 Engine[4] = {}	-->L, Locale
+_G[AddonName] = Engine	-->Allow other addons to use Engine
 
 local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
 --This should be at the top of every file inside of the Quafe AddOn:	
 --local E, C, F, L = unpack(select(2, ...))
 
-_G[AddonName] = Engine	-->Allow other addons to use Engine
---This is how another addon imports the Quafe engine:	
+--[[
+local QUAFE_NS = {}
+QUAFE_NS[1] = Quafe_UIParent
+QUAFE_NS[2] = {}
+QUAFE_NS[3] = {}
+QUAFE_NS[4] = {}
+_G.Quafe = QUAFE_NS	-->Allow other addons to use NS
+--]]
+
+--This is how another addon imports the Quafe NS:	
 --local E, C, F, L = unpack(Quafe)
 --(learned from Tukui)
 
@@ -49,7 +58,7 @@ E.AuraUpdate = {
 E.Aurawatch = {}
 E.AurawatchStyle = {}
 E.FCS_Refresh = {}
-E.Database = {
+C.Database = {
 	Reset = false,
 	Global = {},
 	Profile = {

@@ -1,4 +1,4 @@
-local E, C, F, L = unpack(select(2, ...))  -->Engine, Config, Function, Locale
+local E, C, F, L = unpack(Quafe)  -->Engine, Config, Function, Locale
 
 --- ------------------------------------------------------------
 --> API Localization
@@ -218,7 +218,7 @@ local function Exp_Bar(frame)
 		local tooltipText = format(NEW_EXHAUST_TOOLTIP1, exhaustionStateMultiplier)
 		local append = nil;
 		local exhaustionCountdown
-		if ( GetTimeToWellRested() ) then
+		if ( GetTimeToWellRested and GetTimeToWellRested() ) then
 			exhaustionCountdown = GetTimeToWellRested() / 60;
 		end
 		if ( IsResting() ) then
