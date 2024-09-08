@@ -1099,7 +1099,7 @@ function F.IsAddonEnabled(name)
 	local state
 	for i = 1,C_AddOns.GetNumAddOns() do
 		local addon, title, notes, loadable, reason, security, updateAvailable = C_AddOns.GetAddOnInfo(i)
-		if addon == name then
+		if (addon == name) or (type(name) == "table" and name[addon]) then
 			state = (C_AddOns.GetAddOnEnableState(i, UnitName("player"))) or 0
 			if state == 0 then
 				state = nil
@@ -1134,11 +1134,13 @@ end
 ----------------------------------------------------------------
 
 F.Avoid_Clash = 0
-
 function F.Avoid_Clash_Update()
-	if F.IsAddonEnabled("ElvUI") then
+	local AVOID_LIST1 = {
+		ElvUI = true,
+		EuiScript = true,
+	}
+	if F.IsAddonEnabled(AVOID_LIST1) then
 		F.Avoid_Clash = 1
-	elseif F.IsAddonEnabled("EuiScript") then
-		F.Avoid_Clash = 1
+		print("Avoid clash 1")
 	end
 end

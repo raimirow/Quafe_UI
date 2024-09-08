@@ -689,10 +689,21 @@ local function Sort_BagItem(ItemTable)
 	end
 end
 
+local function Update_CraftingQualityOverlay(slot, slotInfo)
+	if slotInfo.itemID then
+		SetItemButtonOverlay(slot, slotInfo.itemID, slotInfo.quality, slotInfo.isBound)
+		--SetItemCraftingQualityOverlay(slot, slotInfo.itemID)
+		--SetupCraftingQualityOverlay(button, quality)
+	else
+		ClearItemButtonOverlay(slot)
+	end
+end
+
 local function Update_SlotItem(slot, slotInfo)
 	SetItemButtonTexture(slot, slotInfo.iconFileID or F.Path("Bag_Slot"))
 	SetItemButtonCount(slot, slotInfo.stackCount)
 	SetItemButtonDesaturated(slot, slotInfo.isLocked)
+	Update_CraftingQualityOverlay(slot, slotInfo)
 
 	if not F.IsClassic then
 		--ContainerFrameItemButton_UpdateItemUpgradeIcon(slot); --待改
@@ -1031,7 +1042,29 @@ local function BagFrame_ReSize(self)
 	--frame: SetHeight(pos_y+48+2)
 end
 
+local function PlayerMoney_Update(frame)
+	local money = GetMoney()
+	local gold = floor(abs(money / 10000))
+	local silver = floor(abs(mod(money / 100, 100)))
+	local copper = floor(abs(mod(money, 100)))
+	frame.Currency.Money: SetText(format("%s%s%s%s%s%s", gold,"|cff616161G|r",silver,"|cff616161S|r",copper,"|cff616161C|r"))
+
+	if C.PlayerGuid and C.PlayerName and C.PlayerRealm then
+		if Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Container"].Gold[C.PlayerGuid] then
+			Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Container"].Gold[C.PlayerGuid]["Gold"] = floor(abs(money / 10000))
+		else
+			Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Container"].Gold[C.PlayerGuid] = {
+				Name = C.PlayerName,
+				Realm = C.PlayerRealm,
+				Class = C.PlayerClass,
+				Gold = floor(abs(money / 10000)),
+			}
+		end
+	end
+end
+
 local function FullUpdate_BagItem(self)
+	PlayerMoney_Update(self)
 	if InCombatLockdown() then
 		Refresh_BagItemInfo(self)
 		Update_BagItem(self)
@@ -1052,6 +1085,7 @@ local function FullUpdate_BagItem(self)
 end
 
 local function LimitedUpdate_BagItem(self)
+	PlayerMoney_Update(self)
 	if InCombatLockdown() then
 		Refresh_BagItemInfo(self)
 		Update_BagItem(self)
@@ -1261,26 +1295,7 @@ local function MoneyState_OnLeave(self)
 	GameTooltip: Hide()
 end
 
-local function PlayerMoney_Update(frame)
-	local money = GetMoney()
-	local gold = floor(abs(money / 10000))
-	local silver = floor(abs(mod(money / 100, 100)))
-	local copper = floor(abs(mod(money, 100)))
-	frame.Currency.Money: SetText(format("%s%s%s%s%s%s", gold,"|cff616161G|r",silver,"|cff616161S|r",copper,"|cff616161C|r"))
 
-	if C.PlayerGuid and C.PlayerName and C.PlayerRealm then
-		if Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Container"].Gold[C.PlayerGuid] then
-			Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Container"].Gold[C.PlayerGuid]["Gold"] = floor(abs(money / 10000))
-		else
-			Quafe_DB.Profile[Quafe_DBP.Profile]["Quafe_Container"].Gold[C.PlayerGuid] = {
-				Name = C.PlayerName,
-				Realm = C.PlayerRealm,
-				Class = C.PlayerClass,
-				Gold = floor(abs(money / 10000)),
-			}
-		end
-	end
-end
 
 local function Currency_Frame(f)
 	local Currency = CreateFrame("Frame", nil, f)
@@ -1386,6 +1401,12 @@ local function BagExtra_Frame(f)
 	editbox.Right: Hide()
 	editbox.Bg = F.Create.Backdrop(editbox, {wide = 6, edge = 8, inset = 6, cBg = C.Color.W2, aBg = 0, cBd = C.Color.W4, aBd = 0.9})
 
+	local AddSlotButton = RefreshButton_Create(bagextra)
+	AddSlotButton: SetPoint("LEFT", editbox, "RIGHT", 16, 0)
+	AddSlotButton.Icon: SetTexture(F.Path("Bag_Button3"))
+	AddSlotButton.tooltipText = BACKPACK_AUTHENTICATOR_INCREASE_SIZE
+
+	--[[
 	local AddSlotButton = CreateFrame("Button", nil, bagextra)
 	AddSlotButton: SetSize(24,24)
 	AddSlotButton: SetPoint("LEFT", editbox, "RIGHT", 16, 0)
@@ -1393,14 +1414,14 @@ local function BagExtra_Frame(f)
 	F.create_Backdrop(AddSlotButton, 2, 8, 4, C.Color.Config.Exit,0, C.Color.W4,0.9)
 	AddSlotButton.Bg: SetAlpha(0)
 	AddSlotButton.tooltipText = BACKPACK_AUTHENTICATOR_INCREASE_SIZE
-
+	
 	local AddSlotButtonIcon = F.Create.Texture(AddSlotButton, "ARTWORK", 0, F.Path("Bag_Button3"), C.Color.W3, 1, {18,18})
 	--local AddSlotButtonIcon = AddSlotButton:CreateTexture(nil, "ARTWORK", )
 	--AddSlotButtonIcon: SetTexture(F.Path("Bag_Button3"))
 	--AddSlotButtonIcon: SetSize(18,18)
 	AddSlotButtonIcon: SetPoint("CENTER", AddSlotButton, "CENTER", 0,0)
 	--AddSlotButtonIcon: SetVertexColor(F.Color(C.Color.W3))
-
+	--]]
 	AddSlotButton: RegisterEvent("BAG_OPEN")
 	AddSlotButton: RegisterEvent("BAG_UPDATE")
 	AddSlotButton: SetScript("OnEvent", function(self, event, ...)
@@ -1594,12 +1615,27 @@ local function BagFrame_OnEvent(self, event, ...)
 end
 
 local function BagFrame_OnShow(self)
+	self: RegisterEvent("BAG_UPDATE")
+	--self: RegisterEvent("BAG_UPDATE_DELAYED")
+	self: RegisterEvent("UNIT_INVENTORY_CHANGED")
+	if F.IsRetail then
+		self: RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
+	end
+	self: RegisterEvent("ITEM_LOCK_CHANGED")
+	self: RegisterEvent("BAG_UPDATE_COOLDOWN")
+	self: RegisterEvent("BAG_NEW_ITEMS_UPDATED")
+	--self: RegisterEvent("DISPLAY_SIZE_CHANGED")
+	self: RegisterEvent("INVENTORY_SEARCH_UPDATE")
+
+	self: RegisterEvent("PLAYER_REGEN_ENABLED")
+	self: RegisterEvent("PLAYER_MONEY")
+
 	if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Manual" then
 		if self.FullUpdate then
 			LimitedUpdate_BagItem(self)
 		else
 			FullUpdate_BagItem(self)
-			C_Timer.After(2, function() FullUpdate_BagItem(self) end)
+			--C_Timer.After(2, function() FullUpdate_BagItem(self) end)
 			self.FullUpdate = true
 		end
 	elseif Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Closing" then
@@ -1607,7 +1643,7 @@ local function BagFrame_OnShow(self)
 			LimitedUpdate_BagItem(self)
 		else
 			FullUpdate_BagItem(self)
-			C_Timer.After(2, function() FullUpdate_BagItem(self) end)
+			--C_Timer.After(2, function() FullUpdate_BagItem(self) end)
 			self.FullUpdate = true
 		end
 	elseif Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Always" then
@@ -1615,7 +1651,7 @@ local function BagFrame_OnShow(self)
 			FullUpdate_BagItem(self)
 		else
 			FullUpdate_BagItem(self)
-			C_Timer.After(2, function() FullUpdate_BagItem(self) end)
+			--C_Timer.After(2, function() FullUpdate_BagItem(self) end)
 			self.FullUpdate = true
 		end
 	end
@@ -1624,6 +1660,21 @@ local function BagFrame_OnShow(self)
 end
 
 local function BagFrame_OnHide(self)
+	self: UnregisterEvent("BAG_UPDATE")
+	--self: UnregisterEvent("BAG_UPDATE_DELAYED")
+	self: UnregisterEvent("UNIT_INVENTORY_CHANGED")
+	if F.IsRetail then
+		self: UnregisterEvent("PLAYER_SPECIALIZATION_CHANGED")
+	end
+	self: UnregisterEvent("ITEM_LOCK_CHANGED")
+	self: UnregisterEvent("BAG_UPDATE_COOLDOWN")
+	self: UnregisterEvent("BAG_NEW_ITEMS_UPDATED")
+	--self: UnregisterEvent("DISPLAY_SIZE_CHANGED")
+	self: UnregisterEvent("INVENTORY_SEARCH_UPDATE")
+
+	self: UnregisterEvent("PLAYER_REGEN_ENABLED")
+	self: UnregisterEvent("PLAYER_MONEY")
+
 	if Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Manual" then
 		LimitedUpdate_BagItem(self)
 	elseif Quafe_DB.Profile[Quafe_DBP.Profile].Quafe_Container.RefreshRate == "Closing" then
@@ -1680,6 +1731,7 @@ local function Bag_Frame(self)
 
 	BagFrame: RegisterEvent("PLAYER_LOGIN")
 	--BagFrame: RegisterEvent("PLAYER_ENTERING_WORLD")
+	--[[
 	BagFrame: RegisterEvent("UNIT_INVENTORY_CHANGED")
 	if not F.IsClassic then
 		BagFrame: RegisterEvent("PLAYER_SPECIALIZATION_CHANGED")
@@ -1691,8 +1743,11 @@ local function Bag_Frame(self)
 	--BagFrame: RegisterEvent("ITEM_UNLOCKED")
 	BagFrame: RegisterEvent("BAG_UPDATE_COOLDOWN")
 	BagFrame: RegisterEvent("INVENTORY_SEARCH_UPDATE")
-	BagFrame: RegisterEvent("PLAYER_REGEN_ENABLED")
 	BagFrame: RegisterEvent("PLAYER_MONEY")
+	BagFrame: RegisterEvent("PLAYER_REGEN_ENABLED")
+	--]]
+	
+
 	BagFrame: SetScript("OnEvent", BagFrame_OnEvent)
 
 	BagFrame: SetScript("OnShow", BagFrame_OnShow)
@@ -2876,7 +2931,7 @@ local function Bank_Frame(self)
 	bank: RegisterEvent("BANKFRAME_OPENED")
 	bank: RegisterEvent("BANKFRAME_CLOSED")
 	bank: RegisterEvent("PLAYER_LOGIN")
-	bank: RegisterEvent("PLAYER_ENTERING_WORLD")
+	--bank: RegisterEvent("PLAYER_ENTERING_WORLD")
 	--bank: RegisterEvent("BAG_UPDATE")
 	--bank: RegisterEvent("BAG_UPDATE_DELAYED")
 	--bank: RegisterEvent("BAG_NEW_ITEMS_UPDATED") --不考虑新物品
