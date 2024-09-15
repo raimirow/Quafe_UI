@@ -196,14 +196,15 @@
 
 	<!--Bag and Bank-->
 	<!--ItemButton name="Quafe_BackpackButtonTemplate" mixin="BagSlotMixin" inherits="ItemAnimTemplate" virtual="true"-->
-	<ItemButton name="Quafe_BackpackButtonTemplate" mixin="BaseBagSlotButtonMixin" inherits="QuickKeybindButtonTemplate, CircularItemButtonTemplate" virtual="true">
+	<!--<ItemButton name="Quafe_BackpackButtonTemplate" mixin="BaseBagSlotButtonMixin" inherits="QuickKeybindButtonTemplate, CircularItemButtonTemplate" virtual="true">-->
+	<ItemButton name="Quafe_BackpackButtonTemplate" mixin="BaseBagSlotButtonMixin" virtual="true">
 		<Layers>
 			<Layer level="OVERLAY">
 				<Texture parentKey="SlotHighlightTexture" alphaMode="ADD" file="Interface\Buttons\CheckButtonHilight" setAllPoints="true" hidden="true"/>
 			</Layer>
 		</Layers>
 		<Scripts>
-			<OnClick method="BagSlotOnClick" inherit="append"/>
+			<!--<OnClick method="BagSlotOnClick" inherit="append"/>-->
       		<OnDragStart method="BagSlotOnDragStart"/>
       		<OnReceiveDrag method="BagSlotOnReceiveDrag"/>
 			<!--
@@ -283,9 +284,9 @@
 		</Scripts>
 	</CheckButton>
 	<!--ItemButton name="Quafe_BagSlotButtonTemplate" inherits="BagSlotButtonTemplate" virtual="true"-->
-	<ItemButton name="Quafe_BagSlotButtonTemplate" mixin="BaseBagSlotButtonMixin" inherits="QuickKeybindButtonTemplate, CircularItemButtonTemplate" virtual="true">
+	<ItemButton name="Quafe_BagSlotButtonTemplate" mixin="BaseBagSlotButtonMixin" virtual="true">
 		<Scripts>
-			<OnClick method="BagSlotOnDragStart" inherit="append"/>
+			<OnClick method="BagSlotOnReceiveDrag" inherit="append"/>
 			<OnDragStart method="BagSlotOnDragStart"/>
       		<OnReceiveDrag method="BagSlotOnReceiveDrag"/>
 			<OnEnter method="BagSlotOnEnter" inherit="append"/>

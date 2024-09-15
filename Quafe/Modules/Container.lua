@@ -1241,7 +1241,7 @@ local function RefreshButton_UpdateVisible(self)
 	end
 end
 
-local function RefreshButton_Create(self)
+local function ExtraButton_Create(self)
 	local DummyButton = CreateFrame("Button", nil, self)
 	DummyButton: SetSize(26,26)
 	DummyButton: RegisterForClicks("LeftButtonUp", "RightButtonUp")
@@ -1257,7 +1257,7 @@ local function RefreshButton_Create(self)
 
 	DummyButton: SetScript("OnEnter", RefreshButton_OnEnter)
 	DummyButton: SetScript("OnLeave", RefreshButton_OnLeave)
-	DummyButton: SetScript("OnClick", RefreshButton_OnClick)
+	--DummyButton: SetScript("OnClick", RefreshButton_OnClick)
 
 	return DummyButton
 end
@@ -1371,9 +1371,10 @@ local function Currency_Frame(f)
 		menubuttonicon: SetVertexColor(F.Color(C.Color.W3))
 	end)
 
-	local RefreshButton = RefreshButton_Create(f.Currency)
+	local RefreshButton = ExtraButton_Create(f.Currency)
 	RefreshButton: SetPoint("CENTER", menubutton, "CENTER", 40, 0)
 	RefreshButton.tooltipText = L['BAG_GROUP_REFRESH']
+	RefreshButton: SetScript("OnClick", RefreshButton_OnClick)
 
 	if F.IsClassic then
 		local KeyRingFrame = KeyRing_Template(f.Currency)
@@ -1401,27 +1402,11 @@ local function BagExtra_Frame(f)
 	editbox.Right: Hide()
 	editbox.Bg = F.Create.Backdrop(editbox, {wide = 6, edge = 8, inset = 6, cBg = C.Color.W2, aBg = 0, cBd = C.Color.W4, aBd = 0.9})
 
-	local AddSlotButton = RefreshButton_Create(bagextra)
+	local AddSlotButton = ExtraButton_Create(bagextra)
 	AddSlotButton: SetPoint("LEFT", editbox, "RIGHT", 16, 0)
 	AddSlotButton.Icon: SetTexture(F.Path("Bag_Button3"))
 	AddSlotButton.tooltipText = BACKPACK_AUTHENTICATOR_INCREASE_SIZE
 
-	--[[
-	local AddSlotButton = CreateFrame("Button", nil, bagextra)
-	AddSlotButton: SetSize(24,24)
-	AddSlotButton: SetPoint("LEFT", editbox, "RIGHT", 16, 0)
-	AddSlotButton: RegisterForClicks("LeftButtonUp", "RightButtonUp")
-	F.create_Backdrop(AddSlotButton, 2, 8, 4, C.Color.Config.Exit,0, C.Color.W4,0.9)
-	AddSlotButton.Bg: SetAlpha(0)
-	AddSlotButton.tooltipText = BACKPACK_AUTHENTICATOR_INCREASE_SIZE
-	
-	local AddSlotButtonIcon = F.Create.Texture(AddSlotButton, "ARTWORK", 0, F.Path("Bag_Button3"), C.Color.W3, 1, {18,18})
-	--local AddSlotButtonIcon = AddSlotButton:CreateTexture(nil, "ARTWORK", )
-	--AddSlotButtonIcon: SetTexture(F.Path("Bag_Button3"))
-	--AddSlotButtonIcon: SetSize(18,18)
-	AddSlotButtonIcon: SetPoint("CENTER", AddSlotButton, "CENTER", 0,0)
-	--AddSlotButtonIcon: SetVertexColor(F.Color(C.Color.W3))
-	--]]
 	AddSlotButton: RegisterEvent("BAG_OPEN")
 	AddSlotButton: RegisterEvent("BAG_UPDATE")
 	AddSlotButton: SetScript("OnEvent", function(self, event, ...)
@@ -1508,9 +1493,9 @@ local function BagExtra_Frame(f)
 		
 		button: RegisterForDrag("LeftButton", "RightButton")
 		--button: RegisterForClicks("anyUp")
-		
-		button: SetScript("OnClick", function(self, btn)
-			if(PutItemInBag(self.invID)) then return end
+		--[[
+		button: SetScript("OnClick", function(self, button)
+			if (PutItemInBag(self.invID)) then return end
 			if not IsShiftKeyDown() then
 				PickupBagFromSlot(self.invID)
 			end
@@ -1536,7 +1521,7 @@ local function BagExtra_Frame(f)
 		button: SetScript("OnLeave", function(self)
 			GameTooltip: Hide()
 		end)
-		
+		--]]
 		lastbutton = button
 		f.Extra["Bag"..bag_id] = button
 	end
@@ -2607,11 +2592,11 @@ local function BankExtra_Frame(f)
 	editbox.Right: Hide()
 	F.create_Backdrop(editbox, 6, 8, 6, C.Color.W2,0, C.Color.W4,0.9)
 	
-	local ToggleButton = RefreshButton_Create(bagextra)
+	local ToggleButton = ExtraButton_Create(bagextra)
 	ToggleButton: SetPoint("LEFT", editbox, "RIGHT", 16, 0)
 	ToggleButton.Icon: SetTexture(F.Path("Bag_Button1"))
 
-	local DepositButton = RefreshButton_Create(bagextra)
+	local DepositButton = ExtraButton_Create(bagextra)
 	DepositButton: SetPoint("LEFT", ToggleButton, "RIGHT", 4, 0)
 	DepositButton.Icon: SetTexture(F.Path("Bag_Button2"))
 
@@ -2644,26 +2629,15 @@ local function BankExtra_Frame(f)
 	end
 
 --> Purchase
-	--local PurchaseButton = CreateFrame("Button", nil, bagextra)
-	local PurchaseButton = RefreshButton_Create(bagextra)
-	--PurchaseButton: SetSize(24,24)
+	local PurchaseButton = ExtraButton_Create(bagextra)
 	if F.IsClassic then
 		PurchaseButton: SetPoint("LEFT", editbox, "RIGHT", 16, 0)
 	else
 		PurchaseButton: SetPoint("LEFT", DepositButton, "RIGHT", 4, 0)
 	end
-	--PurchaseButton: RegisterForClicks("LeftButtonUp", "RightButtonUp")
-	--F.create_Backdrop(PurchaseButton, 2, 8, 4, C.Color.Config.Exit,0, C.Color.W4,0.9)
-	--PurchaseButton.Bg: SetAlpha(0)
 	PurchaseButton.Icon: SetTexture(F.Path("Bag_Button3"))
 	PurchaseButton.tooltipText = BANKSLOTPURCHASE_LABEL
 	
-	--local PurchaseButtonIcon = PurchaseButton:CreateTexture(nil, "ARTWORK")
-	--PurchaseButtonIcon: SetTexture(F.Path("Bag_Button3"))
-	--PurchaseButtonIcon: SetSize(18,18)
-	--PurchaseButtonIcon: SetPoint("CENTER", PurchaseButton, "CENTER", 0,0)
-	--PurchaseButtonIcon: SetVertexColor(F.Color(C.Color.W3))
-
 	PurchaseButton: RegisterEvent("PLAYERBANKBAGSLOTS_CHANGED")
 	PurchaseButton: RegisterEvent("BANKFRAME_OPENED")
 	PurchaseButton: SetScript("OnEvent", function(self, event, ...)
@@ -2676,32 +2650,13 @@ local function BankExtra_Frame(f)
 			self: Show()
 		end
 	end)
-	--[[
+	
 	PurchaseButton: SetScript("OnClick", function(self, button, ...)
 		PlaySound(852)
 		StaticPopup_Show("CONFIRM_BUY_BANK_SLOT")
 	end)
-	
-	PurchaseButton: SetScript("OnEnter", function(self)
-		self.Bg: SetAlpha(1)
-		if self.tooltipText then
-			GameTooltip:SetOwner(self, "ANCHOR_NONE", 0,0)
-			GameTooltip:SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0,4)
-			GameTooltip:SetText(self.tooltipText)
-			GameTooltip:Show()
-		end
-		--self.Icon: SetVertexColor(F.Color(C.Color.Config.Back))
-	end)
-	PurchaseButton: SetScript("OnLeave", function(self)
-		self.Bg: SetAlpha(0)
-		GameTooltip:Hide()
-		--self.Icon: SetVertexColor(F.Color(C.Color.W3))
-	end)
-	--]]
 	--StaticPopup_Show("CONFIRM_BUY_BANK_SLOT");
 	--StaticPopup_Show("CONFIRM_BUY_REAGENTBANK_TAB")
-	
-	
 	
 	--> Bank Slot
 	local lastbutton

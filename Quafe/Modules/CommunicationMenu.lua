@@ -352,7 +352,7 @@ local function Faction_Bar(frame)
 		end
 
 		local ValueBar = value - minBar
-		local TotalBar = maxBar - minBar
+		local TotalBar = max(maxBar - minBar, 1)
 		local PercentBar = ValueBar/TotalBar
 		self.Bar: SetSize(319*PercentBar+F.Debug,7)
 		self.Bar: SetTexCoord(0/512,319*PercentBar/512, 0/8,7/8)
@@ -798,9 +798,9 @@ local function EquipSet_Template(f)
 	f: SetScript("OnEnter", function(self)
 		GameTooltip:SetOwner(self, "ANCHOR_NONE", 0,0)
 		GameTooltip:SetPoint("TOPRIGHT", self, "TOPLEFT", -10,0)
-		if self.Name then
+		if self.SetID then
 			--GameTooltip:AddDoubleLine(self.Name, self.TotalItem, HIGHLIGHT_FONT_COLOR.r,HIGHLIGHT_FONT_COLOR.g,HIGHLIGHT_FONT_COLOR.b, NORMAL_FONT_COLOR.r,NORMAL_FONT_COLOR.g,NORMAL_FONT_COLOR.b)
-			GameTooltip:SetEquipmentSet(self.Name)
+			GameTooltip:SetEquipmentSet(self.SetID)
 		end
 		GameTooltip:Show()
 	end)

@@ -1,5 +1,4 @@
 ## Interface: 110002
-## Version: 11.11
 ## Author: Raimirow (voidiver)
 ## Title: Quafe |cff96fef0MEKA|r
 ## Notes: Quafe_MEKA
