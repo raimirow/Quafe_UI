@@ -125,24 +125,38 @@ end
 local function ItemClass_Init()
 	if ITEMCLASS_INIT then return end
 	ITEMCLASS = {
-		["Elixir"] = 			{L = 1, F = "Bag_Elixir", id = 0, sub = 1}, --药剂
-		["Food"] = 				{L = 2, F = "Bag_Food", id = 0, sub = 5}, --食物
-		["Consumable"] = 		{L = 3, F = "Bag_Consumable", id = 0}, --消耗品
-		["Questitem"] = 		{L = 4, F = "Bag_Quest", id = 12}, --任务
-		["Weapon"] = 			{L = 5, F = "Bag_Weapon", id = 2}, --武器
-		["Armor"] = 			{L = 6, F = "Bag_Armor", id = 4}, --护甲
-		["Gem"] = 				{L = 7, F = "Bag_Gem", id = 3}, --宝石
-		--["Glyph"} = 			{L = 8, }, --雕文
-		["ItemEnhancement"] =	{L = 9, F = "Bag_Upgrade", id = 8}, --物品强化
-		["Recipe"] = 			{L = 10, F = "Bag_Glyph", id = 9}, --配方
-		["Tradegoods"] = 		{L = 11, F = "Bag_Trade", id = 7}, --商业技能
-		["Reagent"] = 			{L = 12, F = "Bag_Material", id = 5}, --材料
-		["Key"] = 				{L = 13, F = "Bag_Key", id = 13}, --钥匙
-		["Miscellaneous"] =		{L = 14, F = "Bag_Goods", id = 15}, --杂项
-		["Profession"]=			{L = 15, F = "Bag_Profession", id = 19}, --专业物品
-		["Other"] = 			{L = 16, F = "Bag_Other", T = OTHER}, --其它
-		["Hearthstone"] = 		{L = 17, F = "Bag_Hearthstone", T = GetItemInfo(6948).itemName}, --炉石
-		["Sale"] = 				{L = 18, F = "Bag_Junk"}, --垃圾
+		["Elixir"] = 			{L =  1, F = "Bag_Elixir", id = 0, sub = 1}, --药剂
+		["Food"] = 				{L =  2, F = "Bag_Food", id = 0, sub = 5}, --食物
+		["Consumable"] = 		{L =  3, F = "Bag_Consumable", id = 0}, --消耗品
+		["Questitem"] = 		{L =  4, F = "Bag_Quest", id = 12}, --任务
+		["Weapon"] = 			{L =  5, F = "Bag_Weapon", id = 2}, --武器
+		["Shield"] = 			{L =  6, F = "Bag_Shield", T = INVTYPE_WEAPONOFFHAND}, --副手
+		["Ranged"] = 			{L =  7, F = "Bag_Ranged", T = INVTYPE_RANGED}, --远程
+		["Head"] = 				{L =  8, F = "Bag_Head", T = INVTYPE_HEAD},
+		["Neck"] = 				{L =  9, F = "Bag_Neck", T = INVTYPE_NECK},
+		["Shoulder"] = 			{L = 10, F = "Bag_Shoulder", T = INVTYPE_SHOULDER},
+		["Chest"] = 			{L = 11, F = "Bag_Chest", T = INVTYPE_CHEST},
+		["Back"] = 				{L = 12, F = "Bag_Back", T = INVTYPE_CLOAK}, -->披风
+		["Waist"] = 			{L = 13, F = "Bag_Waist", T = INVTYPE_WAIST}, --> 腰带
+		["Legs"] = 				{L = 14, F = "Bag_Legs", T = INVTYPE_LEGS},
+		["Feet"] = 				{L = 15, F = "Bag_Feet", T = INVTYPE_FEET},
+		["Wrist"] = 			{L = 16, F = "Bag_Wrist", T = INVTYPE_WRIST}, --手腕
+		["Hand"] = 				{L = 17, F = "Bag_Hand", T = INVTYPE_HAND}, --手
+		["Finger"] = 			{L = 18, F = "Bag_Finger", T = INVTYPE_FINGER}, --指环
+		["Trinket"] = 			{L = 19, F = "Bag_Trinket", T = INVTYPE_TRINKET}, --饰品
+		["Armor"] = 			{L = 20, F = "Bag_Armor", id = 4}, --护甲
+		["Gem"] = 				{L = 21, F = "Bag_Gem", id = 3}, --宝石
+		--["Glyph"} = 			{L = 22, }, --雕文
+		["ItemEnhancement"] =	{L = 23, F = "Bag_Upgrade", id = 8}, --物品强化
+		["Recipe"] = 			{L = 24, F = "Bag_Glyph", id = 9}, --配方
+		["Tradegoods"] = 		{L = 25, F = "Bag_Trade", id = 7}, --商业技能
+		["Reagent"] = 			{L = 26, F = "Bag_Material", id = 5}, --材料
+		["Key"] = 				{L = 27, F = "Bag_Key", id = 13}, --钥匙
+		["Miscellaneous"] =		{L = 28, F = "Bag_Goods", id = 15}, --杂项
+		["Profession"]=			{L = 29, F = "Bag_Profession", id = 19}, --专业物品
+		["Other"] = 			{L = 30, F = "Bag_Other", T = OTHER}, --其它
+		["Hearthstone"] = 		{L = 31, F = "Bag_Hearthstone", T = GetItemInfo(6948).itemName}, --炉石
+		["Sale"] = 				{L = 32, F = "Bag_Junk"}, --垃圾
 	}
 
 	ITEMCLASS.Elixir.SubClass = {}
@@ -253,11 +267,38 @@ local function GetContainerItemInfo(bag_id, slot_id, infoTable)
 			slotInfo.itemType = "Hearthstone"
 		elseif not ITEMCLASS[ITEMCLASS_NAME[itemInfo.classID]] then
 			slotInfo.itemType = "Other"
+		elseif (itemInfo.itemEquipLoc == "INVTYPE_SHIELD") or (itemInfo.itemEquipLoc == "INVTYPE_WEAPONOFFHAND") or (itemInfo.itemEquipLoc == "INVTYPE_HOLDABLE") then
+			slotInfo.itemType = "Shield"
+		elseif (itemInfo.itemEquipLoc == "INVTYPE_RANGED") or (itemInfo.itemEquipLoc == "INVTYPE_THROWN") or (itemInfo.itemEquipLoc == "INVTYPE_RANGEDRIGHT") then
+			slotInfo.itemType = "Ranged"
+		elseif (itemInfo.itemEquipLoc == "INVTYPE_HEAD") then
+			slotInfo.itemType = "Head"
+		elseif (itemInfo.itemEquipLoc == "INVTYPE_NECK") then
+			slotInfo.itemType = "Neck"
+		elseif (itemInfo.itemEquipLoc == "INVTYPE_SHOULDER") then
+			slotInfo.itemType = "Shoulder"
+		elseif (itemInfo.itemEquipLoc == "INVTYPE_CHEST") or (itemInfo.itemEquipLoc == "INVTYPE_ROBE") then
+			slotInfo.itemType = "Chest"
+		elseif (itemInfo.itemEquipLoc == "INVTYPE_CLOAK") then
+			slotInfo.itemType = "Back"
+		elseif (itemInfo.itemEquipLoc == "INVTYPE_WAIST") then
+			slotInfo.itemType = "Waist"
+		elseif (itemInfo.itemEquipLoc == "INVTYPE_LEGS") then
+			slotInfo.itemType = "Legs"
+		elseif (itemInfo.itemEquipLoc == "INVTYPE_FEET") then
+			slotInfo.itemType = "Feet"
+		elseif (itemInfo.itemEquipLoc == "INVTYPE_WRIST") then
+			slotInfo.itemType = "Wrist"
+		elseif (itemInfo.itemEquipLoc == "INVTYPE_HAND") then
+			slotInfo.itemType = "Hand"
+		elseif (itemInfo.itemEquipLoc == "INVTYPE_FINGER") then
+			slotInfo.itemType = "Finger"
+		elseif (itemInfo.itemEquipLoc == "INVTYPE_TRINKET") then
+			slotInfo.itemType = "Trinket"
 		elseif (itemInfo.classID == Enum.ItemClass.Consumable) and (ITEMCLASS.Elixir.SubClass[slotInfo.subclassID]) then
 			slotInfo.itemType = "Elixir"
 		elseif (itemInfo.classID == Enum.ItemClass.Consumable) and (ITEMCLASS.Food.SubClass[slotInfo.subclassID]) then
 			slotInfo.itemType = "Food"
-		--elseif (itemInfo.classID == Enum.ItemClass.Miscellaneous) and (itemInfo.subclassID == Enum.ItemMiscellaneousSubclass.Junk) then
 		elseif slotInfo.quality == Enum.ItemQuality.Poor and not slotInfo.hasNoValue then
 			slotInfo.itemType = "Sale"
 		else
@@ -312,6 +353,35 @@ local function GetContainerItemInfo(bag_id, slot_id, infoTable)
 		infoTable.isLocked = slotInfo.isLocke
 	end
 end
+
+--- slotInfo.itemEquipLoc
+--- Enum.InventoryType
+local ITEM_EQUIPLOC = {
+	INVTYPE_HEAD = 1,
+	INVTYPE_NECK = 2,
+	INVTYPE_SHOULDER = 3,
+	INVTYPE_BODY = 4,
+	INVTYPE_CHEST = 5,
+	INVTYPE_WAIST = 6,
+	INVTYPE_LEGS = 7,
+	INVTYPE_FEET = 8,
+	INVTYPE_WRIST = 9, --> 手腕
+	INVTYPE_HAND = 10,
+	INVTYPE_FINGER = 11,
+	INVTYPE_TRINKET = 13, --> 饰品
+	INVTYPE_WEAPON = 16, --> 单手
+	INVTYPE_SHIELD = 17, --> 副手
+	INVTYPE_RANGED = 16, --> 远程
+	INVTYPE_CLOAK = 15, --> 披风
+	INVTYPE_2HWEAPON = 16, --> 双手武器
+	INVTYPE_TABARD = 19, -->
+	INVTYPE_ROBE = 5, --> 法袍
+	INVTYPE_WEAPONMAINHAND = 16, --> 主手
+	INVTYPE_WEAPONOFFHAND = 16, --> 副手
+	INVTYPE_HOLDABLE = 17,
+	INVTYPE_THROWN = 16,
+	INVTYPE_RANGEDRIGHT = 16,
+}
 
 -- NUM_CONTAINER_FRAMES = 13;
 -- NUM_BAG_FRAMES = Constants.InventoryConstants.NumBagSlots;	4
@@ -655,6 +725,16 @@ local function SortFunc(v1, v2)
 			return ITEMCLASS[v1.itemType].L < ITEMCLASS[v2.itemType].L
 		elseif v1.itemType == "Hearthstone" then
 			return ITEMCLASS.Hearthstone.itemID[v1.itemID].L < ITEMCLASS.Hearthstone.itemID[v2.itemID].L
+		elseif ((v1.classID == Enum.ItemClass.Weapon) or (v1.classID == Enum.ItemClass.Armor)) and (v1.itemEquipLoc and v2.itemEquipLoc) and (ITEM_EQUIPLOC[v1.itemEquipLoc] and ITEM_EQUIPLOC[v2.itemEquipLoc]) then
+			if ITEM_EQUIPLOC[v1.itemEquipLoc] ~= ITEM_EQUIPLOC[v2.itemEquipLoc] then
+				return ITEM_EQUIPLOC[v1.itemEquipLoc] < ITEM_EQUIPLOC[v2.itemEquipLoc]
+			elseif (v1.itemLevel and v2.itemLevel) and (v1.itemLevel ~= v2.itemLevel) then
+				return v1.itemLevel > v2.itemLevel
+			elseif (v1.quality and v2.quality) and (v1.quality ~= v2.quality) then
+				return v1.quality > v2.quality
+			elseif (v1.itemID and v2.itemID) and (v1.itemID ~= v2.itemID) then
+				return v1.itemID > v2.itemID
+			end
 		elseif (v1.subclassID and v2.subclassID) and (v1.subclassID ~= v2.subclassID) then
 			if ITEMCLASS[v1.itemType].SubClass and ITEMCLASS[v2.itemType].SubClass then
 				return ITEMCLASS[v1.itemType].SubClass[v1.subclassID].L < ITEMCLASS[v2.itemType].SubClass[v2.subclassID].L
@@ -699,14 +779,32 @@ local function Update_CraftingQualityOverlay(slot, slotInfo)
 	end
 end
 
+local function Update_UpgradeIcon(slot, slotInfo)
+	local isValid = false
+	if (slotInfo.itemType == ITEMCLASS_NAME[Enum.ItemClass.Weapon]) or (slotInfo.itemType == ITEMCLASS_NAME[Enum.ItemClass.Armor]) then
+		--isValid = C_ItemUpgrade.CanUpgradeItem(ItemLocation:CreateFromBagAndSlot(slotInfo.bagID, slotInfo.slotID)) --是否是可升级物品
+
+	end
+	if slot.UpgradeIcon:IsShown() then
+		if not isValid then
+			slot.UpgradeIcon: Hide()
+		end
+	else
+		if isValid then
+			slot.UpgradeIcon: Show()
+		end
+	end
+end
+
 local function Update_SlotItem(slot, slotInfo)
 	SetItemButtonTexture(slot, slotInfo.iconFileID or F.Path("Bag_Slot"))
 	SetItemButtonCount(slot, slotInfo.stackCount)
 	SetItemButtonDesaturated(slot, slotInfo.isLocked)
 	Update_CraftingQualityOverlay(slot, slotInfo)
 
-	if not F.IsClassic then
+	if F.IsRetail then
 		--ContainerFrameItemButton_UpdateItemUpgradeIcon(slot); --待改
+		Update_UpgradeIcon(slot, slotInfo)
 
 		--local isQuestItem, questId, isActiveQuest = GetContainerItemQuestInfo(v.bagID, v.slotID)
 		local QuestInfo = C_Container.GetContainerItemQuestInfo(slotInfo.bagID, slotInfo.slotID)
@@ -741,8 +839,8 @@ local function Update_SlotItem(slot, slotInfo)
 	else
 		slot.NewItemTexture: Hide()
 	end
-
-	if (slotInfo.itemType == ITEMCLASS_NAME[Enum.ItemClass.Weapon]) or (slotInfo.itemType == ITEMCLASS_NAME[Enum.ItemClass.Armor]) then
+	if (slotInfo.classID == Enum.ItemClass.Weapon) or (slotInfo.classID == Enum.ItemClass.Armor) then
+	--if (slotInfo.itemType == ITEMCLASS_NAME[Enum.ItemClass.Weapon]) or (slotInfo.itemType == ITEMCLASS_NAME[Enum.ItemClass.Armor]) then
 		slot.Level: SetText(slotInfo.itemLevel)
 	else
 		slot.Level: SetText("")
@@ -2397,6 +2495,28 @@ local function Reagent_Frame(f)
 end
 
 --- ------------------------------------------------------------
+--> Account Bank Frames
+--- ------------------------------------------------------------
+--- BAG_CLEANUP_BAN
+--- BAG_CLEANUP_REAGENT_BANK
+--- BAG_CLEANUP_ACCOUNT_BANK
+--- 
+--- REAGENTBANK_PURCHASE_TEXT
+--- 
+--- REAGENTBANK_DEPOSIT --存放各种材料
+--- ACCOUNT_BANK_DEPOSIT_BUTTON_LABEL --存放所有战团绑定物品
+--- BANK_DEPOSIT_INCLUDE_REAGENTS_CHECKBOX_LABEL --包含材料
+
+local function AccountBank_Frame(self)
+	local Account = CreateFrame("Frame", "Quafe_BankAccount", self)
+	Account: SetSize((CONFIG.buttonSize+CONFIG.buttonGap*2)*CONFIG.reagentperLine + CONFIG.border*2, 48)
+	Account: SetPoint("TOPLEFT", self, "BOTTOMLEFT", 0,-2)
+	Account.Bg = F.Create.Backdrop(Account, {wide = 0, round = true, edge = 4, inset = 4, aBg = 0.9, aBd = 0.9})
+
+	self.Account = Account
+end
+
+--- ------------------------------------------------------------
 --> Bank Frames
 --- ------------------------------------------------------------
 
@@ -2460,7 +2580,6 @@ local function TabFrame_Template(self, tab_num, tab_size)
 			TabButton[i]: SetPoint("LEFT", TabFrame, "LEFT", 2,0)
 			TabButton[i].GapLine: Hide()
 		else
-			--TabButton[i]: SetPoint("LEFT", TabButton[i-1], "RIGHT", 2,0)
 			TabButton[i]: SetPoint("LEFT", TabFrame, "LEFT", 2+(2+tab_size)*(i-1),0)
 		end
 		TabButton[i].ID = i
@@ -2523,6 +2642,44 @@ local function BankTab_OnClick(self)
 	Update_TabButton(TabFrame)
 end
 
+local function BankTab_Refresh(self)
+	self.active_id = 1
+	Update_TabButton(self)
+end
+
+local function DepositButton_OnClick(self)
+	--local Bank = self:GetParent():GetParent()
+	local Title = self:GetParent()
+	if Title.BankTab.active_id == 1 then
+
+	elseif Title.BankTab.active_id == 2 then
+		PlaySoundFile(F.Path("Sound\\Show.ogg"), "Master")
+		DepositReagentBank()
+	elseif Title.BankTab.active_id == 3 then
+		PlaySoundFile(F.Path("Sound\\Show.ogg"), "Master")
+		C_Bank.AutoDepositItemsIntoBank(Enum.BankType.Account)
+	end
+end
+
+local function DepositButton_OnEnter(self)
+	local Title = self:GetParent()
+	if Title.BankTab.active_id == 1 then
+		self.tooltipText = ""
+	elseif Title.BankTab.active_id == 2 then
+		self.tooltipText = REAGENTBANK_DEPOSIT
+	elseif Title.BankTab.active_id == 3 then
+		self.tooltipText = ACCOUNT_BANK_DEPOSIT_BUTTON_LABEL
+	end
+	self.Backdrop: SetAlpha(1)
+	self.Icon: SetVertexColor(F.Color(C.Color.Config.Back))
+	if self.tooltipText then
+		GameTooltip: SetOwner(self, "ANCHOR_NONE", 0,0)
+		GameTooltip: SetPoint("BOTTOMLEFT", self, "TOPLEFT", 0,4)
+		GameTooltip: SetText(self.tooltipText)
+		GameTooltip: Show()
+	end
+end
+
 local function BankTitle_Frame(self)
 	local Title = CreateFrame("Frame", nil, self)
 	Title: SetSize((CONFIG.buttonSize+CONFIG.buttonGap*2)*CONFIG.bankperLine+CONFIG.border*2, 44)
@@ -2571,6 +2728,18 @@ local function BankTitle_Frame(self)
 		BankTab.TabButton[i]: SetScript("OnClick", BankTab_OnClick)
 		BankTab.TabButton[i].Text: SetText(TAB_TEXT[i])
 	end
+	
+	local DepositButton = ExtraButton_Create(Title)
+	DepositButton: SetPoint("LEFT", BankTab, "RIGHT", 16, 0)
+	DepositButton.Icon: SetTexture(F.Path("Bag_Button2"))
+	if F.IsRetail then
+		DepositButton.tooltipText = REAGENTBANK_DEPOSIT
+		DepositButton: SetScript("OnClick", DepositButton_OnClick)
+		DepositButton: SetScript("OnEnter", DepositButton_OnEnter)
+		--Title.Deposit = DepositButton
+	else
+		DepositButton: Hide()
+	end
 
 	self.Title = Title
 end
@@ -2591,7 +2760,7 @@ local function BankExtra_Frame(f)
 	editbox.Middle: Hide()
 	editbox.Right: Hide()
 	F.create_Backdrop(editbox, 6, 8, 6, C.Color.W2,0, C.Color.W4,0.9)
-	
+	--[[
 	local ToggleButton = ExtraButton_Create(bagextra)
 	ToggleButton: SetPoint("LEFT", editbox, "RIGHT", 16, 0)
 	ToggleButton.Icon: SetTexture(F.Path("Bag_Button1"))
@@ -2627,14 +2796,10 @@ local function BankExtra_Frame(f)
 		ToggleButton: Hide()
 		DepositButton: Hide()
 	end
-
+	--]]
 --> Purchase
 	local PurchaseButton = ExtraButton_Create(bagextra)
-	if F.IsClassic then
-		PurchaseButton: SetPoint("LEFT", editbox, "RIGHT", 16, 0)
-	else
-		PurchaseButton: SetPoint("LEFT", DepositButton, "RIGHT", 4, 0)
-	end
+	PurchaseButton: SetPoint("LEFT", editbox, "RIGHT", 16, 0)
 	PurchaseButton.Icon: SetTexture(F.Path("Bag_Button3"))
 	PurchaseButton.tooltipText = BANKSLOTPURCHASE_LABEL
 	
@@ -2770,9 +2935,7 @@ local function BankFrame_OnShow(self)
 	FullUpdate_BankItem(self)
 	FullUpdate_ReagentBankItem(self)
 
-	for i=1, NUM_BANKGENERIC_SLOTS, 1 do
-
-	end
+	BankTab_Refresh(self.Title.BankTab)
 end
 
 local function BankFrame_OnHide(self)
@@ -2867,7 +3030,7 @@ local function Bank_Frame(self)
 	BankExtra_Frame(bank)
 	if F.IsRetail then
 		Reagent_Frame(bank)
-		--AccountBank_Frame(bank)
+		AccountBank_Frame(bank)
 	end
 	
 	local BagHold = CreateFrame("Frame", nil, bank)
