@@ -143,7 +143,7 @@ local function Create_Ring(frame, size, texture)
 	frame.RR: SetSize((size)/2, size)
 	frame.RR: SetPoint("LEFT", frame, "CENTER", 0,0)
 	frame.RR: SetHorizontalScroll((size)/2)
-	frame.RR.Base = -180
+	frame.RR.Base = 180
 	Ring_Artwork(frame.RR, size, texture)
 end
 
@@ -560,12 +560,11 @@ end
 local function Monk_Update(frame, elapsed)
 	if F.IsClassic then return end
 	if (frame.Info.Class == "MONK") then
-		--> 酒仙
-		if (frame.Info.SpecID == SPEC_MONK_BREWMASTER) then
+		if (frame.Info.SpecID == SPEC_MONK_BREWMASTER) then --> 酒仙
 			local currstagger = UnitStagger("player") or 0
 			local maxstagger = UnitHealthMax("player") or 1
-			local percent = currstagger/maxstagger;
-
+			local percent = F.Round(currstagger/maxstagger, 3)
+			
 			if UnitAffectingCombat("player") then
 				frame.Info.Alpha = 1
 			elseif (percent == 0) and (frame.Info.E == frame.Info.MP) then
@@ -573,21 +572,22 @@ local function Monk_Update(frame, elapsed)
 			else
 				frame.Info.Alpha = 0.5
 			end
-
-			if (percent > 1) then
-				percent = percent - 1
-				frame.Ring.RR.Bar: SetVertexColor(F.Color(C.Color.R3))
-				frame.Ring.Bg: SetVertexColor(F.Color(C.Color.Y3))
-			elseif (percent >= 0.5) then
-				frame.Ring.RR.Bar: SetVertexColor(F.Color(C.Color.Y3))
-				frame.Ring.Bg: SetVertexColor(F.Color(C.Color.W1))
-			else
-				frame.Ring.RR.Bar: SetVertexColor(F.Color(C.Color.W3))
-				frame.Ring.Bg: SetVertexColor(F.Color(C.Color.W1))
+			if frame.Info.Value ~= percent then
+				if (percent > 1) then
+					percent = percent - 1
+					frame.Ring.RR.Bar: SetVertexColor(F.Color(C.Color.R3))
+					frame.Ring.Bg: SetVertexColor(F.Color(C.Color.Y3))
+				elseif (percent >= 0.5) then
+					frame.Ring.RR.Bar: SetVertexColor(F.Color(C.Color.Y3))
+					frame.Ring.Bg: SetVertexColor(F.Color(C.Color.W1))
+				else
+					frame.Ring.RR.Bar: SetVertexColor(F.Color(C.Color.W3))
+					frame.Ring.Bg: SetVertexColor(F.Color(C.Color.W1))
+				end
+				update_Ring(frame.Ring, percent)
+				frame.Info.Value = percent
 			end
-			update_Ring(frame.Ring, percent)
-		--> 织雾
-		elseif (frame.Info.SpecID == SPEC_MONK_MISTWEAVER) then
+		elseif (frame.Info.SpecID == SPEC_MONK_MISTWEAVER) then --> 织雾
 			if frame.Info.Remain and (frame.Info.Remain >= 0) and (frame.Info.Remain <= frame.Info.Duration) then
 				update_Ring(frame.Ring, frame.Info.Remain/(frame.Info.Duration+F.Debug))
 				frame.Info.Remain = frame.Info.Remain + elapsed
